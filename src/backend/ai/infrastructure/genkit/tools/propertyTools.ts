@@ -39,7 +39,8 @@ export const searchPropertiesTool = ai.defineTool(
 
         const snapshot = await query.limit(10).get();
 
-        const results = snapshot.docs.map(doc => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const results = snapshot.docs.map((doc: any) => {
             const data = doc.data();
             return {
                 id: doc.id,
