@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { adminDb } from '@/lib/firebase/admin';
+import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { ai } from '../config';
 import { PropertySchema } from '@/lib/schemas/propertySchema';
 
@@ -43,7 +44,7 @@ export const searchPropertiesTool = ai.defineTool(
 
         const snapshot = await query.limit(10).get();
 
-        const results = snapshot.docs.map(doc => {
+        const results = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
             const rawData = doc.data();
             // Validate data against schema
             const parseResult = PropertySchema.safeParse(rawData);

@@ -148,8 +148,7 @@ export function KanbanBoard() {
         let newStatus: Lead['status'] | undefined;
 
         // Check if over is a container (column)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (LEAD_STATUSES.includes(over.id as any)) {
+        if (LEAD_STATUSES.some(s => s === over.id)) {
             newStatus = over.id as Lead['status'];
         } else {
             // Dropped on a card, find that card's status

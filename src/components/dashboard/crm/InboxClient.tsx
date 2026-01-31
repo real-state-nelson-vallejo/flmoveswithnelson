@@ -29,12 +29,9 @@ export function InboxClient({ initialConversations, userId }: InboxClientProps) 
                 setModels(res.models);
 
                 // Auto-select logic
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const preferred = res.models.find((m: any) => m.id.includes('2.5-flash'))?.id
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    || res.models.find((m: any) => m.id.includes('2.0-flash'))?.id
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    || res.models.find((m: any) => m.id.includes('1.5-flash'))?.id
+                const preferred = res.models.find((m: { id: string }) => m.id.includes('2.5-flash'))?.id
+                    || res.models.find((m: { id: string }) => m.id.includes('2.0-flash'))?.id
+                    || res.models.find((m: { id: string }) => m.id.includes('1.5-flash'))?.id
                     || res.models[0].id;
 
                 setSelectedModel(preferred);
@@ -71,15 +68,16 @@ export function InboxClient({ initialConversations, userId }: InboxClientProps) 
     const [showSidebar, setShowSidebar] = useState(true);
 
     // Mock resolving lead from conversation metadata (In real app, fetch Lead by ID)
+    // Mock resolving lead from conversation metadata (In real app, fetch Lead by ID)
     const activeLead = selectedConversation?.metadata?.leadId ? {
         id: selectedConversation.metadata.leadId,
         name: selectedConversation.metadata.leadName || "Unknown",
         email: "contact@example.com", // Placeholder
-        status: "new",
+        status: "new" as const, // Explicit literal type
         source: "Web Chat",
         createdAt: Date.now(),
         updatedAt: Date.now(),
-    } as any : undefined; // eslint-disable-line @typescript-eslint/no-explicit-any
+    } : undefined;
 
     return (
         <div className="flex h-full bg-white border rounded-lg overflow-hidden shadow-sm">
