@@ -162,15 +162,15 @@ import { Lead } from "@/backend/crm/domain/Lead";
 // We'll need a real repository eventually, for now let's mock or use a simple firestore fetch if possible
 // importing adminDb to do direct queries since repository isn't fully set up for Leads yet
 import { adminDb } from "@/lib/firebase/admin";
-
 import { LeadSchema } from "@/lib/schemas/leadSchema";
+import { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 // ...
 
 export async function getLeadsAction() {
     try {
         const snapshot = await adminDb.collection('leads').get();
-        const leads = snapshot.docs.reduce((acc: Lead[], doc) => {
+        const leads = snapshot.docs.reduce((acc: Lead[], doc: QueryDocumentSnapshot) => {
             const result = LeadSchema.safeParse(doc.data());
             if (result.success) {
                 acc.push(result.data);

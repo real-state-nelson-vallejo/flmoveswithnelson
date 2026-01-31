@@ -4,6 +4,7 @@ import { emailRepository } from "@/backend/crm/dependencies";
 import { EmailTemplates } from "@/backend/crm/application/email/templates";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
 import { Lead } from "@/backend/crm/domain/Lead";
+import { LeadSchema } from "@/lib/schemas/leadSchema";
 
 // Simple in-memory store for MVP
 // Storing Name now too
@@ -86,15 +87,22 @@ export async function createVerifiedLeadAction(contact: { email: string; name: s
         if (!snapshot.empty) {
             // Update existing
             leadId = snapshot.docs[0].id;
+            const existingData = snapshot.docs[0].data();
+
+            // Validate strict type with schema to avoid implicit any on unchecked property access
+            const parsed = LeadSchema.safeParse(existingData);
+            const existingPhone = parsed.success ? parsed.data.phone : undefined;
+
             await adminDb.collection('leads').doc(leadId).update({
                 name: contact.name, // Update name if user provided a new one
-                phone: contact.phone || snapshot.docs[0].data().phone,
+                phone: contact.phone || existingPhone,
                 updatedAt: Date.now(),
                 status: 'new' // Re-open if old
             });
         } else {
             // Create New
             leadId = crypto.randomUUID();
+            const now = Date.now();
             const newLead: Lead = {
                 id: leadId,
                 name: contact.name,
@@ -102,8 +110,8 @@ export async function createVerifiedLeadAction(contact: { email: string; name: s
                 phone: contact.phone,
                 status: 'new',
                 source: 'public_chat',
-                createdAt: Date.now(),
-                updatedAt: Date.now()
+                createdAt: now,
+                updatedAt: now
             };
             await adminDb.collection('leads').doc(leadId).set(newLead);
         }
