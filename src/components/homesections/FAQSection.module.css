@@ -1,0 +1,134 @@
+/* FAQSection.module.css */
+.section {
+    padding: 8rem 0;
+    background-color: #ffffff;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    /* Fixed width header, flexible content */
+    gap: 4rem;
+    align-items: start;
+}
+
+/* LEFT COLUMN: Sticky Header */
+.headerColumn {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.pill {
+    display: inline-block;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    background: #f8fafc;
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: #0066cc;
+    /* Matching the blue from the image/branding */
+    text-transform: uppercase;
+}
+
+/* RIGHT COLUMN: Accordion */
+.accordionList {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.accordionItem {
+    border-bottom: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.questionButton {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.2s ease;
+}
+
+.questionButton:hover .questionText {
+    color: #2563eb;
+}
+
+.questionText {
+    font-size: 1.2rem;
+    font-weight: 700;
+    /* Bold questions */
+    color: #334155;
+    padding-right: 2rem;
+}
+
+.iconWrapper {
+    color: #cbd5e1;
+    /* Light gray plus */
+    transition: transform 0.3s ease, color 0.3s ease;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconWrapper.open {
+    transform: rotate(45deg);
+    /* Spin to X */
+    color: #2563eb;
+}
+
+.answerWrapper {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+
+.answerContent {
+    padding-bottom: 2rem;
+    color: #64748b;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    padding-right: 2rem;
+}
+
+@media (max-width: 900px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .headerColumn {
+        position: static;
+        margin-bottom: 2rem;
+        text-align: left;
+        /* Keep left aligned for consistency or center if preferred */
+    }
+
+    .pill {
+        margin-bottom: 1rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+}

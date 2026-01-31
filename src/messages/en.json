@@ -1,0 +1,19 @@
+{
+    "HomePage": {
+        "title": "Modern Real Estate",
+        "heroTitle": "Find Your Dream Property",
+        "searchPlaceholder": "Search by location, price, type..."
+    },
+    "Common": {
+        "nav": {
+            "home": "Home",
+            "properties": "Properties",
+            "contact": "Contact",
+            "admin": "Admin"
+        },
+        "buttons": {
+            "details": "View Details",
+            "contact": "Contact Agent"
+        }
+    }
+}

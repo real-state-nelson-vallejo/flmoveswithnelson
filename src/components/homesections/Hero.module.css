@@ -1,0 +1,233 @@
+/* Hero.module.css - Floating Video Card Style */
+
+.hero {
+  position: relative;
+  width: 100%;
+  /* Viewport height minus header estimate, or just a tall block */
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Center the card on screen vertically? or Top aligned with margin? Reference has margin top */
+  padding: 2rem var(--spacing-sm) 4rem;
+  /* Top padding for header space if transparent, or margin */
+  /* If the navbar is static, this padding provides the gap. */
+  background-color: #ffffff;
+  /* Explicitly White as requested */
+}
+
+/* Floating Clean Button */
+.actionButton {
+  appearance: none;
+  background-color: #ffffff;
+  color: #0f172a;
+  border-radius: 50px;
+  /* Explicit large radius */
+  padding: 0.75rem 1.75rem;
+  /* Further reduced padding */
+  font-weight: 600;
+  font-size: 0.95rem;
+  /* Reduced size */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* Subtle float */
+  text-decoration: none;
+  /* Just in case */
+}
+
+.actionButton:hover {
+  background-color: #f8fafc;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+}
+
+.floatingCard {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  height: 85vh;
+  /* Fixed height for the card */
+  min-height: 600px;
+  border-radius: 2.5rem;
+  /* Large rounded corners as per reference */
+  overflow: hidden;
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
+  /* Deep shadow for floating effect */
+  display: flex;
+  align-items: center;
+  /* Vertically center content */
+  background-color: #000;
+}
+
+.videoBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Gradient to ensure text readability on video */
+  background: linear-gradient(to right,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.4) 40%,
+      rgba(0, 0, 0, 0.1) 100%);
+  z-index: 1;
+}
+
+.contentContainer {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  padding: 6rem;
+  /* Generous padding */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Vertically center content */
+  gap: 3rem;
+  /* Adjusted gap */
+}
+
+.mainContent {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  /* Tighter gap between title/subtitle/button */
+}
+
+.title {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  /* Significantly reduced max size to 3.5rem */
+  font-weight: 800;
+  line-height: 1.0;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.textHighlight {
+  color: hsl(var(--primary));
+  /* Vibrant Blue Highlight */
+}
+
+.subtitle {
+  font-size: 1rem;
+  /* Reduced to 1rem */
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 450px;
+  /* Narrower measure */
+  margin: 0;
+  line-height: 1.6;
+  font-weight: 400;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Stats Logic */
+.statsRow {
+  display: flex;
+  gap: 3rem;
+  /* Reduced gap */
+  margin-top: auto;
+  position: relative;
+  bottom: auto;
+  left: auto;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 2rem;
+  /* Reduced from 3rem/2.25rem to 2rem */
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .hero {
+    padding: 0.5rem;
+    /* Less padding on mobile to maximize space */
+    min-height: 100vh;
+    /* Full screen */
+  }
+
+  .floatingCard {
+    height: 95vh;
+    /* Almost full screen card */
+    border-radius: 1.5rem;
+  }
+
+  .contentContainer {
+    padding: 1.5rem;
+    justify-content: flex-end;
+    /* Align content to bottom */
+    padding-bottom: 3rem;
+    gap: 2rem;
+    /* Reduce gap for mobile */
+  }
+
+  .mainContent {
+    gap: 1.5rem;
+  }
+
+  .title {
+    font-size: 2.25rem;
+    /* Smaller title for mobile */
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .actionButton {
+    width: 100%;
+    /* Full width button on mobile? Or keep pill? Reference looks like pill but maybe wider. Let's keep pill. */
+    /* Screenshot shows pill. */
+  }
+
+  .statsRow {
+    flex-direction: row;
+    /* Keep row or wrap? Screenshot shows row */
+    gap: 1.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    /* Ensure stats are at the bottom */
+  }
+
+  .statValue {
+    font-size: 2rem;
+  }
+}

@@ -1,0 +1,172 @@
+/* ContactSection.module.css */
+.section {
+    padding: 8rem 0;
+    background-color: #f1f5f9;
+    /* Light background to distinguish */
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 2rem;
+    padding: 4rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 3rem;
+    line-height: 1.1;
+}
+
+.highlight {
+    color: #2563eb;
+}
+
+/* INTELLIGENT FORM STEPS */
+.stepContainer {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.question {
+    font-size: 1.5rem;
+    color: #475569;
+    margin-bottom: 2rem;
+}
+
+/* STEP 1: BUTTONS */
+.choiceGrid {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.choiceBtn {
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0f172a;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.choiceBtn:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+    background: #eff6ff;
+    transform: translateY(-3px);
+}
+
+.choiceBtn.active {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+}
+
+/* STEP 2: INPUTS */
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+    text-align: left;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-left: 0.5rem;
+}
+
+.input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem;
+    border: 2px solid #e2e8f0;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    background: #f8fafc;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #2563eb;
+    background: #ffffff;
+}
+
+.fullWidth {
+    grid-column: span 2;
+}
+
+.submitBtn {
+    grid-column: span 2;
+    margin-top: 1rem;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.submitBtn:hover {
+    background: #2563eb;
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    text-decoration: underline;
+    color: #94a3b8;
+    margin-top: 1.5rem;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 2rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .fullWidth {
+        grid-column: span 1;
+    }
+
+    .submitBtn {
+        grid-column: span 1;
+    }
+}

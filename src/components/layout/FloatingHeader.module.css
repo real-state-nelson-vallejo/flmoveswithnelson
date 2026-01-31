@@ -1,0 +1,146 @@
+.headerWrapper {
+    position: fixed;
+    top: 2rem;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    /* Let clicks pass through outside the content */
+}
+
+.navPill {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 0.75rem 2rem;
+    background: rgba(15, 23, 42, 0.6);
+    /* Dark slate semi-transparent */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.logo {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+.navLinks {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.link {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.link:hover {
+    color: #fff;
+}
+
+.contactBtn {
+    background-color: #2563eb;
+    /* Hardcoded Primary Blue */
+    color: #fff;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.contactBtn:hover {
+    background-color: #3b82f6;
+    /* Lighter blue */
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.burgerBtn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Mobile Menu Overlay */
+.mobileMenuOverlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 80%;
+    max-width: 400px;
+    background: rgba(15, 23, 42, 0.95);
+    /* Deep Slate backdrop */
+    backdrop-filter: blur(15px);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.closeBtn {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    color: #fff;
+    padding: 0.5rem;
+    cursor: pointer;
+    margin-bottom: 3rem;
+}
+
+.mobileLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.mobileLink {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.mobileLink:hover {
+    color: hsl(var(--primary));
+}
+
+@media (max-width: 768px) {
+    .navLinks {
+        display: none;
+        /* Hide links on mobile for now, just logo + action */
+    }
+
+    .contactBtn {
+        display: none;
+        /* Often hide main CTA on mobile header if space is tight, put in menu? Or keep icon? Let's hide text button, show burger */
+    }
+
+    .burgerBtn {
+        display: block;
+    }
+}

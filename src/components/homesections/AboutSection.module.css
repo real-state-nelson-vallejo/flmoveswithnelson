@@ -1,0 +1,267 @@
+/* AboutSection.module.css */
+
+.section {
+    position: relative;
+    padding: 8rem 0;
+    /* Generous vertical spacing */
+    background-color: #f8fafc;
+    /* Very light gray/slate background for contrast with white cards */
+    overflow: hidden;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+    position: relative;
+    z-index: 10;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+/* LEFT COLUMN: Text Content */
+.contentColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.pill {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    background: #ffffff;
+    align-self: flex-start;
+}
+
+.title {
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    line-height: 1.1;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+}
+
+.highlight {
+    color: #2563eb;
+    /* Primary Blue */
+}
+
+.description {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #475569;
+    max-width: 90%;
+}
+
+.statsRow {
+    display: flex;
+    gap: 4rem;
+    margin-top: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+}
+
+.statValue {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+}
+
+.statLabel {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.05em;
+}
+
+.ctaWrapper {
+    margin-top: 3rem;
+}
+
+.ctaButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2.5rem;
+    background-color: #0f172a;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.2);
+}
+
+.ctaButton:hover {
+    background-color: #2563eb;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.3);
+}
+
+/* RIGHT COLUMN: Image & Cards */
+.imageColumn {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.agentImageWrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 450px;
+    /* Slightly narrower to balance height */
+    aspect-ratio: 3/4;
+    /* Taller portrait ratio */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2rem;
+    /* Rounded corners */
+    overflow: hidden;
+    /* Clip image to radius */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.agentImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Fill the new taller container */
+}
+
+/* Cards positioned below image or around it */
+.cardsWrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    width: 100%;
+    margin-top: -3rem;
+    /* Pull up slightly */
+    position: relative;
+    z-index: 3;
+}
+
+.card {
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.cardIcon {
+    width: 3rem;
+    height: 3rem;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    margin-bottom: 0.5rem;
+}
+
+.cardTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.cardText {
+    font-size: 1rem;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .section {
+        padding: 4rem 0;
+        /* Less padding on mobile */
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        /* General gap between text/image columns */
+    }
+
+    .contentColumn {
+        gap: 1.5rem;
+    }
+
+    /* Fix overlap: Ensure Image starts nicely after content */
+    .imageColumn {
+        order: 1;
+        /* Text first, Image second */
+        margin-top: 2rem;
+        /* Add explicit space above image */
+        width: 100%;
+    }
+
+    .agentImageWrapper {
+        max-width: 100%;
+        /* Allow full width if needed, or keep constrained */
+        aspect-ratio: auto;
+        /* Let it flow naturally */
+        height: auto;
+        min-height: 300px;
+        /* Ensure it takes space */
+        margin-bottom: 2rem;
+        /* Space before cards */
+    }
+
+    .cardsWrapper {
+        grid-template-columns: 1fr;
+        margin-top: 0;
+        /* Remove the negative margin overlap on mobile */
+        gap: 1.5rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .statsRow {
+        flex-wrap: wrap;
+        gap: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
+        /* Ensure space below stats before image starts */
+    }
+
+    .statValue {
+        font-size: 2rem;
+    }
+}

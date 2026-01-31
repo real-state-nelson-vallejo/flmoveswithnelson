@@ -1,0 +1,171 @@
+/* CSS Module for DifferenceSection - Bento Grid Style */
+
+.section {
+    padding: var(--spacing-xl) 0;
+    background-color: #fff;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pill {
+    display: inline-flex;
+    padding: 0.75rem 2rem;
+    background-color: #fff;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.title {
+    font-size: 3rem;
+    color: #0f172a;
+    text-transform: uppercase;
+    max-width: 900px;
+    margin: 0 auto;
+    line-height: 1.1;
+    font-weight: 700;
+}
+
+.highlight {
+    color: #0066cc;
+    position: relative;
+    display: inline-block;
+}
+
+.highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background-color: rgba(0, 102, 204, 0.15);
+    z-index: -1;
+    transform: skewX(-15deg);
+}
+
+.bentoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* COMPACT DASHBOARD: Tighter gap */
+    gap: 1rem;
+    width: 100%;
+}
+
+.card {
+    /* CONTENT DENSITY: Richer background */
+    background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+    padding: 2.5rem;
+    /* Slightly reduced to balance density */
+    border-radius: 1.5rem;
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle pattern overlay */
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.15;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+    /* Softer, deeper shadow */
+    border-color: rgba(0, 102, 204, 0.4);
+    z-index: 10;
+    /* Bring to front on hover */
+}
+
+/* Bento Spans */
+.cardLarge {
+    grid-column: span 2;
+    /* Denser gradient for large cards to anchor the grid */
+    background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.cardLarge .cardTitle {
+    font-size: 2rem;
+    /* Larger title for larger cards */
+}
+
+/* Icon Styling - More Integrated */
+.iconWrapper {
+    width: 72px;
+    /* Larger icon area */
+    height: 72px;
+    background-color: #fff;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.card:hover .iconWrapper {
+    background-color: #0066cc;
+    color: #fff;
+    border-color: #0066cc;
+    transform: scale(1.1) rotate(6deg);
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 1;
+}
+
+.cardText {
+    color: #475569;
+    line-height: 1.6;
+    font-size: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 1024px) {
+    .bentoGrid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .cardLarge {
+        grid-column: span 1;
+    }
+}

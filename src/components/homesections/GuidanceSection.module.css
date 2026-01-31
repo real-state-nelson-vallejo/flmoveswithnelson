@@ -1,0 +1,301 @@
+/* CSS Module for GuidanceSection */
+
+.scrollContainer {
+    position: relative;
+    height: 300vh;
+    /* scroll distance */
+    background-color: #fff;
+    z-index: 10;
+}
+
+.stickyWrapper {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: #fff;
+    /* Ensure bg is opaque */
+}
+
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.header {
+    position: absolute;
+    top: 100px;
+    /* Fixed from top */
+    left: var(--spacing-sm);
+    z-index: 20;
+}
+
+.title {
+    font-size: 2rem;
+    color: #0066cc;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.subtitle {
+    color: #64748b;
+    margin-top: 1rem;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+.grid {
+    display: grid;
+    /* 3 Columns: Content | Image | Nav */
+    grid-template-columns: 400px 1fr 100px;
+    gap: 4rem;
+    align-items: center;
+    width: 100%;
+    margin-top: 60px;
+    /* spacing for header */
+}
+
+/* 1. Content Area */
+.contentArea {
+    z-index: 30;
+    color: #0f172a;
+    /* Slate 900 - Explicit Dark Color */
+}
+
+.contentTitle {
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: #0f172a;
+}
+
+.contentDesc {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: #334155;
+    /* Slate 700 */
+}
+
+/* 2. Image Area */
+.imageArea {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    aspect-ratio: 16/9;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 3. Navigation */
+.navArea {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    padding-left: 2rem;
+    position: relative;
+}
+
+.navLine {
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    width: 2px;
+    background-color: #e2e8f0;
+}
+
+.navIndicator {
+    position: absolute;
+    left: 0;
+    width: 2px;
+    height: 33%;
+    /* 1/3 of the line approx */
+    background-color: #0066cc;
+    transition: top 0.5s ease;
+}
+
+.navItem {
+    cursor: pointer;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+}
+
+.navItem.active {
+    opacity: 1;
+    transform: scale(1.05);
+    /* No huge scale, elegant */
+}
+
+.navNumber {
+    display: block;
+    font-size: 2.5rem;
+    color: #0f172a;
+    font-weight: 300;
+    line-height: 1;
+}
+
+@media (min-width: 1025px) {
+    .mobileView {
+        display: none;
+    }
+}
+
+@media (max-width: 1024px) {
+    .desktopView {
+        display: none;
+    }
+
+    .scrollContainer {
+        height: auto;
+        background-color: #fff;
+        padding-bottom: 4rem;
+    }
+
+    .stickyWrapper {
+        position: relative;
+        height: auto;
+    }
+
+    .container {
+        padding: 0 var(--spacing-sm);
+        /* Ensure global alignment */
+        display: block;
+        /* Normal block flow */
+    }
+
+    .header {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin-top: 4rem;
+        margin-bottom: 4rem;
+        padding: 0;
+        text-align: left;
+        /* Ensure alignment */
+    }
+
+    .title {
+        font-size: 2rem;
+        line-height: 1.1;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+        max-width: 100%;
+    }
+
+    /* Mobile Horizontal Snap Scroll */
+    .mobileView {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 1rem;
+        padding-bottom: 2rem;
+        padding-right: var(--spacing-sm);
+        /* Hide scrollbar but keep functionality */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    .mobileView::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobileCard {
+        min-width: 85vw;
+        /* Show most of the card, hint at next */
+        scroll-snap-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        background: #fff;
+        border: 1px solid #f1f5f9;
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .mobileImageContainer {
+        width: 100%;
+        aspect-ratio: 16/9;
+        border-radius: calc(var(--radius) - 4px);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .mobileImage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .mobileContent {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .mobileNumber {
+        font-size: 2rem;
+        font-weight: 300;
+        color: #cbd5e1;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .mobileTitle {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    .mobileDesc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #64748b;
+    }
+
+    .mobileDots {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #cbd5e1;
+        transition: all 0.3s ease;
+    }
+
+    .activeDot {
+        background-color: #0066cc;
+        width: 24px;
+        /* Elongated active dot */
+        border-radius: 4px;
+    }
+}
