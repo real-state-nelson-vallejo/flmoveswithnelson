@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPropertiesAction, createPropertyAction } from "@/actions/property/actions";
+import { getPropertiesAction } from "@/actions/property/actions";
 import { Property } from "@/backend/property/domain/Property";
 import { Loader2, Plus } from "lucide-react";
 

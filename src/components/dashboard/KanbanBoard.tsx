@@ -13,7 +13,6 @@ import {
     DragEndEvent,
 } from "@dnd-kit/core";
 import {
-    arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
     verticalListSortingStrategy
@@ -149,6 +148,7 @@ export function KanbanBoard() {
         let newStatus: Lead['status'] | undefined;
 
         // Check if over is a container (column)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (LEAD_STATUSES.includes(over.id as any)) {
             newStatus = over.id as Lead['status'];
         } else {

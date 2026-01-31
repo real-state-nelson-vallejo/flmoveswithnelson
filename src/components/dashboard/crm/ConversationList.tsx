@@ -2,7 +2,7 @@
 
 import { Conversation } from "@/backend/crm/domain/Conversation";
 import { cn } from "@/lib/cn";
-import { User, Building, Clock } from "lucide-react";
+import { User, Building } from "lucide-react";
 
 interface ConversationListProps {
     conversations: Conversation[];

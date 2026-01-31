@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Post, PostType, PostStatus } from "@/backend/content/domain/Post";
+import { Post } from "@/backend/content/domain/Post";
 import { createPostAction, updatePostAction } from "@/actions/content/actions";
-import { Loader2, Save, ArrowLeft, Wand2, Image as ImageIcon } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Wand2 } from "lucide-react";
 import { generateBlogPostAction } from "../../actions/content/ai-actions"; // Will create this next
 
 interface PostEditorProps {
@@ -26,6 +26,7 @@ export function PostEditor({ post, onSave, onCancel }: PostEditorProps) {
         excerpt: post?.excerpt || ""
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
@@ -64,7 +65,7 @@ export function PostEditor({ post, onSave, onCancel }: PostEditorProps) {
                 await createPostAction(formData);
             }
             onSave();
-        } catch (error) {
+        } catch {
             alert("Failed to save post");
         } finally {
             setLoading(false);

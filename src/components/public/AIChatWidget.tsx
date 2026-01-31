@@ -21,7 +21,7 @@ export function AIChatWidget() {
     const [otpCode, setOtpCode] = useState('');
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const [conversationId, setConversationId] = useState<string | null>(null);
-    const [leadId, setLeadId] = useState<string | null>(null);
+    // const [leadId, setLeadId] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -139,7 +139,7 @@ export function AIChatWidget() {
 
         if (convoRes.success && convoRes.conversationId) {
             setConversationId(convoRes.conversationId);
-            setLeadId(incomingLeadId);
+            // setLeadId(incomingLeadId);
             setStep('chat');
             setIsTyping(true); // AI is "thinking"
             setOtpCode('');
@@ -223,7 +223,7 @@ export function AIChatWidget() {
                                         animate={{ opacity: 1, y: 0 }}
                                         className="text-center py-10 space-y-6"
                                     >
-                                        <h2 className="text-2xl font-bold text-slate-800">Hello.<br />What's on your mind?</h2>
+                                        <h2 className="text-2xl font-bold text-slate-800">Hello.<br />What&apos;s on your mind?</h2>
                                         <div className="grid gap-3 text-sm text-slate-600 px-4">
                                             <button onClick={() => setInputValue("Looking for an apartment downtown")} className="bg-white p-4 rounded-xl shadow-sm border hover:border-blue-500 hover:shadow-md text-left transition-all group">
                                                 <span className="text-xl mr-2 group-hover:scale-110 inline-block transition-transform">🏢</span>

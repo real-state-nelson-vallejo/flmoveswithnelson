@@ -50,7 +50,9 @@ export async function getAvailableModelsAction() {
         const data = await response.json();
         // Filter for gemini models only
         const models = (data.models || [])
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .filter((m: any) => m.name.includes('gemini'))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((m: any) => ({
                 id: m.name.replace('models/', ''),
                 name: m.displayName
@@ -114,7 +116,7 @@ export async function generateAIReplyAction(conversationId: string, modelId?: st
         return { success: false };
     }
 }
-export async function startConversationAction(participants: string[], initialMessage: string, metadata?: any) {
+export async function startConversationAction(participants: string[], initialMessage: string, metadata?: Record<string, unknown>) {
     try {
         const conversationId = crypto.randomUUID();
         const messageId = crypto.randomUUID();
@@ -131,6 +133,7 @@ export async function startConversationAction(participants: string[], initialMes
             readBy: [participants[0]]
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const conversation: any = { // Using any to bypass strict type for now or construct properly
             id: conversationId,
             participants,
@@ -176,7 +179,7 @@ export async function updateLeadStatusAction(leadId: string, status: Lead['statu
         await adminDb.collection('leads').doc(leadId).update({ status, updatedAt: Date.now() });
         revalidatePath('/dashboard/crm');
         return { success: true };
-    } catch (error) {
+    } catch {
         return { success: false };
     }
 }
@@ -197,7 +200,7 @@ export async function createMockLeadsAction() {
         await batch.commit();
         revalidatePath('/dashboard/crm');
         return { success: true };
-    } catch (error) {
+    } catch {
         return { success: false };
     }
 }

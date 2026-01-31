@@ -47,6 +47,7 @@ export class FirestorePropertyRepository implements PropertyRepository {
         );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private mapDocToProperty(data: any): Property {
         return {
             ...data,

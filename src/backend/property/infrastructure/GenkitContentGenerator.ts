@@ -3,6 +3,7 @@ import { googleAI, gemini20Flash } from '@genkit-ai/googleai';
 import { ContentGenerator } from "../domain/ContentGenerator";
 
 export class GenkitContentGenerator implements ContentGenerator {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private ai: any;
 
     constructor() {

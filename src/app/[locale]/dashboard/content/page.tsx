@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getPostsAction, createPostAction, deletePostAction } from "@/actions/content/actions";
+import { getPostsAction, deletePostAction } from "@/actions/content/actions";
 import { Post } from "@/backend/content/domain/Post";
 import { ContentList } from "@/components/dashboard/ContentList";
 import { ContentCalendar } from "@/components/dashboard/ContentCalendar";

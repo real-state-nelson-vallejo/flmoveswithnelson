@@ -1,7 +1,7 @@
 "use server";
 
 import { contentDependencies } from "@/backend/content/dependencies";
-import { Post, PostStatus } from "@/backend/content/domain/Post";
+import { Post } from "@/backend/content/domain/Post";
 
 const repo = contentDependencies.postRepository;
 
@@ -31,7 +31,7 @@ export async function createPostAction(data: Partial<Post>) {
             createdAt: Date.now(),
             updatedAt: Date.now(),
             coverImage: data.coverImage || undefined, // Firestore ignores undefined if ignoreUndefinedProperties is set, BUT user asked for null or sanitize. 
-            excerpt: data.excerpt || null as any,
+            excerpt: data.excerpt || null,
             // coverImage removed from here to avoid duplicate
         };
         // Let's update the interface to allow null, or cast here.
@@ -90,7 +90,7 @@ export async function deletePostAction(id: string) {
     try {
         await repo.delete(id);
         return { success: true };
-    } catch (error) {
+    } catch {
         return { success: false, error: "Failed to delete post" };
     }
 }

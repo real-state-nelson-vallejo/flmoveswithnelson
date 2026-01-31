@@ -1,4 +1,4 @@
-import { gemini15Flash } from '@genkit-ai/googleai';
+// import { gemini15Flash } from '@genkit-ai/googleai';
 import { searchPropertiesTool } from '../tools/propertyTools';
 import { z } from 'zod';
 import { ai } from '../config';
@@ -46,12 +46,13 @@ export const chatbotFlow = ai.defineFlow(
         const response = await ai.generate({
             model: modelId,
             prompt: userInput,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             history: history as any,
             tools: [searchPropertiesTool],
             config: {
                 temperature: 0.7,
             },
-        } as any);
+        } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
         return response.text;
     }

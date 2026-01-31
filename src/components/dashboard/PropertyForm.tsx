@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CreatePropertyDTO } from "@/actions/property/actions";
 import { createPropertyAction, generateDescriptionAction } from "@/actions/property/actions";
-import { Loader2, ChevronRight, ChevronLeft, Wand2, Plus, X } from "lucide-react";
+import { Loader2, ChevronRight, Wand2, Plus, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface PropertyFormProps {
@@ -31,14 +31,17 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
         description: ""
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleNestedChange = (parent: string, field: string, value: any) => {
         setFormData(prev => ({
             ...prev,
             [parent]: {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ...(prev as any)[parent],
                 [field]: value
             }

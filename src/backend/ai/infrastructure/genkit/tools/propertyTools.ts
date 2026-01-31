@@ -26,7 +26,7 @@ export const searchPropertiesTool = ai.defineTool(
         // Basic implementation connecting to Firestore
         // Ideally this calls PropertyRepository, but for direct AI speed we query adminDb here or use the repository if available
 
-        let query = adminDb.collection('properties');
+        const query = adminDb.collection('properties');
 
         // Note: Firestore requires composite indexes for complex multi-field queries.
         // We will do basic client-side filtering or simple single-field queries for this MVP if indexes aren't ready.

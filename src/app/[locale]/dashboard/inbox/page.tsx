@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+// import { Suspense } from 'react';
 import { InboxClient } from '@/components/dashboard/crm/InboxClient';
 import { getConversationsAction } from '@/actions/crm/actions';
 

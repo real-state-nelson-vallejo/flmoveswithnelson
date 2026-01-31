@@ -14,7 +14,7 @@ interface ChatWindowProps {
 export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWindowProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState("");
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
