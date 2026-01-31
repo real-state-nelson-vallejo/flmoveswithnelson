@@ -66,7 +66,15 @@ export const searchPropertiesTool = ai.defineTool(
                 bedrooms: data.specs.beds,
                 type: data.type
             };
-        }).filter((p): p is NonNullable<typeof p> => p !== null);
+        }).filter((p): p is {
+            id: string;
+            title: string;
+            price: number;
+            location: string;
+            description: string;
+            bedrooms: number;
+            type: "sale" | "rent";
+        } => p !== null);
 
         // In-memory filter for MVP to avoid index creation hell during demo
         return results.filter(p => {
