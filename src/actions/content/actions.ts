@@ -2,6 +2,7 @@
 
 import { contentDependencies } from "@/backend/content/dependencies";
 import { Post } from "@/backend/content/domain/Post";
+import { PostSchema } from "@/lib/schemas/postSchema";
 
 const repo = contentDependencies.postRepository;
 
@@ -18,7 +19,10 @@ export async function getPostsAction() {
 export async function createPostAction(data: Partial<Post>) {
     try {
         const id = data.id || `post-${Date.now()}`;
-        const newPost: Post = {
+        const now = Date.now();
+
+        // Construct the raw object with defaults
+        const rawPost = {
             id,
             title: data.title || "Untitled",
             slug: data.slug || (data.title?.toLowerCase().replace(/\s+/g, '-') || "untitled"),
@@ -27,37 +31,24 @@ export async function createPostAction(data: Partial<Post>) {
             status: data.status || "draft",
             tags: data.tags || [],
             authorId: "admin", // TODO: Get from session
-            publishDate: data.publishDate || Date.now(),
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            coverImage: data.coverImage || undefined, // Firestore ignores undefined if ignoreUndefinedProperties is set, BUT user asked for null or sanitize. 
-            excerpt: data.excerpt || null,
-            // coverImage removed from here to avoid duplicate
-        };
-        // Let's update the interface to allow null, or cast here.
-        // Ideally, I should update Domain Post to allow null.
-
-        // For now, I will sanitize by ensuring they aren't undefined.
-        // If I use `JSON.parse(JSON.stringify(obj))` it strips undefined, which is also a way.
-        // But let's follow user instruction: "pasarlos como null".
-
-        // I need to check Post interface. If it says optional `?`, it includes undefined.
-        // To force null, I might need `string | null`.
-
-        // Let's rely on a helper to clean the object? Or just manual null coalescence.
-        // Since I cannot see Post.ts right now (I saw it earlier but let's be safe), I will assume optional means properties can be missing.
-        // If I explicitly set `coverImage: data.coverImage || null`, and the type is `string | undefined`, TS might error.
-
-        // Let's try to set them to null and see if TS complains. If so, I'll update Post.ts in next step.
-        // Wait, I can use `...data` strategy but I need to ensure no undefineds.
-
-        const sanitizedPost = {
-            ...newPost,
-            coverImage: newPost.coverImage ?? null,
-            excerpt: newPost.excerpt ?? null
+            publishDate: data.publishDate || now,
+            createdAt: now,
+            updatedAt: now,
+            coverImage: data.coverImage ?? null,
+            excerpt: data.excerpt ?? null,
         };
 
-        await repo.save(sanitizedPost as Post);
+        // Validate with Zod
+        const validation = PostSchema.safeParse(rawPost);
+
+        if (!validation.success) {
+            console.error("Validation failed", validation.error);
+            return { success: false, error: "Validation failed: " + validation.error.message };
+        }
+
+        const newPost = validation.data;
+        await repo.save(newPost);
+
         return { success: true, id };
     } catch (error) {
         console.error("Create Post Error", error);
@@ -70,7 +61,7 @@ export async function updatePostAction(id: string, data: Partial<Post>) {
         const existing = await repo.findById(id);
         if (!existing) return { success: false, error: "Post not found" };
 
-        const updated = {
+        const updatedRaw = {
             ...existing,
             ...data,
             coverImage: data.coverImage ?? existing.coverImage ?? null,
@@ -78,7 +69,17 @@ export async function updatePostAction(id: string, data: Partial<Post>) {
             updatedAt: Date.now()
         };
 
-        await repo.save(updated as Post);
+        // Validate with Zod
+        const validation = PostSchema.safeParse(updatedRaw);
+
+        if (!validation.success) {
+            console.error("Validation failed", validation.error);
+            return { success: false, error: "Validation failed" };
+        }
+
+        const validPost = validation.data;
+        await repo.save(validPost);
+
         return { success: true };
     } catch (error) {
         console.error("Update text Error", error);

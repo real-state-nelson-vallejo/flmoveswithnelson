@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { adminDb } from '@/lib/firebase/admin';
 import { ai } from '../config';
+import { PropertySchema } from '@/lib/schemas/propertySchema';
 
 // This tool wraps the Firestore query so the AI can find properties
 export const searchPropertiesTool = ai.defineTool(
@@ -13,14 +14,14 @@ export const searchPropertiesTool = ai.defineTool(
             maxPrice: z.number().optional().describe('Maximum price in USD/EUR'),
             type: z.enum(['sale', 'rent']).optional().describe('Type of listing: sale or rent'),
             bedrooms: z.number().optional().describe('Minimum number of bedrooms')
-        }),
+        }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         outputSchema: z.array(z.object({
             id: z.string(),
             title: z.string(),
             price: z.number(),
             location: z.string(),
             description: z.string().optional()
-        })),
+        })) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     },
     async (input) => {
         // Basic implementation connecting to Firestore
@@ -37,22 +38,34 @@ export const searchPropertiesTool = ai.defineTool(
             // query = query.where('type', '==', input.type); // Type check issue with chained queries in strict mode sometimes
         }
 
+
+        // ... (existing imports)
+
         const snapshot = await query.limit(10).get();
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const results = snapshot.docs.map((doc: any) => {
-            const data = doc.data();
+        const results = snapshot.docs.map(doc => {
+            const rawData = doc.data();
+            // Validate data against schema
+            const parseResult = PropertySchema.safeParse(rawData);
+
+            if (!parseResult.success) {
+                console.warn(`Invalid property data for ${doc.id}:`, parseResult.error);
+                return null;
+            }
+
+            const data = parseResult.data;
+
             return {
                 id: doc.id,
-                title: data.title || 'Untitled Property',
-                price: data.price?.amount || 0,
-                location: data.location?.city || 'Unknown',
+                title: data.title,
+                price: data.price.amount, // safe access
+                location: data.location.city,
                 description: data.description,
                 // ... mapped fields
-                bedrooms: data.specs?.bedrooms || 0,
+                bedrooms: data.specs.beds,
                 type: data.type
             };
-        });
+        }).filter((p): p is NonNullable<typeof p> => p !== null);
 
         // In-memory filter for MVP to avoid index creation hell during demo
         return results.filter(p => {

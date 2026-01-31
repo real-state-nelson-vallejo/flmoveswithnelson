@@ -1,10 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { CreatePropertyDTO } from "@/actions/property/actions";
-import { createPropertyAction, generateDescriptionAction } from "@/actions/property/actions";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PropertySchema } from "@/lib/schemas/propertySchema";
+import { createPropertyAction, generateDescriptionAction, CreatePropertyDTO } from "@/actions/property/actions";
 import { Loader2, ChevronRight, Wand2, Plus, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { z } from "zod";
+
+// Create a schema specifically for the form that omits system fields
+const FormSchema = PropertySchema.omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true
+});
+
+type FormData = z.infer<typeof FormSchema>;
 
 interface PropertyFormProps {
     onSuccess: () => void;
@@ -18,56 +30,46 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
     const [loading, setLoading] = useState(false);
     const [generatingAi, setGeneratingAi] = useState(false);
 
-    // Initial State
-    const [formData, setFormData] = useState<Partial<CreatePropertyDTO>>({
-        title: "",
-        price: { amount: 0, currency: "USD" },
-        type: "sale",
-        status: "available",
-        features: [],
-        images: [],
-        location: { address: "", city: "", country: "United States", state: "", zip: "" },
-        specs: { beds: 0, baths: 0, area: 0, areaUnit: "sqft" },
-        description: ""
+    const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormData>({
+        resolver: zodResolver(FormSchema),
+        defaultValues: {
+            title: "",
+            price: { amount: 0, currency: "USD" },
+            type: "sale",
+            status: "available",
+            features: [],
+            images: [],
+            location: { address: "", city: "", country: "United States", state: "", zip: "" },
+            specs: { beds: 0, baths: 0, area: 0, areaUnit: "sqft" },
+            description: ""
+        }
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleChange = (field: string, value: any) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleNestedChange = (parent: string, field: string, value: any) => {
-        setFormData(prev => ({
-            ...prev,
-            [parent]: {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ...(prev as any)[parent],
-                [field]: value
-            }
-        }));
-    };
+    // Watch values for conditional rendering or AI generation
+    const watchedValues = watch();
 
     const handleGenerateDescription = async () => {
-        if (!formData.title || !formData.location?.city) {
+        const { title, location, features, specs, type } = watchedValues;
+
+        if (!title || !location?.city) {
             alert("Please fill in Title and Location first.");
             return;
         }
         setGeneratingAi(true);
         const result = await generateDescriptionAction({
-            title: formData.title || "",
-            location: `${formData.location.city}, ${formData.location.state}`,
-            features: formData.features || [],
+            title: title || "",
+            location: `${location.city}, ${location.state}`,
+            features: features || [],
             specs: {
-                beds: formData.specs?.beds || 0,
-                baths: formData.specs?.baths || 0,
-                area: formData.specs?.area || 0
+                beds: specs?.beds || 0,
+                baths: specs?.baths || 0,
+                area: specs?.area || 0
             },
-            type: formData.type || "sale"
+            type: type || "sale"
         });
 
         if (result.success && result.description) {
-            handleChange("description", result.description);
+            setValue("description", result.description, { shouldValidate: true });
         } else {
             alert("Failed to generate description.");
         }
@@ -82,21 +84,19 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
         const uploadedUrls: string[] = [];
 
         try {
-            // Lazy import storage to avoid issues if not initialized yet, or use exported 'storage' from client
             const { storage } = await import("@/lib/firebase/client");
             const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
 
             for (const file of files) {
-                // Determine path: properties / uploads / {timestamp}_{filename}
                 const path = `properties/uploads/${Date.now()}_${file.name}`;
                 const storageRef = ref(storage, path);
-
                 await uploadBytes(storageRef, file);
                 const url = await getDownloadURL(storageRef);
                 uploadedUrls.push(url);
             }
 
-            handleChange("images", [...(formData.images || []), ...uploadedUrls]);
+            const currentImages = watchedValues.images || [];
+            setValue("images", [...currentImages, ...uploadedUrls], { shouldValidate: true });
 
         } catch (error) {
             console.error("Upload failed", error);
@@ -106,18 +106,41 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
         }
     };
 
-    const handleSubmit = async () => {
+    const onSubmit = async (data: FormData) => {
         setLoading(true);
-        // Basic validation could go here
+        // Cast to DTO but usage of RHF ensures types match closely
+        // We might need to map some fields if DTO differs strictly, but FormSchema matches PropertySchema
+        // CreatePropertyDTO likely expects similar structure.
 
-        // Cast to DTO (handling strict types in real app)
-        const result = await createPropertyAction(formData as CreatePropertyDTO);
+        // We need to add back the ID or let action handle it. The action expects CreatePropertyDTO.
+        // Let's assume action generates ID if missing or we pass partial.
+        const result = await createPropertyAction(data as unknown as CreatePropertyDTO);
 
         setLoading(false);
         if (result.success) {
             onSuccess();
         } else {
             alert("Error creating property");
+        }
+    };
+
+    const nextStep = async () => {
+        // Validate fields for current step before moving
+        let fieldsToValidate: (keyof FormData)[] = [];
+
+        switch (step) {
+            case 0: fieldsToValidate = ["title", "type", "status", "price"]; break;
+            case 1: fieldsToValidate = ["location"]; break;
+            case 2: fieldsToValidate = ["specs"]; break;
+            case 3: fieldsToValidate = ["images"]; break;
+            case 4: fieldsToValidate = ["description", "features"]; break;
+        }
+
+        // Trigger validation for specific fields
+        const isStepValid = await trigger(fieldsToValidate.length > 0 ? fieldsToValidate : undefined);
+
+        if (isStepValid) {
+            setStep(s => s + 1);
         }
     };
 
@@ -128,32 +151,23 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
             <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Property Title</label>
                 <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => handleChange("title", e.target.value)}
+                    {...register("title")}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none"
                     placeholder="e.g. Modern Villa in Downtown"
                 />
+                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Type</label>
-                    <select
-                        value={formData.type}
-                        onChange={(e) => handleChange("type", e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    >
+                    <select {...register("type")} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none">
                         <option value="sale">For Sale</option>
                         <option value="rent">For Rent</option>
                     </select>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                    <select
-                        value={formData.status}
-                        onChange={(e) => handleChange("status", e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    >
+                    <select {...register("status")} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none">
                         <option value="available">Available</option>
                         <option value="reserved">Reserved</option>
                         <option value="sold">Sold</option>
@@ -166,12 +180,12 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
                     <span className="absolute left-3 top-2 text-slate-500">$</span>
                     <input
                         type="number"
-                        value={formData.price?.amount || ""}
-                        onChange={(e) => handleNestedChange("price", "amount", Number(e.target.value))}
+                        {...register("price.amount", { valueAsNumber: true })}
                         className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg outline-none"
                         placeholder="0.00"
                     />
                 </div>
+                {errors.price?.amount && <p className="text-red-500 text-xs mt-1">{errors.price.amount.message}</p>}
             </div>
         </div>
     );
@@ -181,51 +195,30 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
             <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
                 <input
-                    type="text"
-                    value={formData.location?.address}
-                    onChange={(e) => handleNestedChange("location", "address", e.target.value)}
+                    {...register("location.address")}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
                     placeholder="Street Address"
                 />
+                {errors.location?.address && <p className="text-red-500 text-xs mt-1">{errors.location.address.message}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
-                    <input
-                        type="text"
-                        value={formData.location?.city}
-                        onChange={(e) => handleNestedChange("location", "city", e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    />
+                    <input {...register("location.city")} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">State</label>
-                    <input
-                        type="text"
-                        value={formData.location?.state}
-                        onChange={(e) => handleNestedChange("location", "state", e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    />
+                    <input {...register("location.state")} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none" />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Zip Code</label>
-                    <input
-                        type="text"
-                        value={formData.location?.zip}
-                        onChange={(e) => handleNestedChange("location", "zip", e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    />
+                    <input {...register("location.zip")} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Country</label>
-                    <input
-                        type="text"
-                        value={formData.location?.country || "United States"}
-                        onChange={(e) => handleNestedChange("location", "country", e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    />
+                    <input {...register("location.country")} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none" />
                 </div>
             </div>
         </div>
@@ -236,40 +229,21 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Beds</label>
-                    <input
-                        type="number"
-                        value={formData.specs?.beds}
-                        onChange={(e) => handleNestedChange("specs", "beds", Number(e.target.value))}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    />
+                    <input type="number" {...register("specs.beds", { valueAsNumber: true })} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Baths</label>
-                    <input
-                        type="number"
-                        value={formData.specs?.baths}
-                        onChange={(e) => handleNestedChange("specs", "baths", Number(e.target.value))}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    />
+                    <input type="number" {...register("specs.baths", { valueAsNumber: true })} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none" />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Area</label>
-                    <input
-                        type="number"
-                        value={formData.specs?.area}
-                        onChange={(e) => handleNestedChange("specs", "area", Number(e.target.value))}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    />
+                    <input type="number" {...register("specs.area", { valueAsNumber: true })} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Unit</label>
-                    <select
-                        value={formData.specs?.areaUnit}
-                        onChange={(e) => handleNestedChange("specs", "areaUnit", e.target.value)}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    >
+                    <select {...register("specs.areaUnit")} className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none">
                         <option value="sqft">sqft</option>
                         <option value="m2">m²</option>
                     </select>
@@ -298,16 +272,18 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
             </div>
 
             {/* Image Preview List */}
-            {formData.images && formData.images.length > 0 && (
+            {watchedValues.images && watchedValues.images.length > 0 && (
                 <div className="grid grid-cols-3 gap-4">
-                    {formData.images.map((img, idx) => (
+                    {watchedValues.images.map((img, idx) => (
                         <div key={idx} className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200 group">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={img} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
                             <button
+                                type="button"
                                 onClick={() => {
-                                    const newImages = [...(formData.images || [])];
+                                    const newImages = [...(watchedValues.images || [])];
                                     newImages.splice(idx, 1);
-                                    handleChange("images", newImages);
+                                    setValue("images", newImages);
                                 }}
                                 className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                             >
@@ -336,22 +312,28 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
                     </button>
                 </div>
                 <textarea
-                    value={formData.description}
-                    onChange={(e) => handleChange("description", e.target.value)}
+                    {...register("description")}
                     className="w-full h-32 px-3 py-2 border border-slate-300 rounded-lg outline-none resize-none"
                     placeholder="Describe the property..."
                 />
             </div>
             <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Features (comma separated)</label>
-                <input
-                    type="text"
-                    placeholder="Pool, Gym, Fireplace..."
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
-                    onBlur={(e) => {
-                        const feats = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                        handleChange("features", feats);
-                    }}
+                <Controller
+                    name="features"
+                    control={control}
+                    render={({ field }) => (
+                        <input
+                            type="text"
+                            placeholder="Pool, Gym, Fireplace..."
+                            defaultValue={field.value?.join(", ")}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg outline-none"
+                            onBlur={(e) => {
+                                const feats = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                                field.onChange(feats);
+                            }}
+                        />
+                    )}
                 />
             </div>
         </div>
@@ -407,7 +389,13 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
                 </button>
 
                 <button
-                    onClick={() => step === STEPS.length - 1 ? handleSubmit() : setStep(s => s + 1)}
+                    onClick={async () => {
+                        if (step === STEPS.length - 1) {
+                            await handleSubmit(onSubmit)();
+                        } else {
+                            await nextStep();
+                        }
+                    }}
                     disabled={loading}
                     className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors disabled:opacity-50"
                 >

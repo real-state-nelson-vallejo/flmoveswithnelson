@@ -163,11 +163,22 @@ import { Lead } from "@/backend/crm/domain/Lead";
 // importing adminDb to do direct queries since repository isn't fully set up for Leads yet
 import { adminDb } from "@/lib/firebase/admin";
 
+import { LeadSchema } from "@/lib/schemas/leadSchema";
+
+// ...
+
 export async function getLeadsAction() {
     try {
         const snapshot = await adminDb.collection('leads').get();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const leads = snapshot.docs.map((doc: any) => doc.data() as Lead);
+        const leads = snapshot.docs.reduce((acc: Lead[], doc) => {
+            const result = LeadSchema.safeParse(doc.data());
+            if (result.success) {
+                acc.push(result.data);
+            } else {
+                console.warn(`Invalid lead data for ${doc.id}`, result.error);
+            }
+            return acc;
+        }, []);
         return { success: true, leads };
     } catch (error) {
         console.error("Error fetching leads:", error);
