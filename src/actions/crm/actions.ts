@@ -166,7 +166,8 @@ import { adminDb } from "@/lib/firebase/admin";
 export async function getLeadsAction() {
     try {
         const snapshot = await adminDb.collection('leads').get();
-        const leads = snapshot.docs.map(doc => doc.data() as Lead);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const leads = snapshot.docs.map((doc: any) => doc.data() as Lead);
         return { success: true, leads };
     } catch (error) {
         console.error("Error fetching leads:", error);
