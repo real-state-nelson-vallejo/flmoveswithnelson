@@ -43,7 +43,7 @@ export class FirestorePropertyRepository implements PropertyRepository {
         if (!query) return all;
 
         const lowerQuery = query.toLowerCase();
-        return all.filter(p =>
+        return all.filter((p: Property) =>
             p.title.toLowerCase().includes(lowerQuery) ||
             p.location.city.toLowerCase().includes(lowerQuery)
         );

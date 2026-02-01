@@ -102,7 +102,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
                 const result = ConversationPersistenceSchema.safeParse(doc.data());
                 return result.success ? this.mapToDomain(result.data) : null;
             })
-            .filter((c): c is Conversation => c !== null);
+            .filter((c: Conversation | null): c is Conversation => c !== null);
     }
 
     async findAll(): Promise<Conversation[]> {
@@ -116,7 +116,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
                 const result = ConversationPersistenceSchema.safeParse(doc.data());
                 return result.success ? this.mapToDomain(result.data) : null;
             })
-            .filter((c): c is Conversation => c !== null);
+            .filter((c: Conversation | null): c is Conversation => c !== null);
     }
 
     async saveMessage(message: Message): Promise<void> {
@@ -148,7 +148,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
                 const result = MessagePersistenceSchema.safeParse(doc.data());
                 return result.success ? this.mapMessageToDomain(result.data) : null;
             })
-            .filter((m): m is Message => m !== null);
+            .filter((m: Message | null): m is Message => m !== null);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -40,8 +40,8 @@ export class FirestoreLeadRepository implements LeadRepository {
         const snapshot = await adminDb.collection(this.collection).orderBy("createdAt", "desc").get();
 
         return snapshot.docs
-            .map(doc => this.mapDocToLead(doc))
-            .filter((lead): lead is Lead => lead !== null);
+            .map((doc: QueryDocumentSnapshot) => this.mapDocToLead(doc))
+            .filter((lead: Lead | null): lead is Lead => lead !== null);
     }
 
     private mapDocToLead(doc: FirebaseFirestore.DocumentSnapshot | QueryDocumentSnapshot): Lead | null {

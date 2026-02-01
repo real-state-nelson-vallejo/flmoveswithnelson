@@ -3,6 +3,7 @@ import { EmailRepository } from "../domain/EmailRepository";
 import { adminDb } from "@/lib/firebase/admin";
 import { EmailPersistenceSchema } from "./dto/EmailPersistenceSchema";
 import { EmailDTO } from "./dto/EmailDTO";
+import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 export class FirestoreEmailRepository implements EmailRepository {
     private collection = adminDb.collection('mail');
@@ -46,10 +47,10 @@ export class FirestoreEmailRepository implements EmailRepository {
     async findByStatus(status: 'pending' | 'sent' | 'failed'): Promise<Email[]> {
         const snapshot = await this.collection.where('status', '==', status).get();
         return snapshot.docs
-            .map(doc => {
+            .map((doc: QueryDocumentSnapshot) => {
                 const result = EmailPersistenceSchema.safeParse(doc.data());
                 return result.success ? this.mapToDomain(result.data) : null;
             })
-            .filter((e): e is Email => e !== null);
+            .filter((e: Email | null): e is Email => e !== null);
     }
 }
