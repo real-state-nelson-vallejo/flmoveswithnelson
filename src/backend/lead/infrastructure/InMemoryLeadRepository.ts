@@ -1,4 +1,4 @@
-import { Lead } from "../domain/Lead";
+import { Lead, LeadProps, LeadStatus } from "../domain/Lead";
 import { LeadRepository } from "../domain/LeadRepository";
 
 export class InMemoryLeadRepository implements LeadRepository {
@@ -17,5 +17,28 @@ export class InMemoryLeadRepository implements LeadRepository {
 
     async findAll(): Promise<Lead[]> {
         return Array.from(this.leads.values());
+    }
+    async findById(id: string): Promise<Lead | null> {
+        return this.leads.get(id) || null;
+    }
+
+    async update(id: string, data: Partial<LeadProps>): Promise<void> {
+        const lead = this.leads.get(id);
+        if (lead) {
+            const currentProps = lead.toPersistence(); // Assumes persistence model matches props roughly or use toDTO if simpler, but persistence is safer
+            // We need to merge. LeadPersistence has interactions/etc.
+            const updatedProps = { ...currentProps, ...data };
+            // Re-instantiate
+            const updatedLead = Lead.fromPersistence(updatedProps);
+            this.leads.set(id, updatedLead);
+        }
+    }
+
+    async updateStatus(id: string, status: LeadStatus): Promise<void> {
+        const lead = this.leads.get(id);
+        if (lead) {
+            lead.updateStatus(status);
+            this.leads.set(id, lead);
+        }
     }
 }

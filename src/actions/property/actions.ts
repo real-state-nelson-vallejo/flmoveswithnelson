@@ -21,7 +21,7 @@ export type CreatePropertyDTO = Omit<Property, "id" | "createdAt" | "updatedAt">
 export async function createPropertyAction(data: CreatePropertyDTO) {
     try {
         const property = await createPropertyUseCase.execute(data);
-        return { success: true, property };
+        return { success: true, property: property.toDTO() };
     } catch (error) {
         console.error("Error creating property:", error);
         return { success: false, error: "Failed to create property" };
@@ -35,7 +35,7 @@ export async function getPropertiesAction() {
         const properties = await searchPropertiesUseCase.execute("");
         // If SearchProperties is strictly search, I might need a "GetAllProperties" use case or expose repo directly (less pure).
         // Let's assume search("") returns all based on my repo implementation.
-        return { success: true, properties };
+        return { success: true, properties: properties.map(p => p.toDTO()) };
     } catch (error) {
         console.error("Error fetching properties:", error);
         return { success: false, error: "Failed to fetch properties" };

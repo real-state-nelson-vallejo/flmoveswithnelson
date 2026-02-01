@@ -28,7 +28,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                     fullWidth && styles.fullWidth,
                     className
                 )}
-                {...(props as HTMLMotionProps<"button">)}
+                {...(props as unknown as HTMLMotionProps<"button">)}
             />
         );
     }

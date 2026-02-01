@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Post } from "@/backend/content/domain/Post";
+import { PostDTO, PostStatus, PostType } from "@/types/content"; // Use DTO from shared types
 import { createPostAction, updatePostAction } from "@/actions/content/actions";
 import { Loader2, Save, ArrowLeft, Wand2 } from "lucide-react";
 import { generateBlogPostAction } from "../../actions/content/ai-actions"; // Will create this next
 
 interface PostEditorProps {
-    post?: Post | null; // null means new post
+    post?: PostDTO | null; // null means new post
     onSave: () => void;
     onCancel: () => void;
 }
@@ -15,19 +15,19 @@ interface PostEditorProps {
 export function PostEditor({ post, onSave, onCancel }: PostEditorProps) {
     const [loading, setLoading] = useState(false);
     const [generating, setGenerating] = useState(false);
-    const [formData, setFormData] = useState<Partial<Post>>({
+    const [formData, setFormData] = useState<Partial<PostDTO>>({
         title: post?.title || "",
         slug: post?.slug || "",
         content: post?.content || "",
         type: post?.type || "blog",
         status: post?.status || "draft",
         tags: post?.tags || [],
-        coverImage: post?.coverImage || "",
-        excerpt: post?.excerpt || ""
+        coverImage: post?.coverImage ?? "",
+        excerpt: post?.excerpt ?? ""
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleChange = (field: string, value: any) => {
+
+    const handleChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -60,9 +60,30 @@ export function PostEditor({ post, onSave, onCancel }: PostEditorProps) {
         setLoading(true);
         try {
             if (post?.id) {
-                await updatePostAction(post.id, formData);
+                // Ensure typed properly
+                await updatePostAction(post.id, {
+                    title: formData.title || "",
+                    content: formData.content || "",
+                    slug: formData.slug || "",
+                    excerpt: formData.excerpt || "",
+                    coverImage: formData.coverImage || "",
+                    type: formData.type as PostType,
+                    status: formData.status as PostStatus,
+                    tags: formData.tags || [],
+                    publishDate: Date.now() // or preserve original? For now update update time
+                });
             } else {
-                await createPostAction(formData);
+                await createPostAction({
+                    title: formData.title || "Untitled",
+                    content: formData.content || "",
+                    ...(formData.slug ? { slug: formData.slug } : {}),
+                    ...(formData.excerpt ? { excerpt: formData.excerpt } : {}),
+                    ...(formData.coverImage ? { coverImage: formData.coverImage } : {}),
+                    type: formData.type as PostType,
+                    status: formData.status as PostStatus,
+                    tags: formData.tags || [],
+                    publishDate: Date.now()
+                });
             }
             onSave();
         } catch {

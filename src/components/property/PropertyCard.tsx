@@ -1,14 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Property } from "@/backend/property/domain/Property";
+import { PropertyDTO } from "@/types/property";
 import styles from "./PropertyCard.module.css";
 import { MapPin, Bed, Bath, Scaling } from "lucide-react";
 import NextLink from 'next/link';
 import { formatPrice } from "@/lib/formatters";
 
 interface PropertyCardProps {
-    property: Property;
+    property: PropertyDTO;
     locale: string;
 }
 

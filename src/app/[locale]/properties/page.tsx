@@ -4,10 +4,10 @@ import { use } from 'react';
 import { PropertySearchFilter } from '@/components/property/PropertySearchFilter';
 import { PropertiesWebMap } from '@/components/property/PropertiesWebMap';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { Property } from '@/backend/property/domain/Property';
+import { PropertyDTO } from "@/types/property";
 
 // MOCK DATA (Synced with HomePage & Detail)
-const MOCK_PROPERTIES: Property[] = [
+const MOCK_PROPERTIES: PropertyDTO[] = [
     {
         id: '1',
         title: 'New Build – Geneva Landings, Davenport',
@@ -19,8 +19,8 @@ const MOCK_PROPERTIES: Property[] = [
         images: ['https://images.unsplash.com/photo-1583608205776-bfd35f0d9f8e?auto=format&fit=crop&w=800&q=80'],
         type: 'sale',
         status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
     },
     {
         id: '2',
@@ -33,8 +33,8 @@ const MOCK_PROPERTIES: Property[] = [
         images: ['https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80'],
         type: 'sale',
         status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
     },
     {
         id: '3',
@@ -47,8 +47,8 @@ const MOCK_PROPERTIES: Property[] = [
         images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80'],
         type: 'sale',
         status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
     },
     {
         id: '4',
@@ -61,8 +61,8 @@ const MOCK_PROPERTIES: Property[] = [
         images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80'],
         type: 'sale',
         status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
     },
     {
         id: '5',
@@ -75,8 +75,8 @@ const MOCK_PROPERTIES: Property[] = [
         images: ['https://images.unsplash.com/photo-1600596542815-2a4d9f6facb8?auto=format&fit=crop&w=800&q=80'],
         type: 'sale',
         status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
     }
 ];
 

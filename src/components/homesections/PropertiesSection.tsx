@@ -1,9 +1,9 @@
 "use client";
 
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { Property } from '@/backend/property/domain/Property';
+import { PropertyDTO } from "@/types/property";
 
-const MOCK_PROPERTIES: Property[] = [
+const MOCK_PROPERTIES: PropertyDTO[] = [
     {
         id: '1',
         title: 'New Build – Geneva Landings, Davenport',
@@ -24,8 +24,8 @@ const MOCK_PROPERTIES: Property[] = [
         images: ['https://images.unsplash.com/photo-1583608205776-bfd35f0d9f8e?auto=format&fit=crop&w=800&q=80'], // Looks like the new build house
         type: 'sale',
         status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
     },
     {
         id: '2',
@@ -43,8 +43,8 @@ const MOCK_PROPERTIES: Property[] = [
         images: ['https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80'],
         type: 'sale',
         status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
     },
     {
         id: '3',
@@ -62,8 +62,8 @@ const MOCK_PROPERTIES: Property[] = [
         images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80'],
         type: 'sale',
         status: 'available',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
     }
 ];
 

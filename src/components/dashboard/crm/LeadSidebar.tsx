@@ -1,10 +1,10 @@
 "use client";
 
 import { X, Mail, Phone, Calendar, Tag } from "lucide-react";
-import { Lead } from "@/backend/crm/domain/Lead";
+import { LeadDTO } from "@/types/lead";
 
 interface LeadSidebarProps {
-    lead?: Lead; // Optional, might not always link to a lead
+    lead?: LeadDTO | undefined; // Optional, might not always link to a lead
     onClose: () => void;
 }
 
@@ -28,9 +28,9 @@ export function LeadSidebar({ lead, onClose }: LeadSidebarProps) {
     return (
         <div className="w-80 border-l bg-white flex flex-col h-full overflow-y-auto">
             {/* Header */}
-            <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+            <div className="h-16 px-4 border-b border-slate-200 bg-white flex justify-between items-center">
                 <h3 className="font-semibold text-slate-800">Lead Profile</h3>
-                <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-100 rounded">
                     <X size={20} />
                 </button>
             </div>

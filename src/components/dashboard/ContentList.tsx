@@ -1,11 +1,11 @@
 "use client";
 
-import { Post } from "@/backend/content/domain/Post";
+import { PostDTO } from "@/types/content";
 import { Edit, Trash2, Globe, Clock, FileText } from "lucide-react";
 
 interface ContentListProps {
-    posts: Post[];
-    onEdit: (post: Post) => void;
+    posts: PostDTO[];
+    onEdit: (post: PostDTO) => void;
     onDelete: (id: string) => void;
 }
 

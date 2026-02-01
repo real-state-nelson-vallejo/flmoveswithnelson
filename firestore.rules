@@ -31,9 +31,23 @@ service cloud.firestore {
         allow update, delete: if false;
       }
     }
-    
+
     // ========================================
-    // LEADS - Only server-side access
+    // MESSAGES (Root Collection)
+    // ========================================
+    match /messages/{messageId} {
+      // Allow read if user is a participant of the referenced conversation
+      allow read: if request.auth != null 
+                  && request.auth.uid in get(/databases/$(database)/documents/conversations/$(resource.data.conversationId)).data.participants;
+      
+      // Allow create if user is participant AND sender matches auth
+      allow create: if request.auth != null
+                    && request.auth.uid in get(/databases/$(database)/documents/conversations/$(request.resource.data.conversationId)).data.participants
+                    && request.resource.data.senderId == request.auth.uid;
+
+      // No update/delete
+      allow update, delete: if false;
+    }
     // ========================================
     match /leads/{leadId} {
       allow read, write: if false; // Admin SDK only

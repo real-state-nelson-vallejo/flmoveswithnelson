@@ -1,16 +1,17 @@
 'use server';
 
-import { emailRepository } from "@/backend/crm/dependencies";
-import { EmailTemplates } from "@/backend/crm/application/email/templates";
+import { emailDependencies } from "@/backend/email/dependencies";
+import { conversationDependencies } from "@/backend/conversation/dependencies";
+import { EmailTemplates } from "@/backend/email/application/EmailTemplates";
 import { adminAuth, adminDb } from "@/lib/firebase/admin";
-import { Lead } from "@/backend/crm/domain/Lead";
+import { Lead } from "@/backend/lead/domain/Lead";
 import { LeadSchema } from "@/lib/schemas/leadSchema";
 
 // Simple in-memory store for MVP
-// Storing Name now too
-const otpStore = new Map<string, { code: string, expires: number, name: string }>();
+// Storing Name and Phone now
+const otpStore = new Map<string, { code: string, expires: number, name: string, phone?: string }>();
 
-export async function sendVerificationEmailAction(data: { name: string, email: string }, captchaToken: string) {
+export async function sendVerificationEmailAction(data: { name: string, email: string, phone: string }, captchaToken: string) {
     // 1. Verify Captcha (Mocked for now, implies calling Google API)
     if (!captchaToken) {
         return { success: false, error: "Invalid Captcha" };
@@ -21,15 +22,16 @@ export async function sendVerificationEmailAction(data: { name: string, email: s
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = Date.now() + 1000 * 60 * 10; // 10 mins
 
-    otpStore.set(data.email, { code, expires, name: data.name });
+    otpStore.set(data.email, { code, expires, name: data.name, phone: data.phone });
 
     // 3. Send Email
     try {
         const template = EmailTemplates.otp(data.name, code);
-        await emailRepository.sendEmail({
-            to: [data.email], // Trying as array to ensure broader compatibility
-            message: template
-        });
+        await emailDependencies.sendEmail.execute(
+            data.email,
+            template.subject,
+            { text: template.text, html: template.html }
+        );
         console.log(`[VerifyAction] 📧 Email queued for ${data.email}`);
         return { success: true };
     } catch (error) {
@@ -53,7 +55,8 @@ export async function verifyOtpAction(email: string, code: string) {
         // 1. Ensure Lead Exists (Create/Update)
         const leadRes = await createVerifiedLeadAction({
             email,
-            name: record.name
+            name: record.name,
+            phone: record.phone
         });
 
         if (!leadRes.success || !leadRes.leadId) throw new Error("Failed to create profile");
@@ -61,12 +64,19 @@ export async function verifyOtpAction(email: string, code: string) {
         // 2. Mint Token using Lead ID as UID
         const customToken = await adminAuth.createCustomToken(leadRes.leadId, { role: 'lead' });
 
+        // 3. Find Existing Active Conversation (Persistence Check)
+        // We look for conversations where this lead is a participant
+        const conversations = await conversationDependencies.conversationRepository.findByUserId(leadRes.leadId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const activeConversation = conversations.find((c: any) => c.status === 'active');
+
         otpStore.delete(email);
 
         return {
             success: true,
             token: customToken,
-            leadId: leadRes.leadId
+            leadId: leadRes.leadId,
+            existingConversationId: activeConversation?.id
         };
 
     } catch (error) {
@@ -77,7 +87,7 @@ export async function verifyOtpAction(email: string, code: string) {
 
 // --- Lead Persistence ---
 
-export async function createVerifiedLeadAction(contact: { email: string; name: string; phone?: string }) {
+export async function createVerifiedLeadAction(contact: { email: string; name: string; phone?: string | undefined }) {
     try {
         // Double check if lead exists by email to avoid duplicates
         const snapshot = await adminDb.collection('leads').where('email', '==', contact.email).limit(1).get();
@@ -86,8 +96,8 @@ export async function createVerifiedLeadAction(contact: { email: string; name: s
 
         if (!snapshot.empty) {
             // Update existing
-            leadId = snapshot.docs[0].id;
-            const existingData = snapshot.docs[0].data();
+            leadId = snapshot.docs[0]!.id;
+            const existingData = snapshot.docs[0]!.data();
 
             // Validate strict type with schema to avoid implicit any on unchecked property access
             const parsed = LeadSchema.safeParse(existingData);
@@ -100,20 +110,19 @@ export async function createVerifiedLeadAction(contact: { email: string; name: s
                 status: 'new' // Re-open if old
             });
         } else {
-            // Create New
-            leadId = crypto.randomUUID();
-            const now = Date.now();
-            const newLead: Lead = {
-                id: leadId,
+            // Create New using Factory
+            const newLead = Lead.create({
                 name: contact.name,
                 email: contact.email,
                 phone: contact.phone,
-                status: 'new',
-                source: 'public_chat',
-                createdAt: now,
-                updatedAt: now
-            };
-            await adminDb.collection('leads').doc(leadId).set(newLead);
+                source: 'public_chat'
+            });
+            leadId = newLead.id;
+
+            // Persist using toPersistence if available or manually properties if not exported public
+            // Lead class has toPersistence()
+            const persistence = newLead.toPersistence();
+            await adminDb.collection('leads').doc(leadId).set(persistence);
         }
 
         return { success: true, leadId };

@@ -2,14 +2,24 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, ChevronDown } from 'lucide-react';
-import { Message } from '@/backend/crm/domain/Conversation';
+import { MessageDTO as Message } from "@/types/conversation";
 import { motion, AnimatePresence } from "framer-motion";
 import ReCAPTCHA from "react-google-recaptcha";
 import { sendVerificationEmailAction, verifyOtpAction } from "@/actions/crm/verificationActions";
 import { startConversationAction, generateAIReplyAction } from "@/actions/crm/actions";
 import { signInWithCustomToken } from "firebase/auth";
-import { collection, query, orderBy, onSnapshot, Unsubscribe } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, Unsubscribe, where } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase/client";
+
+const COUNTRY_CODES = [
+    { code: "+1", label: "🇺🇸 +1", country: "USA/Canada" },
+    { code: "+34", label: "🇪🇸 +34", country: "Spain" },
+    { code: "+57", label: "🇨🇴 +57", country: "Colombia" },
+    { code: "+52", label: "🇲🇽 +52", country: "Mexico" },
+    { code: "+44", label: "🇬🇧 +44", country: "UK" },
+    { code: "+33", label: "🇫🇷 +33", country: "France" },
+    { code: "+49", label: "🇩🇪 +49", country: "Germany" },
+];
 
 export function AIChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +27,7 @@ export function AIChatWidget() {
 
     // Auth State
     const [contactInfo, setContactInfo] = useState({ name: '', email: '', phone: '' });
+    const [countryCode, setCountryCode] = useState('+1');
     const [isVerificationSent, setIsVerificationSent] = useState(false);
     const [otpCode, setOtpCode] = useState('');
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -25,6 +36,7 @@ export function AIChatWidget() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
+    const [isSendingVerification, setIsSendingVerification] = useState(false);
 
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -39,8 +51,8 @@ export function AIChatWidget() {
     useEffect(() => {
         if (!conversationId) return;
 
-        const messagesRef = collection(db, 'conversations', conversationId, 'messages');
-        const q = query(messagesRef, orderBy('createdAt', 'asc'));
+        const messagesRef = collection(db, 'messages');
+        const q = query(messagesRef, where('conversationId', '==', conversationId), orderBy('createdAt', 'asc'));
 
         const unsubscribe: Unsubscribe = onSnapshot(q, (snapshot) => {
             const msgs: Message[] = snapshot.docs.map(doc => ({
@@ -48,7 +60,13 @@ export function AIChatWidget() {
                 id: doc.id
             }));
             setMessages(msgs);
-            setIsTyping(false); // Stop typing indicator when new messages arrive
+
+            // Only stop typing if the last message is likely the AI response (or system)
+            // If the last message is from 'user', we keep typing active as we wait for reply.
+            const lastMsg = msgs[msgs.length - 1];
+            if (lastMsg && lastMsg.senderRole !== 'user') {
+                setIsTyping(false);
+            }
         }, (error) => {
             console.error("[Widget] Realtime message error:", error);
         });
@@ -56,45 +74,56 @@ export function AIChatWidget() {
         return () => unsubscribe();
     }, [conversationId]);
 
-    const handleSend = async () => {
+    // Re-writing handleSend fully correctly
+    const onSendMessage = async () => {
         if (!inputValue.trim()) return;
-
-        const userText = inputValue;
+        const txt = inputValue;
         setInputValue("");
 
-        // Optimistic update
         const tempMsg: Message = {
             id: crypto.randomUUID(),
             conversationId: conversationId || 'temp',
             senderId: 'guest',
             senderRole: 'user',
-            content: userText,
+            content: txt,
             type: 'text',
             createdAt: Date.now(),
             readBy: []
         };
-
         setMessages(prev => [...prev, tempMsg]);
+        setIsTyping(true); // Start typing immediately
 
         if (!conversationId) {
             setStep('gate');
             return;
         }
 
-        setIsTyping(true);
-        // ... (API logic would go here in full implementation)
+        // Reuse the generic action
+        const { sendMessageAction } = await import("@/actions/crm/actions");
+        await sendMessageAction({
+            conversationId,
+            senderId: 'guest', // or leadId if we had it, but 'guest' might fail rules? 
+            // We need the ACTUAL lead ID.
+            // So we must store LeadID in state.
+            senderRole: 'user',
+            content: txt,
+            type: 'text'
+        });
+
+        await generateAIReplyAction(conversationId);
     };
 
     const handleGateSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!contactInfo.name || !contactInfo.email || !captchaToken) return;
+        if (!contactInfo.name || !contactInfo.email || !contactInfo.phone || !captchaToken) return;
 
-        setIsTyping(true);
+        setIsSendingVerification(true);
+        const fullPhone = `${countryCode} ${contactInfo.phone}`;
         const res = await sendVerificationEmailAction(
-            { name: contactInfo.name, email: contactInfo.email },
+            { name: contactInfo.name, email: contactInfo.email, phone: fullPhone },
             captchaToken
         );
-        setIsTyping(false);
+        setIsSendingVerification(false);
 
         if (res.success) {
             setIsVerificationSent(true);
@@ -104,11 +133,11 @@ export function AIChatWidget() {
     };
 
     const handleVerifyOtp = async () => {
-        setIsTyping(true);
+        setIsSendingVerification(true);
         const res = await verifyOtpAction(contactInfo.email, otpCode);
 
         if (!res.success || !res.token || !res.leadId) {
-            setIsTyping(false);
+            setIsSendingVerification(false);
             alert("Invalid code: " + res.error);
             return;
         }
@@ -118,12 +147,22 @@ export function AIChatWidget() {
             await signInWithCustomToken(auth, res.token);
             console.log("[Widget] ✅ Signed in with custom token for lead:", res.leadId);
 
-            // Start chat session with leadId
-            startChatSession(res.leadId);
+            if (res.existingConversationId) {
+                // Resume existing
+                console.log("[Widget] Resuming conversation:", res.existingConversationId);
+                setConversationId(res.existingConversationId);
+                setStep('chat');
+                setOtpCode('');
+                localStorage.setItem('nelson_lead_id', res.leadId);
+                setIsSendingVerification(false);
+            } else {
+                // Start new
+                startChatSession(res.leadId);
+            }
         } catch (authError) {
             console.error("[Widget] Firebase auth error:", authError);
             alert("Authentication failed. Please try again.");
-            setIsTyping(false);
+            setIsSendingVerification(false);
         }
     };
 
@@ -244,11 +283,18 @@ export function AIChatWidget() {
                                         key={msg.id}
                                         className={`flex ${msg.senderRole === 'user' ? 'justify-end' : 'justify-start'}`}
                                     >
-                                        <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.senderRole === 'user'
-                                            ? 'bg-slate-900 text-white rounded-br-sm'
-                                            : 'bg-white border text-slate-700 rounded-bl-sm'
-                                            }`}>
-                                            {msg.content}
+                                        <div className={`flex flex-col items-end max-w-[85%]`}>
+                                            <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.senderRole === 'user'
+                                                ? 'bg-slate-900 text-white rounded-br-sm'
+                                                : 'bg-white border text-slate-700 rounded-bl-sm'
+                                                }`}>
+                                                {msg.content}
+                                            </div>
+                                            {msg.senderRole === 'user' && (
+                                                <span className="text-[10px] text-slate-400 mt-1 flex items-center gap-0.5">
+                                                    Read <span className="text-blue-500">✓✓</span>
+                                                </span>
+                                            )}
                                         </div>
                                     </motion.div>
                                 ))}
@@ -306,18 +352,34 @@ export function AIChatWidget() {
                                                 />
                                             </div>
 
+                                            {/* Phone with Country Code */}
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-semibold text-slate-500 uppercase ml-1">Phone Number</label>
+                                                <div className="flex gap-2">
+                                                    <select
+                                                        className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                                        value={countryCode}
+                                                        onChange={e => setCountryCode(e.target.value)}
+                                                        disabled={isVerificationSent}
+                                                    >
+                                                        {COUNTRY_CODES.map(c => (
+                                                            <option key={c.code} value={c.code}>{c.label}</option>
+                                                        ))}
+                                                    </select>
+                                                    <input
+                                                        type="tel"
+                                                        required
+                                                        placeholder="(555) 000-0000"
+                                                        className="flex-1 text-base p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all disabled:bg-slate-100"
+                                                        value={contactInfo.phone}
+                                                        onChange={e => setContactInfo({ ...contactInfo, phone: e.target.value })}
+                                                        disabled={isVerificationSent}
+                                                    />
+                                                </div>
+                                            </div>
+
                                             {!isVerificationSent ? (
                                                 <>
-                                                    <div className="space-y-1">
-                                                        <label className="text-xs font-semibold text-slate-500 uppercase ml-1">Phone (Optional)</label>
-                                                        <input
-                                                            type="tel"
-                                                            placeholder="+1 (555) 000-0000"
-                                                            className="w-full text-base p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
-                                                            value={contactInfo.phone}
-                                                            onChange={e => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                                                        />
-                                                    </div>
                                                     <div className="flex justify-center py-2 min-h-[78px]">
                                                         <ReCAPTCHA
                                                             sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
@@ -326,10 +388,10 @@ export function AIChatWidget() {
                                                     </div>
                                                     <button
                                                         type="submit"
-                                                        disabled={!captchaToken || isTyping}
+                                                        disabled={!captchaToken || isSendingVerification}
                                                         className="w-full bg-blue-600 text-white py-3 rounded-lg text-sm font-bold hover:bg-blue-700 shadow-md hover:shadow-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
-                                                        {isTyping ? "Sending Code..." : "Send Verification Code"}
+                                                        {isSendingVerification ? "Sending Code..." : "Send Verification Code"}
                                                     </button>
                                                 </>
                                             ) : (
@@ -363,10 +425,10 @@ export function AIChatWidget() {
                                                     <button
                                                         type="button"
                                                         onClick={handleVerifyOtp}
-                                                        disabled={otpCode.length < 6 || isTyping}
+                                                        disabled={otpCode.length < 6 || isSendingVerification}
                                                         className="w-full bg-green-600 text-white py-3 rounded-lg text-sm font-bold hover:bg-green-700 shadow-md hover:shadow-lg transition-all transform active:scale-95 disabled:opacity-50"
                                                     >
-                                                        {isTyping ? "Verifying..." : "Verify & Chat"}
+                                                        {isSendingVerification ? "Verifying..." : "Verify & Chat"}
                                                     </button>
 
                                                     <button
@@ -392,11 +454,11 @@ export function AIChatWidget() {
                                             placeholder="Type a message..."
                                             value={inputValue}
                                             onChange={e => setInputValue(e.target.value)}
-                                            onKeyDown={e => e.key === 'Enter' && handleSend()}
+                                            onKeyDown={e => e.key === 'Enter' && onSendMessage()}
                                             autoFocus
                                         />
                                         <button
-                                            onClick={handleSend}
+                                            onClick={onSendMessage}
                                             disabled={!inputValue.trim()}
                                             className="absolute right-2 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-all shadow-sm"
                                         >

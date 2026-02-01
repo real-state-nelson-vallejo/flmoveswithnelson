@@ -1,18 +1,13 @@
-import { Property } from "../domain/Property";
+import { Property, PropertyProps } from "../domain/Property";
 import { PropertyRepository } from "../domain/PropertyRepository";
 
+export type CreatePropertyRequest = Omit<PropertyProps, "id" | "createdAt" | "updatedAt">;
 
 export class CreateProperty {
     constructor(private readonly repository: PropertyRepository) { }
 
-    async execute(data: Omit<Property, "id" | "createdAt" | "updatedAt">): Promise<Property> {
-        const newProperty: Property = {
-            ...data,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
+    async execute(data: CreatePropertyRequest): Promise<Property> {
+        const newProperty = Property.create(data);
         await this.repository.save(newProperty);
         return newProperty;
     }

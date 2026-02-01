@@ -1,11 +1,11 @@
 "use client";
 
-import { Property } from "@/backend/property/domain/Property";
+import { PropertyDTO } from "@/types/property";
 import { Button } from "@/components/ui/Button"; // Assuming we have this, or use standard
 import { motion } from "framer-motion";
 
 interface PropertySidebarProps {
-    property: Property;
+    property: PropertyDTO;
 }
 
 export function PropertySidebar({ property }: PropertySidebarProps) {

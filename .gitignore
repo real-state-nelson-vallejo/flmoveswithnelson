@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Admin initialization scripts (SECURITY - DO NOT COMMIT)
+scripts/init-super-admin.ts
+scripts/init-super-admin.js
+scripts/init-*.ts
+scripts/init-*.js
+

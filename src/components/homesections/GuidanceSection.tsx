@@ -54,7 +54,7 @@ export function GuidanceSection() {
         return () => unsubscribe();
     }, [scrollYProgress]);
 
-    const CurrentIcon = STEPS[activeStep].icon;
+    const CurrentIcon = STEPS[activeStep]!.icon;
 
     const handleMobileScroll = (e: React.UIEvent<HTMLDivElement>) => {
         const container = e.currentTarget;
@@ -102,10 +102,10 @@ export function GuidanceSection() {
                                             <CurrentIcon size={28} />
                                         </div>
                                         <h3 className={styles.contentTitle}>
-                                            {STEPS[activeStep].title}
+                                            {STEPS[activeStep]!.title}
                                         </h3>
                                         <p className={styles.contentDesc}>
-                                            {STEPS[activeStep].description}
+                                            {STEPS[activeStep]!.description}
                                         </p>
                                     </motion.div>
                                 </AnimatePresence>
@@ -116,8 +116,8 @@ export function GuidanceSection() {
                                 <AnimatePresence mode="popLayout">
                                     <motion.img
                                         key={activeStep}
-                                        src={STEPS[activeStep].image}
-                                        alt={STEPS[activeStep].title}
+                                        src={STEPS[activeStep]!.image}
+                                        alt={STEPS[activeStep]!.title}
                                         className={styles.image}
                                         initial={{ opacity: 0, scale: 1.05 }}
                                         animate={{ opacity: 1, scale: 1 }}

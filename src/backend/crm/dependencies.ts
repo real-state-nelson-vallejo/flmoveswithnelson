@@ -1,7 +1,15 @@
-import { FirestoreConversationRepository } from "./infrastructure/FirestoreConversationRepository";
-// import { FirestoreLeadRepository } from "./infrastructure/FirestoreLeadRepository";
-import { FirestoreEmailRepository } from "./infrastructure/FirestoreEmailRepository";
+import { FirestoreCRMRepository } from "./infrastructure/FirestoreCRMRepository";
+import { GetCRMConfigService } from "./application/services/GetCRMConfigService";
+import { SaveCRMConfigService } from "./application/services/SaveCRMConfigService";
 
-export const conversationRepository = new FirestoreConversationRepository();
-export const emailRepository = new FirestoreEmailRepository();
-// export const leadRepository = new FirestoreLeadRepository();
+export const crmRepository = new FirestoreCRMRepository();
+
+export const crmServices = {
+    getConfig: new GetCRMConfigService(crmRepository),
+    saveConfig: new SaveCRMConfigService(crmRepository)
+};
+
+export const crmDependencies = {
+    crmRepository,
+    ...crmServices
+};

@@ -274,7 +274,7 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
             {/* Image Preview List */}
             {watchedValues.images && watchedValues.images.length > 0 && (
                 <div className="grid grid-cols-3 gap-4">
-                    {watchedValues.images.map((img, idx) => (
+                    {watchedValues.images.map((img: string, idx: number) => (
                         <div key={idx} className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden border border-slate-200 group">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={img} alt={`Preview ${idx}`} className="w-full h-full object-cover" />

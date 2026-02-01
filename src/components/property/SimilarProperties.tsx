@@ -1,6 +1,6 @@
 "use client";
 
-import { Property } from "@/backend/property/domain/Property";
+import { PropertyDTO } from "@/types/property";
 import { PropertyCard } from "./PropertyCard";
 
 interface SimilarPropertiesProps {
@@ -10,7 +10,7 @@ interface SimilarPropertiesProps {
 
 export function SimilarProperties({ currentId, locale }: SimilarPropertiesProps) {
     // MOCK DATA: Similar Properties
-    const SIMILAR_PROPERTIES: Property[] = [
+    const SIMILAR_PROPERTIES: PropertyDTO[] = [
         {
             id: '2',
             title: 'Modern Villa – Miami Shores',
@@ -22,8 +22,8 @@ export function SimilarProperties({ currentId, locale }: SimilarPropertiesProps)
             images: ['https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80'],
             type: 'sale',
             status: 'available',
-            createdAt: new Date(),
-            updatedAt: new Date()
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         },
         {
             id: '3',
@@ -36,8 +36,8 @@ export function SimilarProperties({ currentId, locale }: SimilarPropertiesProps)
             images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80'],
             type: 'sale',
             status: 'available',
-            createdAt: new Date(),
-            updatedAt: new Date()
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         },
         // Duplicate for grid
         {
@@ -51,8 +51,8 @@ export function SimilarProperties({ currentId, locale }: SimilarPropertiesProps)
             images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80'],
             type: 'sale',
             status: 'available',
-            createdAt: new Date(),
-            updatedAt: new Date()
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         }
     ];
 

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const MoneySchema = z.object({
     amount: z.number(),
-    currency: z.string().default('USD')
+    currency: z.string()
 });
 
 export const PropertySchema = z.object({
@@ -34,9 +34,6 @@ export const PropertySchema = z.object({
     images: z.array(z.string()),
     type: z.enum(['sale', 'rent']),
     status: z.enum(['available', 'sold', 'reserved']),
-    // Allow Date, number, or Firestore Timestamp (handled as any/object for now)
-    createdAt: z.union([z.date(), z.number(), z.any()]),
-    updatedAt: z.union([z.date(), z.number(), z.any()])
+    createdAt: z.number(),
+    updatedAt: z.number()
 });
-
-export type Property = z.infer<typeof PropertySchema>;

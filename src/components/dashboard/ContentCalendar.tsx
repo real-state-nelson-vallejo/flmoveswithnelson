@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Post } from "@/backend/content/domain/Post";
+import { PostDTO } from "@/types/content";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ContentCalendarProps {
-    posts: Post[];
+    posts: PostDTO[];
 }
 
 export function ContentCalendar({ posts }: ContentCalendarProps) {
@@ -83,8 +83,8 @@ export function ContentCalendar({ posts }: ContentCalendarProps) {
                                     <div
                                         key={post.id}
                                         className={`text-[10px] px-1.5 py-0.5 rounded truncate border ${post.status === 'published' ? 'bg-green-100 text-green-800 border-green-200' :
-                                                post.status === 'scheduled' ? 'bg-blue-100 text-blue-800 border-blue-200' :
-                                                    'bg-slate-100 text-slate-600 border-slate-200'
+                                            post.status === 'scheduled' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                                                'bg-slate-100 text-slate-600 border-slate-200'
                                             }`}
                                         title={post.title}
                                     >

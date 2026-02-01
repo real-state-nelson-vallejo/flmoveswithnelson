@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { getPropertiesAction } from "@/actions/property/actions";
-import { Property } from "@/backend/property/domain/Property";
+import { PropertyDTO } from "@/types/property";
 import { Loader2, Plus } from "lucide-react";
 
 import { SlideOver } from "@/components/ui/SlideOver";
 import { PropertyForm } from "@/components/dashboard/PropertyForm";
 
 export default function PropertiesDashboardPage() {
-    const [properties, setProperties] = useState<Property[]>([]);
+    const [properties, setProperties] = useState<PropertyDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
 

@@ -10,7 +10,7 @@ export async function seedCrmDataAction() {
         { name: "Investment Corp", interest: "Investing", message: "Quiero diversificar mi portafolio con propiedades de lujo." }
     ];
 
-    const randomLead = mockLeads[Math.floor(Math.random() * mockLeads.length)];
+    const randomLead = mockLeads[Math.floor(Math.random() * mockLeads.length)]!;
     const agentId = "agent-123"; // MOCK_USER_ID
     const userId = crypto.randomUUID(); // Simulated external user
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from 'react';
-import { Property } from "@/backend/property/domain/Property";
+import { PropertyDTO } from "@/types/property";
 import { PropertyGallery } from "@/components/property/PropertyGallery";
 import { PropertySidebar } from "@/components/property/PropertySidebar";
 import { PropertyMap } from "@/components/property/PropertyMap";
@@ -11,7 +11,7 @@ import { MapPin, Calendar, Bed, Bath, Square, CheckCircle } from "lucide-react";
 import Link from 'next/link';
 
 // MOCK DATA (Synced with HomePage)
-const MOCK_PROPERTY: Property = {
+const MOCK_PROPERTY: PropertyDTO = {
     id: '1',
     title: 'New Build – Geneva Landings, Davenport',
     description: 'Under construction. One-story new build with 2,029 sq.ft, 4 bedrooms and 2.5 baths. Open living area and an open kitchen with granite countertops, Samsung stainless-steel appliances, pantry, and a counter-height island that opens to the café and gathering room.\n\nLuxury wood-look vinyl plank in living, laundry and baths; stain-resistant carpet in bedrooms. 2-car garage, 0.14-acre lot. Community: Geneva Landings (Polk County). Year 2025. HOA $150/year. Heating Central; Central Air.',
@@ -37,8 +37,8 @@ const MOCK_PROPERTY: Property = {
     ],
     type: 'sale',
     status: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date()
+    createdAt: Date.now(),
+    updatedAt: Date.now()
 };
 
 export default function PropertyDetailPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {

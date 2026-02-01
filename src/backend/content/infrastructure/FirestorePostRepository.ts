@@ -1,23 +1,30 @@
 import { adminDb } from "@/lib/firebase/admin";
 import { Post, PostStatus } from "../domain/Post";
 import { PostRepository } from "../domain/PostRepository";
+import { PostPersistenceModel } from "./dto/PostPersistence";
 
 export class FirestorePostRepository implements PostRepository {
     private collection = "posts";
 
     async save(post: Post): Promise<void> {
-        await adminDb.collection(this.collection).doc(post.id).set(post);
+        const persistence = post.toPersistence();
+        await adminDb.collection(this.collection).doc(post.id).set(persistence);
     }
 
     async findById(id: string): Promise<Post | null> {
         const doc = await adminDb.collection(this.collection).doc(id).get();
         if (!doc.exists) return null;
-        return doc.data() as Post;
+
+        const data = doc.data() as PostPersistenceModel;
+        return Post.fromPersistence(data);
     }
 
     async findAll(): Promise<Post[]> {
         const snapshot = await adminDb.collection(this.collection).orderBy("createdAt", "desc").get();
-        return snapshot.docs.map(doc => doc.data() as Post);
+        return snapshot.docs.map(doc => {
+            const data = doc.data() as PostPersistenceModel;
+            return Post.fromPersistence(data);
+        });
     }
 
     async findByStatus(status: PostStatus): Promise<Post[]> {
@@ -25,7 +32,10 @@ export class FirestorePostRepository implements PostRepository {
             .where("status", "==", status)
             .orderBy("publishDate", "asc")
             .get();
-        return snapshot.docs.map(doc => doc.data() as Post);
+        return snapshot.docs.map(doc => {
+            const data = doc.data() as PostPersistenceModel;
+            return Post.fromPersistence(data);
+        });
     }
 
     async delete(id: string): Promise<void> {

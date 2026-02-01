@@ -20,7 +20,7 @@ import {
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Lead, LEAD_STATUSES } from "@/backend/crm/domain/Lead";
+import { LeadDTO as Lead, LEAD_STATUSES } from "@/types/lead";
 import { getLeadsAction, updateLeadStatusAction, createMockLeadsAction } from "@/actions/crm/actions";
 import { Loader2, Plus } from "lucide-react";
 

@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { getPostsAction, deletePostAction } from "@/actions/content/actions";
-import { Post } from "@/backend/content/domain/Post";
+import { PostDTO } from "@/types/content";
 import { ContentList } from "@/components/dashboard/ContentList";
 import { ContentCalendar } from "@/components/dashboard/ContentCalendar";
 import { PostEditor } from "@/components/dashboard/PostEditor";
 import { Loader2, Plus, LayoutList, Calendar as CalendarIcon } from "lucide-react";
 
 export default function ContentManagerPage() {
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<PostDTO[]>([]);
     const [view, setView] = useState<'list' | 'calendar'>('list');
     const [loading, setLoading] = useState(true);
-    const [editingPost, setEditingPost] = useState<Post | null | undefined>(undefined); // undefined = list mode, null = new, Post = edit
+    const [editingPost, setEditingPost] = useState<PostDTO | null | undefined>(undefined); // undefined = list mode, null = new, Post = edit
 
     useEffect(() => {
         loadPosts();
