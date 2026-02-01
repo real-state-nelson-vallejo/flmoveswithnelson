@@ -2,6 +2,7 @@ import { adminDb } from "@/lib/firebase/admin";
 import { Post, PostStatus } from "../domain/Post";
 import { PostRepository } from "../domain/PostRepository";
 import { PostPersistenceModel } from "./dto/PostPersistence";
+import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 export class FirestorePostRepository implements PostRepository {
     private collection = "posts";
@@ -21,7 +22,7 @@ export class FirestorePostRepository implements PostRepository {
 
     async findAll(): Promise<Post[]> {
         const snapshot = await adminDb.collection(this.collection).orderBy("createdAt", "desc").get();
-        return snapshot.docs.map(doc => {
+        return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
             const data = doc.data() as PostPersistenceModel;
             return Post.fromPersistence(data);
         });
@@ -32,7 +33,7 @@ export class FirestorePostRepository implements PostRepository {
             .where("status", "==", status)
             .orderBy("publishDate", "asc")
             .get();
-        return snapshot.docs.map(doc => {
+        return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
             const data = doc.data() as PostPersistenceModel;
             return Post.fromPersistence(data);
         });

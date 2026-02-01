@@ -3,6 +3,7 @@ import { ConversationRepository } from "@/backend/conversation/domain/Conversati
 import { adminDb } from "@/lib/firebase/admin";
 import { ConversationPersistence, MessagePersistence } from "./dto/ConversationPersistence";
 import { ConversationPersistenceSchema, MessagePersistenceSchema } from "./dto/ConversationPersistenceSchema";
+import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 export class FirestoreConversationRepository implements ConversationRepository {
     private conversationsCollection = adminDb.collection('conversations');
@@ -97,7 +98,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
             .get();
 
         return snapshot.docs
-            .map(doc => {
+            .map((doc: QueryDocumentSnapshot) => {
                 const result = ConversationPersistenceSchema.safeParse(doc.data());
                 return result.success ? this.mapToDomain(result.data) : null;
             })
@@ -111,7 +112,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
             .get();
 
         return snapshot.docs
-            .map(doc => {
+            .map((doc: QueryDocumentSnapshot) => {
                 const result = ConversationPersistenceSchema.safeParse(doc.data());
                 return result.success ? this.mapToDomain(result.data) : null;
             })
@@ -143,7 +144,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
             .get();
 
         return snapshot.docs
-            .map(doc => {
+            .map((doc: QueryDocumentSnapshot) => {
                 const result = MessagePersistenceSchema.safeParse(doc.data());
                 return result.success ? this.mapMessageToDomain(result.data) : null;
             })

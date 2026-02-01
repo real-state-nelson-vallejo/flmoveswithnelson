@@ -2,6 +2,7 @@ import { Property } from "../domain/Property";
 import { PropertyRepository } from "../domain/PropertyRepository";
 import { adminDb } from "@/lib/firebase/admin";
 import { PropertyPersistenceModel } from "./dto/PropertyPersistence";
+import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 const COLLECTION_NAME = "properties";
 
@@ -31,7 +32,7 @@ export class FirestorePropertyRepository implements PropertyRepository {
 
     async findAll(): Promise<Property[]> {
         const snapshot = await adminDb.collection(COLLECTION_NAME).get();
-        return snapshot.docs.map(doc => {
+        return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
             const data = doc.data() as PropertyPersistenceModel;
             return Property.fromPersistence(data);
         });
