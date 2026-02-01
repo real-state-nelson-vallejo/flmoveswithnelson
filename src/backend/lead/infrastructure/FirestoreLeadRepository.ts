@@ -2,7 +2,7 @@ import { adminDb } from "@/lib/firebase/admin";
 import { Lead, LeadProps, LeadStatus } from "../domain/Lead";
 import { LeadRepository } from "../domain/LeadRepository";
 import { LeadPersistence } from "./dto/LeadPersistence";
-import { QueryDocumentSnapshot } from "firebase-admin/firestore";
+import { QueryDocumentSnapshot, DocumentSnapshot } from "firebase-admin/firestore";
 
 export class FirestoreLeadRepository implements LeadRepository {
     private collection = "leads";
@@ -44,7 +44,7 @@ export class FirestoreLeadRepository implements LeadRepository {
             .filter((lead: Lead | null): lead is Lead => lead !== null);
     }
 
-    private mapDocToLead(doc: FirebaseFirestore.DocumentSnapshot | QueryDocumentSnapshot): Lead | null {
+    private mapDocToLead(doc: DocumentSnapshot | QueryDocumentSnapshot): Lead | null {
         const data = doc.data();
         if (!data) return null;
 
