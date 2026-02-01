@@ -66,7 +66,7 @@ export const searchPropertiesTool = ai.defineTool(
                 bedrooms: data.specs.beds,
                 type: data.type
             };
-        }).filter((p): p is {
+        }).filter((p: unknown): p is {
             id: string;
             title: string;
             price: number;
