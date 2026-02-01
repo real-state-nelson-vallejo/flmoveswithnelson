@@ -3,7 +3,7 @@ import { EmailRepository } from "../domain/EmailRepository";
 import { adminDb } from "@/lib/firebase/admin";
 import { EmailPersistenceSchema } from "./dto/EmailPersistenceSchema";
 import { EmailDTO } from "./dto/EmailDTO";
-import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 export class FirestoreEmailRepository implements EmailRepository {
     private collection = adminDb.collection('mail');

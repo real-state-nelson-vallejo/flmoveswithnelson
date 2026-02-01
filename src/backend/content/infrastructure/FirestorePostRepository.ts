@@ -2,7 +2,7 @@ import { adminDb } from "@/lib/firebase/admin";
 import { Post, PostStatus } from "../domain/Post";
 import { PostRepository } from "../domain/PostRepository";
 import { PostPersistenceModel } from "./dto/PostPersistence";
-import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 export class FirestorePostRepository implements PostRepository {
     private collection = "posts";

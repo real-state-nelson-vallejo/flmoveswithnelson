@@ -3,7 +3,7 @@ import { ConversationRepository } from "@/backend/conversation/domain/Conversati
 import { adminDb } from "@/lib/firebase/admin";
 import { ConversationPersistence, MessagePersistence } from "./dto/ConversationPersistence";
 import { ConversationPersistenceSchema, MessagePersistenceSchema } from "./dto/ConversationPersistenceSchema";
-import { QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
+import type { QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 
 export class FirestoreConversationRepository implements ConversationRepository {
     private conversationsCollection = adminDb.collection('conversations');

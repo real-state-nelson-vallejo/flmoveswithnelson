@@ -2,7 +2,7 @@ import { Property } from "../domain/Property";
 import { PropertyRepository } from "../domain/PropertyRepository";
 import { adminDb } from "@/lib/firebase/admin";
 import { PropertyPersistenceModel } from "./dto/PropertyPersistence";
-import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 const COLLECTION_NAME = "properties";
 
