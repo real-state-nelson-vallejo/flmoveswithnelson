@@ -3,7 +3,7 @@ import { ConversationRepository } from "@/backend/conversation/domain/Conversati
 import { adminDb } from "@/lib/firebase/admin";
 import { ConversationPersistence, MessagePersistence } from "./dto/ConversationPersistence";
 import { ConversationPersistenceSchema, MessagePersistenceSchema } from "./dto/ConversationPersistenceSchema";
-import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 
 export class FirestoreConversationRepository implements ConversationRepository {
     private conversationsCollection = adminDb.collection('conversations');
@@ -124,7 +124,7 @@ export class FirestoreConversationRepository implements ConversationRepository {
         const validated = MessagePersistenceSchema.parse(data);
 
         // Transaction to save message AND update conversation lastMessage
-        await adminDb.runTransaction(async (t) => {
+        await adminDb.runTransaction(async (t: Transaction) => {
             const messageRef = this.messagesCollection.doc(message.id);
             const conversationRef = this.conversationsCollection.doc(message.conversationId);
 
