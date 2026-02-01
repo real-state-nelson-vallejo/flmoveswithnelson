@@ -1,6 +1,8 @@
 import { InboxClient } from '@/components/dashboard/crm/InboxClient';
 import { getConversationsAction } from '@/actions/crm/actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function InboxPage() {
     // Fetch all conversations for admin dashboard
     const { data: conversations } = await getConversationsAction();
