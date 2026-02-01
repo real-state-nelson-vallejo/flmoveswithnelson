@@ -44,6 +44,19 @@ export const searchPropertiesTool = ai.defineTool(
 
         const snapshot = await query.limit(10).get();
 
+        // Helper type for search results
+        type SearchResult = {
+            id: string;
+            title: string;
+            price: number;
+            location: string;
+            description: string;
+            bedrooms: number;
+            type: "sale" | "rent";
+        };
+
+        // ... inside the tool ...
+
         const results = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
             const rawData = doc.data();
             // Validate data against schema
@@ -66,18 +79,10 @@ export const searchPropertiesTool = ai.defineTool(
                 bedrooms: data.specs.beds,
                 type: data.type
             };
-        }).filter((p: unknown): p is {
-            id: string;
-            title: string;
-            price: number;
-            location: string;
-            description: string;
-            bedrooms: number;
-            type: "sale" | "rent";
-        } => p !== null);
+        }).filter((p: unknown): p is SearchResult => p !== null);
 
         // In-memory filter for MVP to avoid index creation hell during demo
-        return results.filter(p => {
+        return results.filter((p: SearchResult) => {
             if (input.location && !p.location.toLowerCase().includes(input.location.toLowerCase())) return false;
             if (input.minPrice && p.price < input.minPrice) return false;
             if (input.maxPrice && p.price > input.maxPrice) return false;

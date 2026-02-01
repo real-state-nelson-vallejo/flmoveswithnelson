@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "validate": "npm run type-check && npm run lint",
     "init:admin": "tsx scripts/init-super-admin.ts"
   },
   "dependencies": {
