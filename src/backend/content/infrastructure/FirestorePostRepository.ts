@@ -5,7 +5,9 @@ import { PostPersistenceModel } from "./dto/PostPersistence";
 import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 export class FirestorePostRepository implements PostRepository {
-    private collection = "posts";
+    private get collection() {
+        return "posts";
+    }
 
     async save(post: Post): Promise<void> {
         const persistence = post.toPersistence();

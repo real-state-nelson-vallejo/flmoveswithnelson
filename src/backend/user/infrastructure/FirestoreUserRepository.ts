@@ -17,7 +17,9 @@ const UserPersistenceSchema = z.object({
 });
 
 export class FirestoreUserRepository implements UserRepository {
-    private collection = adminDb.collection('users');
+    private get collection() {
+        return adminDb.collection('users');
+    }
 
     private mapToDomain(data: UserPersistence): User {
         return new User({

@@ -6,8 +6,12 @@ import { ConversationPersistenceSchema, MessagePersistenceSchema } from "./dto/C
 import type { QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 
 export class FirestoreConversationRepository implements ConversationRepository {
-    private conversationsCollection = adminDb.collection('conversations');
-    private messagesCollection = adminDb.collection('messages');
+    private get conversationsCollection() {
+        return adminDb.collection('conversations');
+    }
+    private get messagesCollection() {
+        return adminDb.collection('messages');
+    }
 
     // --- MAPPERS ---
 

@@ -6,7 +6,9 @@ import { EmailDTO } from "./dto/EmailDTO";
 import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 export class FirestoreEmailRepository implements EmailRepository {
-    private collection = adminDb.collection('mail');
+    private get collection() {
+        return adminDb.collection('mail');
+    }
 
     private mapToDomain(data: EmailDTO): Email {
         return new Email({

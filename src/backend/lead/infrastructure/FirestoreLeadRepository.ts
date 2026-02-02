@@ -5,7 +5,9 @@ import { LeadPersistence } from "./dto/LeadPersistence";
 import type { QueryDocumentSnapshot, DocumentSnapshot } from "firebase-admin/firestore";
 
 export class FirestoreLeadRepository implements LeadRepository {
-    private collection = "leads";
+    private get collection() {
+        return "leads";
+    }
 
     async save(lead: Lead): Promise<void> {
         await adminDb.collection(this.collection).doc(lead.id).set(lead.toPersistence());
