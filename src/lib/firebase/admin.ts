@@ -1,50 +1,59 @@
 import "server-only";
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
-import type { Auth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
-import type { Firestore } from "firebase-admin/firestore";
+import admin from 'firebase-admin';
+import type { ServiceAccount } from 'firebase-admin';
 
-// Function to ensure app is initialized
-function ensureApp() {
-    if (!getApps().length) {
-        const privateKey = process.env.FIREBASE_PRIVATE_KEY
-            ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-            : undefined;
+// Singleton instance
+let app: admin.app.App;
 
-        initializeApp({
-            credential: cert({
-                projectId: process.env.FIREBASE_PROJECT_ID!,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-                ...(privateKey ? { privateKey } : {}),
-            }),
-            storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!
-        });
+function getFirebaseAdminApp(): admin.app.App {
+    if (app) {
+        return app;
     }
+
+    // Check if any app is already initialized
+    if (admin.apps.length > 0) {
+        app = admin.app();
+        return app;
+    }
+
+    const serviceAccount = {
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    };
+
+    // Note: In build time, these might be missing, so we only throw if we actually try to initialize
+    // which happens inside the Proxy (Lazily).
+    if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
+        // Log warning instead of throwing immediately to allow build to pass if it doesn't use DB
+        console.warn('Firebase Admin env vars missing. DB connection will fail if used.');
+    }
+
+    app = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount as ServiceAccount),
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!
+    });
+
+    return app;
 }
 
-let _auth: Auth | undefined;
-let _db: Firestore | undefined;
-
-export const adminAuth = new Proxy({} as Auth, {
+export const adminAuth = new Proxy({} as admin.auth.Auth, {
     get: (_target, prop) => {
-        if (!_auth) {
-            ensureApp();
-            _auth = getAuth();
-        }
-        const val = _auth[prop as keyof Auth];
-        return typeof val === 'function' ? val.bind(_auth) : val;
+        const auth = getFirebaseAdminApp().auth();
+        const val = auth[prop as keyof admin.auth.Auth];
+        return typeof val === 'function' ? val.bind(auth) : val;
     }
 });
 
-export const adminDb = new Proxy({} as Firestore, {
+export const adminDb = new Proxy({} as admin.firestore.Firestore, {
     get: (_target, prop) => {
-        if (!_db) {
-            ensureApp();
-            _db = getFirestore();
-            _db.settings({ ignoreUndefinedProperties: true });
+        const db = getFirebaseAdminApp().firestore();
+        try {
+            db.settings({ ignoreUndefinedProperties: true });
+        } catch {
+            // Ignore if settings already applied
         }
-        const val = _db[prop as keyof Firestore];
-        return typeof val === 'function' ? val.bind(_db) : val;
+        const val = db[prop as keyof admin.firestore.Firestore];
+        return typeof val === 'function' ? val.bind(db) : val;
     }
 });
