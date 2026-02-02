@@ -1,5 +1,6 @@
 import { PropertyDTO } from "../infrastructure/dto/PropertyDTO";
 import { PropertyPersistenceModel } from "../infrastructure/dto/PropertyPersistence";
+import crypto from 'crypto';
 
 export interface Money {
     amount: number;
@@ -8,8 +9,13 @@ export interface Money {
 
 export interface PropertyProps {
     id: string;
+    slug?: string;
     title: string;
     description: string;
+    videoUrl?: string;
+    virtualTourUrl?: string;
+    agentId?: string;
+    views?: number;
     price: Money;
     location: {
         address: string;
@@ -17,6 +23,10 @@ export interface PropertyProps {
         country: string;
         state?: string | undefined;
         zip?: string | undefined;
+        coordinates?: {
+            lat: number;
+            lng: number;
+        };
     };
     specs: {
         beds: number;
@@ -79,8 +89,13 @@ export class Property {
 
     // Getters
     get id() { return this.props.id; }
+    get slug() { return this.props.slug; }
     get title() { return this.props.title; }
     get description() { return this.props.description; }
+    get videoUrl() { return this.props.videoUrl; }
+    get virtualTourUrl() { return this.props.virtualTourUrl; }
+    get agentId() { return this.props.agentId; }
+    get views() { return this.props.views ?? 0; }
     get price() { return { ...this.props.price }; }
     get location() { return { ...this.props.location }; }
     get specs() { return { ...this.props.specs }; }
@@ -100,6 +115,11 @@ export class Property {
 
     updateStatus(status: Property['status']): void {
         this.props.status = status;
+        this.touch();
+    }
+
+    update(props: Partial<Omit<PropertyProps, 'id' | 'createdAt' | 'updatedAt'>>): void {
+        Object.assign(this.props, props);
         this.touch();
     }
 

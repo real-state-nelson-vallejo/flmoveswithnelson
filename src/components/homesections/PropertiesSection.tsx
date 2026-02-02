@@ -1,77 +1,48 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { PropertyDTO } from "@/types/property";
-
-const MOCK_PROPERTIES: PropertyDTO[] = [
-    {
-        id: '1',
-        title: 'New Build – Geneva Landings, Davenport',
-        description: 'Under construction. One-story new build with 2,029 sq.ft, 4 bedrooms and 2.5 baths. Open living area and an open kitchen with granite countertops, Samsung stainless-steel appliances, pantry, and a counter-height island that opens to the café and gathering room.',
-        price: { amount: 390560, currency: 'USD' },
-        location: { address: '1449 FLEUR Drive', city: 'Davenport, FL', country: 'USA', zip: '33837' },
-        specs: {
-            beds: 4,
-            baths: 3,
-            area: 2029,
-            areaUnit: 'sqft',
-            lotSize: 0.14,
-            lotUnit: 'acres',
-            yearBuilt: 2025
-        },
-        hoa: { amount: 150, period: 'yearly' },
-        features: ['Granite Kitchen', 'Samsung SS Appliances', '2-car garage', 'Luxury vinyl plank'],
-        images: ['https://images.unsplash.com/photo-1583608205776-bfd35f0d9f8e?auto=format&fit=crop&w=800&q=80'], // Looks like the new build house
-        type: 'sale',
-        status: 'available',
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-    },
-    {
-        id: '2',
-        title: 'Modern Villa – Miami Shores',
-        description: 'Stunning modern villa with pool and private dock.',
-        price: { amount: 2500000, currency: 'USD' },
-        location: { address: '890 Ocean Blvd', city: 'Miami', country: 'USA' },
-        specs: {
-            beds: 5,
-            baths: 4,
-            area: 4500,
-            areaUnit: 'sqft'
-        },
-        features: ['Pool', 'Dock', 'Smart Home'],
-        images: ['https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80'],
-        type: 'sale',
-        status: 'available',
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-    },
-    {
-        id: '3',
-        title: 'Downtown Loft',
-        description: 'Industrial chic loft.',
-        price: { amount: 850000, currency: 'USD' },
-        location: { address: '45 Broad St', city: 'New York', country: 'USA' },
-        specs: {
-            beds: 2,
-            baths: 2,
-            area: 1400,
-            areaUnit: 'sqft'
-        },
-        features: ['High Ceilings', 'Exposed Brick'],
-        images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80'],
-        type: 'sale',
-        status: 'available',
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-    }
-];
+import { getPropertiesAction } from '@/actions/property/actions';
+import { Loader2 } from 'lucide-react';
 
 interface PropertiesSectionProps {
     locale: string;
 }
 
 export function PropertiesSection({ locale }: PropertiesSectionProps) {
+    const [properties, setProperties] = useState<PropertyDTO[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProperties = async () => {
+            try {
+                const res = await getPropertiesAction();
+                if (res.success && res.properties) {
+                    setProperties(res.properties);
+                }
+            } catch (error) {
+                console.error("Failed to fetch properties:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProperties();
+    }, []);
+
+    if (loading) {
+        return (
+            <section className="container" style={{ padding: 'var(--spacing-xl) var(--spacing-sm)' }}>
+                <div className="flex justify-center items-center py-20">
+                    <Loader2 className="animate-spin text-slate-400" size={32} />
+                </div>
+            </section>
+        );
+    }
+
+    if (properties.length === 0) return null;
+
     return (
         <section className="container" style={{ padding: 'var(--spacing-xl) var(--spacing-sm)' }}>
             <div style={{ marginBottom: 'var(--spacing-md)', textAlign: 'center' }}>
@@ -88,7 +59,7 @@ export function PropertiesSection({ locale }: PropertiesSectionProps) {
                 gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
                 gap: '3rem'
             }}>
-                {MOCK_PROPERTIES.map(p => (
+                {properties.map(p => (
                     <PropertyCard key={p.id} property={p} locale={locale} />
                 ))}
             </div>

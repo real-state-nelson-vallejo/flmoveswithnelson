@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPropertiesAction } from "@/actions/property/actions";
+import { getPropertiesAction, deletePropertyAction } from "@/actions/property/actions";
 import { PropertyDTO } from "@/types/property";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2 } from "lucide-react";
 
 import { SlideOver } from "@/components/ui/SlideOver";
 import { PropertyForm } from "@/components/dashboard/PropertyForm";
@@ -12,6 +12,7 @@ export default function PropertiesDashboardPage() {
     const [properties, setProperties] = useState<PropertyDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [editingProperty, setEditingProperty] = useState<PropertyDTO | undefined>(undefined);
 
     useEffect(() => {
         loadProperties();
@@ -26,12 +27,35 @@ export default function PropertiesDashboardPage() {
         setLoading(false);
     };
 
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this property?")) return;
+
+        // Optimistic update
+        setProperties(prev => prev.filter(p => p.id !== id));
+
+        const res = await deletePropertyAction(id);
+        if (!res.success) {
+            alert("Failed to delete property");
+            loadProperties(); // Revert
+        }
+    };
+
+    const handleEdit = (property: PropertyDTO) => {
+        setEditingProperty(property);
+        setIsFormOpen(true);
+    };
+
+    const handleCreate = () => {
+        setEditingProperty(undefined);
+        setIsFormOpen(true);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-slate-800">Property Management</h2>
                 <button
-                    onClick={() => setIsFormOpen(true)}
+                    onClick={handleCreate}
                     className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors flex items-center gap-2"
                 >
                     <Plus size={16} /> Add Property
@@ -55,6 +79,7 @@ export default function PropertiesDashboardPage() {
                                 <th className="px-6 py-4">Price</th>
                                 <th className="px-6 py-4">Location</th>
                                 <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -71,6 +96,22 @@ export default function PropertiesDashboardPage() {
                                             {property.status}
                                         </span>
                                     </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            <button
+                                                onClick={() => handleEdit(property)}
+                                                className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                            >
+                                                <Pencil size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(property.id)}
+                                                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -81,9 +122,10 @@ export default function PropertiesDashboardPage() {
             <SlideOver
                 isOpen={isFormOpen}
                 onClose={() => setIsFormOpen(false)}
-                title="Create New Property"
+                title={editingProperty ? "Edit Property" : "Create New Property"}
             >
                 <PropertyForm
+                    initialData={editingProperty}
                     onSuccess={() => {
                         setIsFormOpen(false);
                         loadProperties();

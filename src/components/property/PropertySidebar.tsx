@@ -1,14 +1,18 @@
 "use client";
 
 import { PropertyDTO } from "@/types/property";
-import { Button } from "@/components/ui/Button"; // Assuming we have this, or use standard
+import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
+import { formatPrice } from "@/lib/formatters";
 
 interface PropertySidebarProps {
     property: PropertyDTO;
 }
 
 export function PropertySidebar({ property }: PropertySidebarProps) {
+    const isForRent = property.type === 'rent';
+    const statusLabel = isForRent ? 'For Rent' : 'For Sale';
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -17,10 +21,12 @@ export function PropertySidebar({ property }: PropertySidebarProps) {
             className="sticky top-24 h-fit p-6 bg-white border border-slate-200 rounded-2xl shadow-sm"
         >
             <div className="mb-6">
-                <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Property For Sale</span>
+                <span className={`text-sm font-bold uppercase tracking-wider ${isForRent ? 'text-blue-600' : 'text-emerald-600'}`}>
+                    {statusLabel}
+                </span>
                 <h2 className="text-3xl font-bold text-slate-900 mt-2">
-                    {property.price.currency === 'USD' ? '$' : property.price.currency}
-                    {property.price.amount.toLocaleString()}
+                    {formatPrice(property.price.amount)}
+                    {isForRent && <span className="text-lg text-slate-500 font-normal">/month</span>}
                 </h2>
             </div>
 

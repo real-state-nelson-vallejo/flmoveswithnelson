@@ -1,7 +1,12 @@
 export interface PropertyDTO {
     id: string;
+    slug?: string;
     title: string;
     description: string;
+    videoUrl?: string; // Standard video (YouTube/Vimeo)
+    virtualTourUrl?: string; // 3D Tour (Matterport, etc.)
+    agentId?: string;
+    views?: number;
     price: {
         amount: number;
         currency: string;
@@ -12,6 +17,10 @@ export interface PropertyDTO {
         country: string;
         state?: string | undefined;
         zip?: string | undefined;
+        coordinates?: {
+            lat: number;
+            lng: number;
+        };
     };
     specs: {
         beds: number;

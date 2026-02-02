@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PropertySchema } from "@/lib/schemas/propertySchema";
-import { createPropertyAction, generateDescriptionAction, CreatePropertyDTO } from "@/actions/property/actions";
+import { createPropertyAction, updatePropertyAction, generateDescriptionAction, CreatePropertyDTO } from "@/actions/property/actions";
 import { Loader2, ChevronRight, Wand2, Plus, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { z } from "zod";
@@ -18,21 +18,34 @@ const FormSchema = PropertySchema.omit({
 
 type FormData = z.infer<typeof FormSchema>;
 
+import { PropertyDTO } from "@/types/property";
+
 interface PropertyFormProps {
+    initialData?: PropertyDTO | undefined;
     onSuccess: () => void;
     onCancel: () => void;
 }
 
 const STEPS = ["Basics", "Location", "Specs", "Images", "Details"];
 
-export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
+export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormProps) {
     const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [generatingAi, setGeneratingAi] = useState(false);
 
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(FormSchema),
-        defaultValues: {
+        defaultValues: initialData ? {
+            title: initialData.title,
+            price: initialData.price,
+            type: initialData.type,
+            status: initialData.status,
+            features: initialData.features,
+            images: initialData.images,
+            location: initialData.location,
+            specs: initialData.specs,
+            description: initialData.description
+        } : {
             title: "",
             price: { amount: 0, currency: "USD" },
             type: "sale",
@@ -108,13 +121,13 @@ export function PropertyForm({ onSuccess, onCancel }: PropertyFormProps) {
 
     const onSubmit = async (data: FormData) => {
         setLoading(true);
-        // Cast to DTO but usage of RHF ensures types match closely
-        // We might need to map some fields if DTO differs strictly, but FormSchema matches PropertySchema
-        // CreatePropertyDTO likely expects similar structure.
+        let result;
 
-        // We need to add back the ID or let action handle it. The action expects CreatePropertyDTO.
-        // Let's assume action generates ID if missing or we pass partial.
-        const result = await createPropertyAction(data as unknown as CreatePropertyDTO);
+        if (initialData) {
+            result = await updatePropertyAction({ id: initialData.id, ...data });
+        } else {
+            result = await createPropertyAction(data as unknown as CreatePropertyDTO);
+        }
 
         setLoading(false);
         if (result.success) {

@@ -1,7 +1,12 @@
 export interface PropertyPersistenceModel {
     id: string;
+    slug?: string;
     title: string;
     description: string;
+    videoUrl?: string;
+    virtualTourUrl?: string;
+    agentId?: string;
+    views?: number;
     price: {
         amount: number;
         currency: string;
@@ -12,6 +17,10 @@ export interface PropertyPersistenceModel {
         country: string;
         state?: string | undefined;
         zip?: string | undefined;
+        coordinates?: {
+            lat: number;
+            lng: number;
+        };
     };
     specs: {
         beds: number;

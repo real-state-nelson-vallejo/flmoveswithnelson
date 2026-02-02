@@ -1,8 +1,9 @@
-export const formatPrice = (amount: number): string => {
+export const formatPrice = (amount: number, options?: Intl.NumberFormatOptions): string => {
     return new Intl.NumberFormat('en-US', {
-        style: 'decimal', // We just want the number with commas, symbol is handled manually or we can use currency style
+        style: 'decimal',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
+        ...options,
     }).format(amount);
 };
 
