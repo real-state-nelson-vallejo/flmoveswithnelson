@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  serverExternalPackages: ['firebase-admin', '@google-cloud/firestore'],
 };
 
 export default withNextIntl(nextConfig);
