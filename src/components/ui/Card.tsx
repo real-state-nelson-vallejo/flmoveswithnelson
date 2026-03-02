@@ -58,4 +58,16 @@ const CardFooter = React.forwardRef<
 ))
 CardFooter.displayName = "CardFooter"
 
-export { Card, CardHeader, CardTitle, CardContent, CardFooter }
+const CardDescription = React.forwardRef<
+    HTMLParagraphElement,
+    React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+    <p
+        ref={ref}
+        className={cn(styles.description, className)}
+        {...props}
+    />
+))
+CardDescription.displayName = "CardDescription"
+
+export { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription }

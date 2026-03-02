@@ -41,4 +41,7 @@ export class InMemoryLeadRepository implements LeadRepository {
             this.leads.set(id, lead);
         }
     }
+    async findByPhone(phone: string): Promise<Lead[]> {
+        return Array.from(this.leads.values()).filter(l => l.phone === phone);
+    }
 }

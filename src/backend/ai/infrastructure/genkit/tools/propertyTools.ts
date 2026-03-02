@@ -1,94 +1,92 @@
-import { z } from 'zod';
-import { adminDb } from '@/lib/firebase/admin';
-import { QueryDocumentSnapshot } from 'firebase-admin/firestore';
-import { ai } from '../config';
-import { PropertySchema } from '@/lib/schemas/propertySchema';
 
-// This tool wraps the Firestore query so the AI can find properties
-export const searchPropertiesTool = ai.defineTool(
-    {
-        name: 'searchProperties',
-        description: 'Searches for properties based on location, price range, and type (sale/rent). Returns a list of matching properties.',
-        inputSchema: z.object({
-            location: z.string().optional().describe('City or neighborhood name'),
-            minPrice: z.number().optional().describe('Minimum price in USD/EUR'),
-            maxPrice: z.number().optional().describe('Maximum price in USD/EUR'),
-            type: z.enum(['sale', 'rent']).optional().describe('Type of listing: sale or rent'),
-            bedrooms: z.number().optional().describe('Minimum number of bedrooms')
-        }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        outputSchema: z.array(z.object({
-            id: z.string(),
-            title: z.string(),
-            price: z.number(),
-            location: z.string(),
-            description: z.string().optional()
-        })) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-    },
-    async (input) => {
-        // Basic implementation connecting to Firestore
-        // Ideally this calls PropertyRepository, but for direct AI speed we query adminDb here or use the repository if available
+import { tool, z } from 'genkit';
+import { SemanticSearchService } from '@/backend/property/application/SemanticSearchService';
+import { FirestoreLeadRepository } from '@/backend/lead/infrastructure/FirestoreLeadRepository';
 
-        const query = adminDb.collection('properties');
+const leadRepository = new FirestoreLeadRepository();
+export const PropertyTools = {
+    register: () => {
+        const TOOLS_NAME = 'propertyToolsInstances_v5';
 
-        // Note: Firestore requires composite indexes for complex multi-field queries.
-        // We will do basic client-side filtering or simple single-field queries for this MVP if indexes aren't ready.
-        // For now, let's limit to just fetching recent ones and filtering manually if the dataset is small, 
-        // or assume "location" is the main filter.
-
-        if (input.type) {
-            // query = query.where('type', '==', input.type); // Type check issue with chained queries in strict mode sometimes
+        if ((globalThis as any)[TOOLS_NAME]) {
+            return (globalThis as any)[TOOLS_NAME];
         }
 
+        console.log('[PropertyTools] Registering with latest SemanticSearchService v5');
+        const semanticSearch = new SemanticSearchService();
 
-        // ... (existing imports)
+        const tools = [
+            tool(
+                {
+                    name: 'search_properties_v2',
+                    description: 'Search for properties using natural language. Use this to find homes that match a specific "vibe", description, or set of requirements. Support filtering by price, city, and beds. IMPORTANT: Always provide a descriptive "query" string summarizing what the user wants.',
+                    inputSchema: z.object({
+                        query: z.string().optional().describe('Natural language query describing the desired property. ALWAYS fill this with a summary of what the user wants, e.g., "house in Miami between 800000 and 1000000 dollars".'),
+                        minPrice: z.number().optional().describe('Minimum price in USD.'),
+                        maxPrice: z.number().optional().describe('Maximum price in USD.'),
+                        city: z.string().optional().describe('City to filter by (e.g., "Miami", "Coral Gables").'),
+                        beds: z.number().optional().describe('Minimum number of bedrooms.'),
+                        leadId: z.string().optional().describe('REQUIRED. ID of the lead making the search.')
+                    }),
+                    outputSchema: z.object({
+                        properties: z.array(z.any()).describe('List of properties matching the criteria.')
+                    })
+                },
+                async (input) => {
+                    // Build a smart query from filters if the LLM didn't provide one
+                    let query = input.query?.trim() || "";
+                    if (!query) {
+                        const parts: string[] = ["property"];
+                        if (input.city) parts.push(`in ${input.city}`);
+                        if (input.minPrice && input.maxPrice) parts.push(`between $${input.minPrice} and $${input.maxPrice}`);
+                        else if (input.minPrice) parts.push(`from $${input.minPrice}`);
+                        else if (input.maxPrice) parts.push(`up to $${input.maxPrice}`);
+                        if (input.beds) parts.push(`with ${input.beds} bedrooms`);
+                        query = parts.join(" ");
+                    }
+                    console.log(`[PropertyTools] Synthesized query: "${query}"`);
 
-        const snapshot = await query.limit(10).get();
+                    const results = await semanticSearch.execute({
+                        query,
+                        minPrice: input.minPrice,
+                        maxPrice: input.maxPrice,
+                        city: input.city,
+                        beds: input.beds
+                    });
 
-        // Helper type for search results
-        type SearchResult = {
-            id: string;
-            title: string;
-            price: number;
-            location: string;
-            description: string;
-            bedrooms: number;
-            type: "sale" | "rent";
-        };
+                    // Log this search interaction to the Lead profile
+                    if (input.leadId) {
+                        try {
+                            const lead = await leadRepository.findById(input.leadId);
+                            if (lead) {
+                                const details = `Queries: "${input.query}"\nFilters: City: ${input.city || 'Any'}, Min: ${input.minPrice || 0}, Max: ${input.maxPrice || 'Any'}, Beds: ${input.beds || 'Any'}`;
+                                lead.addInteraction('view_property', details);
+                                await leadRepository.save(lead);
+                            }
+                        } catch (err) {
+                            console.error('[PropertyTools] Failed to log interaction to CRM:', err);
+                        }
+                    }
 
-        // ... inside the tool ...
+                    // Simplify output for the LLM to save tokens, only returning key info
+                    const simplified = results.map(p => ({
+                        id: p.id,
+                        title: p.title,
+                        price: p.price.amount,
+                        location: `${p.location.city}, ${p.location.state}`,
+                        beds: p.specs.beds,
+                        baths: p.specs.baths,
+                        type: p.type,
+                        link: `/properties/${p.slug}` // Useful for the AI to provide links
+                    }));
 
-        const results = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
-            const rawData = doc.data();
-            // Validate data against schema
-            const parseResult = PropertySchema.safeParse(rawData);
+                    return { properties: simplified };
+                }
+            )
+        ];
 
-            if (!parseResult.success) {
-                console.warn(`Invalid property data for ${doc.id}:`, parseResult.error);
-                return null;
-            }
-
-            const data = parseResult.data;
-
-            return {
-                id: doc.id,
-                title: data.title,
-                price: data.price.amount, // safe access
-                location: data.location.city,
-                description: data.description,
-                // ... mapped fields
-                bedrooms: data.specs.beds,
-                type: data.type
-            };
-        }).filter((p: unknown): p is SearchResult => p !== null);
-
-        // In-memory filter for MVP to avoid index creation hell during demo
-        return results.filter((p: SearchResult) => {
-            if (input.location && !p.location.toLowerCase().includes(input.location.toLowerCase())) return false;
-            if (input.minPrice && p.price < input.minPrice) return false;
-            if (input.maxPrice && p.price > input.maxPrice) return false;
-            if (input.type && p.type !== input.type) return false;
-            if (input.bedrooms && p.bedrooms < input.bedrooms) return false;
-            return true;
-        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (globalThis as any)[TOOLS_NAME] = tools;
+        return tools;
     }
-);
+};

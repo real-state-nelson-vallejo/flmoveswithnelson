@@ -23,9 +23,9 @@ export function ContentList({ posts, onEdit, onDelete }: ContentListProps) {
     };
 
     return (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs font-semibold">
+                <thead className="bg-muted/50 border-b border-border text-muted-foreground uppercase text-xs font-semibold">
                     <tr>
                         <th className="px-6 py-4">Title</th>
                         <th className="px-6 py-4">Status</th>
@@ -34,19 +34,19 @@ export function ContentList({ posts, onEdit, onDelete }: ContentListProps) {
                         <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border">
                     {posts.length === 0 ? (
                         <tr>
-                            <td colSpan={5} className="px-6 py-8 text-center text-slate-400 italic">
+                            <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground italic">
                                 No content found. Create your first post!
                             </td>
                         </tr>
                     ) : (
                         posts.map((post) => (
-                            <tr key={post.id} className="hover:bg-slate-50 transition-colors group">
-                                <td className="px-6 py-4 font-medium text-slate-900">
+                            <tr key={post.id} className="hover:bg-muted/50 transition-colors group">
+                                <td className="px-6 py-4 font-medium text-foreground">
                                     {post.title}
-                                    <div className="text-xs text-slate-400 font-normal truncate max-w-[200px] mt-0.5">
+                                    <div className="text-xs text-muted-foreground font-normal truncate max-w-[200px] mt-0.5">
                                         {post.slug}
                                     </div>
                                 </td>
@@ -56,12 +56,12 @@ export function ContentList({ posts, onEdit, onDelete }: ContentListProps) {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="flex items-center gap-1.5 text-slate-600 capitalize">
+                                    <div className="flex items-center gap-1.5 text-muted-foreground capitalize">
                                         {getTypeIcon(post.type)}
                                         {post.type}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-slate-500">
+                                <td className="px-6 py-4 text-muted-foreground">
                                     <div className="flex items-center gap-1.5">
                                         <Clock size={14} />
                                         {new Date(post.publishDate).toLocaleDateString()}
@@ -71,13 +71,13 @@ export function ContentList({ posts, onEdit, onDelete }: ContentListProps) {
                                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => onEdit(post)}
-                                            className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                            className="p-1.5 text-muted-foreground hover:text-primary hover:bg-secondary rounded-lg transition-colors"
                                         >
                                             <Edit size={16} />
                                         </button>
                                         <button
                                             onClick={() => onDelete(post.id)}
-                                            className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                            className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                                         >
                                             <Trash2 size={16} />
                                         </button>

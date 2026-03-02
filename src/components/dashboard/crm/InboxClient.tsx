@@ -7,7 +7,7 @@ import { LeadDTO } from '@/types/lead';
 import { ConversationList } from './ConversationList';
 import { ChatWindow } from './ChatWindow';
 import { LeadSidebar } from './LeadSidebar';
-import { getLeadByIdAction } from '@/actions/crm/actions';
+import { getLeadByIdAction, generateAIReplyAction } from '@/actions/crm/actions';
 import { seedCrmDataAction } from '@/actions/crm/seed';
 import { PlusCircle, Bot, ChevronRight, ChevronLeft, ArrowLeft, User } from 'lucide-react';
 
@@ -127,19 +127,11 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
     const handleAutoReply = async () => {
         if (!selectedId) return;
         try {
-            const response = await fetch('/api/ai/generate-reply', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    conversationId: selectedId,
-                    userInput: 'Please provide an appropriate response based on our conversation.'
-                })
-            });
-
-            if (!response.ok) {
+            // Uses GenkitAgentService: full tools, lead context, security guardrails, and configured model.
+            const result = await generateAIReplyAction(selectedId);
+            if (!result.success) {
                 throw new Error('Failed to generate AI reply');
             }
-
             window.location.reload();
         } catch (e) {
             console.error('Auto-reply error:', e);
@@ -169,7 +161,7 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
     };
 
     return (
-        <div className="flex h-full bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg overflow-hidden shadow-lg border border-slate-200 relative">
+        <div className="flex h-full bg-background rounded-lg overflow-hidden shadow-lg border border-border relative">
             {/* LAYER 1: Sidebar List */}
             <AnimatePresence mode="wait">
                 {(mobileView === 'list' || window.innerWidth >= 768) && (
@@ -186,18 +178,18 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                         }}
                         className={`
                             w-full md:w-1/3 lg:w-1/4 xl:max-w-[350px] 
-                            border-r border-slate-200 flex flex-col bg-white
+                            border-r border-border flex flex-col bg-card
                             md:relative absolute inset-0 z-10
                         `}
                     >
-                        <div className="h-16 px-4 border-b border-slate-200 bg-white flex justify-between items-center">
-                            <h2 className="font-semibold text-slate-800 text-base">Messages</h2>
+                        <div className="h-16 px-4 border-b border-border bg-card flex justify-between items-center">
+                            <h2 className="font-semibold text-foreground text-base">Messages</h2>
                             <div className="flex gap-2 items-center">
                                 <motion.button
                                     whileTap={{ scale: 0.95 }}
                                     onClick={handleAutoReply}
                                     disabled={!selectedId}
-                                    className="p-1.5 rounded-lg transition-all text-purple-600 hover:bg-purple-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                                    className="p-1.5 rounded-lg transition-all text-primary hover:bg-secondary disabled:opacity-30 disabled:cursor-not-allowed"
                                     title="Generate AI Reply"
                                 >
                                     <Bot size={16} />
@@ -205,21 +197,21 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                                 <motion.button
                                     whileTap={{ scale: 0.95 }}
                                     onClick={handleSimulate}
-                                    className="p-1.5 rounded-lg transition-all text-blue-600 hover:bg-blue-50"
+                                    className="p-1.5 rounded-lg transition-all text-primary hover:bg-secondary"
                                     title="Simulate incoming message"
                                 >
                                     <PlusCircle size={16} />
                                 </motion.button>
                             </div>
                         </div>
-                        <div className="px-4 py-3 bg-white border-b">
+                        <div className="px-4 py-3 bg-card border-b border-border">
                             <input
                                 type="text"
                                 placeholder="🔍 Search conversations..."
-                                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+                                className="w-full px-4 py-2 bg-secondary/50 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                             />
                         </div>
-                        <div className="flex-1 overflow-y-auto">
+                        <div className="flex-1 overflow-y-auto bg-card">
                             <ConversationList
                                 conversations={conversations}
                                 selectedId={selectedId}
@@ -246,7 +238,7 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                             opacity: { duration: 0.2 }
                         }}
                         className={`
-                            flex-1 flex flex-col bg-white min-w-0 relative
+                            flex-1 flex flex-col bg-background min-w-0 relative
                             md:relative absolute inset-0 z-20
                         `}
                     >
@@ -256,14 +248,14 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                                 <motion.div
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="md:hidden h-16 px-4 bg-white border-b border-slate-200 flex items-center gap-3"
+                                    className="md:hidden h-16 px-4 bg-background border-b border-border flex items-center gap-3"
                                 >
                                     <motion.button
                                         whileTap={{ scale: 0.9 }}
                                         onClick={handleBackToList}
-                                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                        className="p-2 hover:bg-secondary rounded-lg transition-colors"
                                     >
-                                        <ArrowLeft size={20} className="text-slate-700" />
+                                        <ArrowLeft size={20} className="text-muted-foreground" />
                                     </motion.button>
                                     <div className="flex-1 flex items-center gap-3">
                                         <motion.div
@@ -275,10 +267,10 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                                             {activeLead?.name?.charAt(0).toUpperCase() || 'U'}
                                         </motion.div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-semibold text-slate-800 truncate">
+                                            <h3 className="font-semibold text-foreground truncate">
                                                 {activeLead?.name || 'Unknown User'}
                                             </h3>
-                                            <p className="text-xs text-slate-500 truncate">
+                                            <p className="text-xs text-muted-foreground truncate">
                                                 {activeLead?.email || 'No email'}
                                             </p>
                                         </div>
@@ -286,10 +278,10 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                                     <motion.button
                                         whileTap={{ scale: 0.9 }}
                                         onClick={handleShowProfile}
-                                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                        className="p-2 hover:bg-secondary rounded-lg transition-colors"
                                         title="View Profile"
                                     >
-                                        <User size={20} className="text-slate-600" />
+                                        <User size={20} className="text-muted-foreground" />
                                     </motion.button>
                                 </motion.div>
 
@@ -303,7 +295,7 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => setShowSidebar(!showSidebar)}
-                                    className="hidden md:block absolute top-4 right-4 z-10 p-2 bg-white border border-slate-300 rounded-lg shadow-md hover:shadow-lg hover:bg-slate-50 transition-all duration-200"
+                                    className="hidden md:block absolute top-4 right-4 z-10 p-2 bg-card border border-border rounded-lg shadow-md hover:shadow-lg hover:bg-secondary transition-all duration-200"
                                     title={showSidebar ? "Hide Lead Profile" : "Show Lead Profile"}
                                 >
                                     <motion.div
@@ -311,9 +303,9 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                                         transition={{ duration: 0.2 }}
                                     >
                                         {showSidebar ? (
-                                            <ChevronRight size={20} className="text-slate-600" />
+                                            <ChevronRight size={20} className="text-muted-foreground" />
                                         ) : (
-                                            <ChevronLeft size={20} className="text-slate-600" />
+                                            <ChevronLeft size={20} className="text-muted-foreground" />
                                         )}
                                     </motion.div>
                                 </motion.button>
@@ -323,7 +315,7 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3 }}
-                                className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 to-white"
+                                className="flex-1 flex items-center justify-center bg-background"
                             >
                                 <div className="text-center space-y-4 p-8">
                                     <motion.div
@@ -340,8 +332,8 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                                     >
                                         💬
                                     </motion.div>
-                                    <h3 className="text-lg font-semibold text-slate-700">Select a conversation</h3>
-                                    <p className="text-sm text-slate-500 max-w-md">
+                                    <h3 className="text-lg font-semibold text-foreground">Select a conversation</h3>
+                                    <p className="text-sm text-muted-foreground max-w-md">
                                         Choose a conversation from the left to view messages and start chatting
                                     </p>
                                 </div>
@@ -366,7 +358,7 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                             opacity: { duration: 0.2 }
                         }}
                         className={`
-                            border-l border-slate-200 bg-white
+                            border-l border-border bg-card
                             md:w-80 lg:w-96 flex flex-col
                             md:relative absolute inset-0 z-30
                         `}
@@ -376,16 +368,16 @@ export function InboxClient({ initialConversations }: InboxClientProps) {
                             <motion.div
                                 initial={{ opacity: 0, y: -20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="md:hidden h-16 px-4 bg-white border-b border-slate-200 flex items-center gap-3"
+                                className="md:hidden h-16 px-4 bg-background border-b border-border flex items-center gap-3"
                             >
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
                                     onClick={handleBackToChat}
-                                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                    className="p-2 hover:bg-secondary rounded-lg transition-colors"
                                 >
-                                    <ArrowLeft size={20} className="text-slate-700" />
+                                    <ArrowLeft size={20} className="text-muted-foreground" />
                                 </motion.button>
-                                <h3 className="font-semibold text-slate-800">Lead Profile</h3>
+                                <h3 className="font-semibold text-foreground">Lead Profile</h3>
                             </motion.div>
                         )}
 

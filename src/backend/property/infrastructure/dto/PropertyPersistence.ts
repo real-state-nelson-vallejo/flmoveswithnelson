@@ -39,6 +39,16 @@ export interface PropertyPersistenceModel {
     images: string[];
     type: 'sale' | 'rent';
     status: 'available' | 'sold' | 'reserved';
+    // AI & Market Analysis Fields
+    opportunityScore?: number;
+    listingQualityScore?: number;
+    marketStatus?: 'normal' | 'distressed' | 'price_drop' | 'back_on_market';
+    investmentAnalysis?: {
+        cashFlow?: number;
+        roi?: number;
+        capRate?: number;
+        description?: string;
+    };
     createdAt: number; // Timestamp
     updatedAt: number; // Timestamp
 }

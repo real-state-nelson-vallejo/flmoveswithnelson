@@ -65,62 +65,83 @@ export async function sendMessageAction(message: any) {
 
 // --- AI Integration ---
 
-import { chatbotFlow } from "@/backend/ai/infrastructure/genkit/flows/chatbotFlow";
+// --- AI Integration ---
 
-
+import { GenkitAgentService } from "@/backend/ai/application/GenkitAgentService";
 
 export async function generateAIReplyAction(conversationId: string, modelId?: string) {
     try {
         // 1. Fetch conversation history via Service
-        // We might need a service method for "getHistory" specifically formatted, or use repository directly here
-        // as this is an Infrastructure/Adapter concern calling Genkit.
-        const messages = await conversationDependencies.conversationRepository.findMessagesByConversationId(conversationId, 10);
-
-        // 2. Format history for Genkit
-        const validHistory = messages.slice(0, -1).map(m => ({
-            role: (m.senderRole === 'user' ? 'user' : 'model') as 'user' | 'model',
-            content: [{ text: m.content }]
-        }));
-
-        const providerPrefix = 'googleai/';
-        const fullModelId = modelId && !modelId.startsWith(providerPrefix)
-            ? `${providerPrefix}${modelId}`
-            : (modelId || 'googleai/gemini-2.5-flash');
-
-        console.log(`[generateAIReplyAction] Using model: ${fullModelId}`);
+        const messages = await conversationDependencies.conversationRepository.findMessagesByConversationId(conversationId, 20);
 
         if (messages.length === 0) {
             return { success: false, error: "No messages to reply to" };
         }
 
-        const userInput = messages[messages.length - 1]!.content;
+        // 2. Fetch Conversation to get Lead ID (Context)
+        const conversation = await conversationDependencies.conversationRepository.findById(conversationId);
+        let leadContext = {};
 
-        const aiResultString = await chatbotFlow({
-            history: validHistory,
-            userInput: userInput,
-            modelId: fullModelId
-        });
-
-        let aiText = "";
-        let usageMetadata = undefined;
-
-        try {
-            const parsed = JSON.parse(aiResultString);
-            aiText = parsed.text;
-            usageMetadata = parsed.usage;
-        } catch {
-            // Fallback if flow returns just string (unlikely with our change but safe)
-            aiText = aiResultString;
+        if (conversation) {
+            // Find participant that is NOT system-ai or agent (assuming user/lead)
+            const leadId = conversation.participants.find(p => p !== 'system-ai' && p !== 'agent');
+            if (leadId) {
+                try {
+                    const { leadDependencies } = await import("@/backend/lead/dependencies");
+                    const lead = await leadDependencies.leadRepository.findById(leadId);
+                    if (lead) {
+                        leadContext = {
+                            leadName: lead.name,
+                            leadId: lead.id,
+                            leadEmail: lead.email,
+                            leadPhone: lead.phone,
+                            leadNotes: `Source: ${lead.source}, Status: ${lead.status}`
+                        };
+                    }
+                } catch (e) {
+                    console.warn("Failed to fetch lead context:", e);
+                }
+            }
         }
 
-        // 4. Save AI Response using Service
+
+        // 3. Format history for Genkit
+        // GenkitAgentService expects strictly { role: string, content: string | Part[] }
+        // We'll normalize to the format expected by GenkitAgentService
+        const validHistory = messages.slice(0, -1).map(m => ({
+            role: (m.senderRole === 'user' ? 'user' : 'model'),
+            content: m.content
+        }));
+
+        const userInput = messages[messages.length - 1]!.content;
+
+        console.log(`[generateAIReplyAction] Generating reply for convo ${conversationId}...`);
+
+        // 4. Generate Response using GenkitAgentService (Supports Tools)
+        const service = new GenkitAgentService();
+        const aiResult = await service.generateResponse({
+            message: userInput,
+            history: validHistory,
+            context: leadContext
+        });
+
+        const aiText = aiResult.text;
+        const toolOutput = aiResult.toolOutput;
+        const debugLogs = aiResult.debugLogs;
+
+        // 5. Save AI Response using Service
         await conversationDependencies.sendMessage.execute(
             conversationId,
             'system-ai',
             'system',
             aiText,
             'text',
-            usageMetadata ? { usage: usageMetadata, model: fullModelId } : undefined
+            {
+                // We store usage if available (GenkitAgentService currently doesn't return usage in the main object, but we can add it later)
+                // We store toolOutput if present
+                ...(toolOutput ? { toolOutput } : {}),
+                debugLogs // Optional: save debug logs for admin inspection
+            }
         );
 
         revalidatePath('/dashboard/inbox');

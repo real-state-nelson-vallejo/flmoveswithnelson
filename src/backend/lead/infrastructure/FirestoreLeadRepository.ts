@@ -38,6 +38,15 @@ export class FirestoreLeadRepository implements LeadRepository {
         return this.mapDocToLead(snapshot.docs[0]!);
     }
 
+    async findByPhone(phone: string): Promise<Lead[]> {
+        const snapshot = await adminDb.collection(this.collection).where('phone', '==', phone).get();
+        if (snapshot.empty) return [];
+
+        return snapshot.docs
+            .map((doc: QueryDocumentSnapshot) => this.mapDocToLead(doc))
+            .filter((lead: Lead | null): lead is Lead => lead !== null);
+    }
+
     async findAll(): Promise<Lead[]> {
         const snapshot = await adminDb.collection(this.collection).orderBy("createdAt", "desc").get();
 

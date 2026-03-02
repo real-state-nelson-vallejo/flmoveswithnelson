@@ -49,12 +49,22 @@ export class FirestorePropertyRepository implements PropertyRepository {
 
         const query = filter.query?.toLowerCase() || "";
 
+        // Helper to handle state abbreviations
+        const isStateMatch = (text: string | undefined, q: string) => {
+            if (!text) return false;
+            const lowerText = text.toLowerCase();
+            const normalizedQuery = q === 'florida' ? 'fl' : q;
+            return lowerText.includes(q) || lowerText.includes(normalizedQuery);
+        };
+
         return allProperties.filter(p => {
-            // Text Search
+            // Text Search - check title, description, and ALL location fields
             const matchesQuery = !query ||
                 p.title.toLowerCase().includes(query) ||
                 p.description.toLowerCase().includes(query) ||
+                p.location.address?.toLowerCase().includes(query) ||
                 p.location.city.toLowerCase().includes(query) ||
+                isStateMatch(p.location.state, query) ||
                 p.location.zip?.toLowerCase().includes(query);
 
             if (!matchesQuery) return false;
@@ -68,8 +78,43 @@ export class FirestorePropertyRepository implements PropertyRepository {
             if (filter.minBaths && p.specs.baths < filter.minBaths) return false;
 
             // Type Filter
-            if (filter.type && p.type !== filter.type) return false;
+            if (filter.type) {
+                const dbType = (p.type || '').toLowerCase();
+                const title = (p.title || '').toLowerCase();
+                const desc = (p.description || '').toLowerCase();
+                const filterType = filter.type.toLowerCase();
 
+                // Combine text for broader matching since DB 'type' is often just 'sale'
+                const contentText = `${dbType} ${title} ${desc}`;
+
+                // Flexible matching
+                let typeMatch = false;
+                if (filterType === 'house') {
+                    // Match synonyms for house
+                    typeMatch = ['house', 'single family', 'villa', 'estate', 'home', 'detached'].some(t => contentText.includes(t));
+
+                    // Fallback: If filtering for "house" and the record is a generic "sale", allow it to pass.
+                    // This prevents "No results" for generic listings that are likely houses.
+                    if (!typeMatch && dbType === 'sale' && !contentText.includes('condo') && !contentText.includes('apartment')) {
+                        typeMatch = true;
+                    }
+                } else if (filterType === 'apartment' || filterType === 'condo') {
+                    typeMatch = ['apartment', 'condo', 'townhouse', 'penthouse', 'flat', 'unit'].some(t => contentText.includes(t));
+                } else if (filterType === 'commercial') {
+                    typeMatch = ['commercial', 'office', 'retail', 'warehouse'].some(t => contentText.includes(t));
+                } else if (filterType === 'land') {
+                    typeMatch = ['land', 'lot', 'acre'].some(t => contentText.includes(t));
+                } else {
+                    typeMatch = contentText.includes(filterType);
+                }
+
+                if (!typeMatch) {
+                    // console.log(`[Repo] Filtered out ${p.title} (Type: ${p.type}) due to type mismatch (Filter: ${filter.type})`);
+                    return false;
+                }
+            }
+
+            // console.log(`[Repo] Match found: ${p.title}`);
             return true;
         });
     }

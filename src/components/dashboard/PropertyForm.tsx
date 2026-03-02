@@ -4,16 +4,19 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PropertySchema } from "@/lib/schemas/propertySchema";
-import { createPropertyAction, updatePropertyAction, generateDescriptionAction, CreatePropertyDTO } from "@/actions/property/actions";
-import { Loader2, ChevronRight, Wand2, Plus, X } from "lucide-react";
+import { createPropertyAction, updatePropertyAction, generateDescriptionAction, analyzePropertyContentAction, CreatePropertyDTO } from "@/actions/property/actions";
+import { Loader2, ChevronRight, Wand2, Plus, X, LineChart, TrendingUp, DollarSign, AlertCircle } from "lucide-react";
+import { AnalysisMethodology } from "@/components/dashboard/properties/AnalysisMethodology";
 import { motion } from "framer-motion";
 import { z } from "zod";
+import { RentCastInsights } from "./properties/RentCastInsights";
 
 // Create a schema specifically for the form that omits system fields
 const FormSchema = PropertySchema.omit({
     id: true,
     createdAt: true,
-    updatedAt: true
+    updatedAt: true,
+    rentCastData: true // Don't manage rentCastData in the form inputs directly, it's a side effect of analysis
 });
 
 type FormData = z.infer<typeof FormSchema>;
@@ -26,12 +29,14 @@ interface PropertyFormProps {
     onCancel: () => void;
 }
 
-const STEPS = ["Basics", "Location", "Specs", "Images", "Details"];
+const STEPS = ["Basics", "Location", "Specs", "Images", "Details", "Analysis"];
 
 export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormProps) {
     const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [generatingAi, setGeneratingAi] = useState(false);
+    const [analyzingAi, setAnalyzingAi] = useState(false);
+    const [enrichmentData, setEnrichmentData] = useState<any>(initialData?.rentCastData || null); // Store RentCast data defined in PropertySchema
 
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(FormSchema),
@@ -124,9 +129,20 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
         let result;
 
         if (initialData) {
-            result = await updatePropertyAction({ id: initialData.id, ...data });
+            // Clean data to remove undefined values
+            const cleanData = Object.fromEntries(
+                Object.entries(data).filter(([_, v]) => v !== undefined)
+            );
+            result = await updatePropertyAction({
+                id: initialData.id,
+                ...cleanData,
+                rentCastData: enrichmentData // Include enrichment data if available
+            });
         } else {
-            result = await createPropertyAction(data as unknown as CreatePropertyDTO);
+            result = await createPropertyAction({
+                ...data,
+                rentCastData: enrichmentData // Include enrichment data if available
+            } as unknown as CreatePropertyDTO);
         }
 
         setLoading(false);
@@ -147,6 +163,7 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             case 2: fieldsToValidate = ["specs"]; break;
             case 3: fieldsToValidate = ["images"]; break;
             case 4: fieldsToValidate = ["description", "features"]; break;
+            case 5: fieldsToValidate = []; break; // Analysis is optional/generated
         }
 
         // Trigger validation for specific fields
@@ -352,6 +369,144 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
         </div>
     );
 
+    const handleAnalyzeProperty = async () => {
+        const data = watchedValues;
+
+        // Basic validation
+        if (!data.title || !data.price?.amount || !data.location?.city) {
+            alert("Please fill in basic property details (Title, Price, Location) before analyzing.");
+            return;
+        }
+
+        setAnalyzingAi(true);
+        const result = await analyzePropertyContentAction(data);
+
+        if (result.success && result.analysis) {
+            setValue("opportunityScore", result.analysis.opportunityScore);
+            setValue("listingQualityScore", result.analysis.listingQualityScore);
+            setValue("marketStatus", result.analysis.marketStatus);
+            setValue("investmentAnalysis", result.analysis.investmentAnalysis);
+            if (result.enrichmentData) {
+                setEnrichmentData(result.enrichmentData);
+            }
+        } else {
+            alert("Failed to analyze property.");
+        }
+        setAnalyzingAi(false);
+    };
+
+    const renderAnalysis = () => {
+        const analysis = watchedValues.investmentAnalysis;
+        const oppScore = watchedValues.opportunityScore;
+        const qualityScore = watchedValues.listingQualityScore;
+
+        return (
+            <div className="space-y-6">
+                {/* RentCast Verified Data Display */}
+                {enrichmentData && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <RentCastInsights data={enrichmentData} />
+                    </motion.div>
+                )}
+
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-xl border border-indigo-100">
+                    <div className="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 className="text-lg font-bold text-indigo-900 flex items-center gap-2">
+                                <LineChart className="text-indigo-600" size={20} />
+                                AI Investment Analysis
+                            </h3>
+                            <p className="text-sm text-indigo-700 mt-1">
+                                Generate a comprehensive investment report, opportunity score, and listing quality assessment.
+                            </p>
+                            <div className="mt-2">
+                                <AnalysisMethodology />
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleAnalyzeProperty}
+                            disabled={analyzingAi}
+                            className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200 disabled:opacity-50 flex items-center gap-2"
+                        >
+                            {analyzingAi ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+                            {analyzingAi ? "Analyzing..." : "Run Analysis"}
+                        </button>
+                    </div>
+
+                    {!analysis && !analyzingAi && (
+                        <div className="text-center py-8 text-indigo-400 text-sm border-2 border-dashed border-indigo-200 rounded-lg bg-white/50">
+                            Click &quot;Run Analysis&quot; to generate insights.
+                        </div>
+                    )}
+
+                    {analysis && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-4"
+                        >
+                            {/* Scores */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white p-4 rounded-lg border border-indigo-100 shadow-sm flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-500 uppercase">Opportunity Score</p>
+                                        <p className="text-xs text-slate-400">Investment Potential</p>
+                                    </div>
+                                    <div className={`text-2xl font-bold ${(oppScore || 0) >= 80 ? 'text-emerald-600' : (oppScore || 0) >= 60 ? 'text-amber-600' : 'text-slate-600'
+                                        }`}>
+                                        {oppScore ?? '-'}
+                                    </div>
+                                </div>
+                                <div className="bg-white p-4 rounded-lg border border-indigo-100 shadow-sm flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-500 uppercase">Quality Score</p>
+                                        <p className="text-xs text-slate-400">Listing Completeness</p>
+                                    </div>
+                                    <div className={`text-2xl font-bold ${(qualityScore || 0) >= 80 ? 'text-emerald-600' : (qualityScore || 0) >= 60 ? 'text-amber-600' : 'text-slate-600'
+                                        }`}>
+                                        {qualityScore ?? '-'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Metrics */}
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="bg-white p-3 rounded-lg border border-slate-200 text-center">
+                                    <p className="text-[10px] uppercase font-bold text-slate-500 mb-1">Proj. ROI</p>
+                                    <p className="text-lg font-bold text-emerald-600">{analysis.roi}%</p>
+                                </div>
+                                <div className="bg-white p-3 rounded-lg border border-slate-200 text-center">
+                                    <p className="text-[10px] uppercase font-bold text-slate-500 mb-1">Cap Rate</p>
+                                    <p className="text-lg font-bold text-blue-600">{analysis.capRate}%</p>
+                                </div>
+                                <div className="bg-white p-3 rounded-lg border border-slate-200 text-center">
+                                    <p className="text-[10px] uppercase font-bold text-slate-500 mb-1">Cash Flow</p>
+                                    <p className="text-lg font-bold text-purple-600">${analysis.cashFlow}/mo</p>
+                                </div>
+                            </div>
+
+                            {/* Analysis Text */}
+                            <div className="bg-white p-4 rounded-lg border border-indigo-100 shadow-sm">
+                                <p className="text-sm text-slate-700 leading-relaxed italic">
+                                    &quot;{analysis.description}&quot;
+                                </p>
+                            </div>
+
+                            <div className="flex items-start gap-2 text-xs text-slate-400 bg-slate-50 p-2 rounded">
+                                <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                                <p>This analysis is AI-generated based on provided data and general market trends. Always verify with professional appraisal.</p>
+                            </div>
+                        </motion.div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="flex flex-col h-full">
             {/* Steps Indicator */}
@@ -388,6 +543,7 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                     {step === 2 && renderSpecs()}
                     {step === 3 && renderImages()}
                     {step === 4 && renderDetails()}
+                    {step === 5 && renderAnalysis()}
                 </motion.div>
             </div>
 

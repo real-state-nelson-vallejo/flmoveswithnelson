@@ -6,5 +6,6 @@ export interface LeadRepository {
     updateStatus(id: string, status: LeadStatus): Promise<void>;
     findById(id: string): Promise<Lead | null>;
     findByEmail(email: string): Promise<Lead | null>;
+    findByPhone(phone: string): Promise<Lead[]>;
     findAll(): Promise<Lead[]>;
 }

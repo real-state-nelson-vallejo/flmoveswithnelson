@@ -1,4 +1,4 @@
-import "server-only";
+// import "server-only";
 import admin from 'firebase-admin';
 import type { ServiceAccount } from 'firebase-admin';
 
@@ -18,7 +18,9 @@ function getFirebaseAdminApp(): admin.app.App {
 
     const serviceAccount = {
         projectId: process.env.FIREBASE_PROJECT_ID,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        privateKey: process.env.FIREBASE_PRIVATE_KEY
+            ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^["']|["']$/g, '')
+            : undefined,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
     };
 
@@ -55,5 +57,13 @@ export const adminDb = new Proxy({} as admin.firestore.Firestore, {
         }
         const val = db[prop as keyof admin.firestore.Firestore];
         return typeof val === 'function' ? val.bind(db) : val;
+    }
+});
+
+export const adminStorage = new Proxy({} as admin.storage.Storage, {
+    get: (_target, prop) => {
+        const storage = getFirebaseAdminApp().storage();
+        const val = storage[prop as keyof admin.storage.Storage];
+        return typeof val === 'function' ? val.bind(storage) : val;
     }
 });

@@ -39,6 +39,17 @@ export interface PropertyDTO {
     images: string[];
     type: 'sale' | 'rent';
     status: 'available' | 'sold' | 'reserved';
+    // AI & Market Analysis Fields
+    opportunityScore?: number; // 0-100
+    listingQualityScore?: number; // 0-100
+    marketStatus?: 'normal' | 'distressed' | 'price_drop' | 'back_on_market';
+    investmentAnalysis?: {
+        cashFlow?: number;
+        roi?: number;
+        capRate?: number;
+        description?: string;
+    };
+    rentCastData?: any; // Stores RentCastEnrichment data
     createdAt: number;
     updatedAt: number;
 }

@@ -45,4 +45,7 @@ export class GeminiContentGenerator implements ContentGenerator {
             return "Failed to generate description via AI. Please try again later.";
         }
     }
+    async analyzeProperty(data: any, rentCastData?: any): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
 }

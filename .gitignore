@@ -46,3 +46,8 @@ scripts/init-super-admin.js
 scripts/init-*.ts
 scripts/init-*.js
 
+# Custom ignored directories
+scripts/
+.agente/
+.agent/
+docs/

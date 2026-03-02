@@ -1,111 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/**
+ * @deprecated This route has been replaced by the `generateAIReplyAction` Server Action
+ * (src/actions/crm/actions.ts), which uses GenkitAgentService with full tool support,
+ * proper lead context, and security guardrails.
+ *
+ * If you are an internal caller, use `generateAIReplyAction(conversationId)` directly.
+ * External callers should not be using this endpoint.
+ */
 export async function POST(request: NextRequest) {
+    console.warn('[DEPRECATED] /api/ai/generate-reply was called. Migrate to generateAIReplyAction.');
+
+    const body = await request.json().catch(() => ({}));
+    const { conversationId } = body as { conversationId?: string };
+
+    if (!conversationId) {
+        return NextResponse.json({ error: 'Missing conversationId' }, { status: 400 });
+    }
+
     try {
-        const body = await request.json();
-        const { conversationId, userInput } = body;
+        // Delegate to the proper service so legacy callers still get a valid response
+        const { generateAIReplyAction } = await import('@/actions/crm/actions');
+        const result = await generateAIReplyAction(conversationId);
 
-        console.log(`[API generateAIReply] ConversationID: ${conversationId}`);
-        console.log(`[API generateAIReply] Input: ${userInput?.substring(0, 50)}...`);
-
-        if (!conversationId || !userInput) {
-            return NextResponse.json(
-                { error: 'Missing required fields' },
-                { status: 400 }
-            );
+        if (!result.success) {
+            return NextResponse.json({ error: 'Failed to generate reply' }, { status: 500 });
         }
 
-        // Import dependencies
-        const { conversationDependencies } = await import('@/backend/conversation/dependencies');
-        const { Message } = await import('@/backend/conversation/domain/Conversation');
-
-        // Fetch conversation and messages
-        const conversation = await conversationDependencies.conversationRepository.findById(conversationId);
-        if (!conversation) {
-            return NextResponse.json(
-                { error: 'Conversation not found' },
-                { status: 404 }
-            );
-        }
-
-        const messages = await conversationDependencies.conversationRepository.findMessagesByConversationId(conversationId);
-
-        console.log(`[API generateAIReply] Found ${messages.length} messages in history`);
-
-        // Build history for AI
-        const history = messages.map(msg => ({
-            role: msg.senderRole === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.content }]
-        }));
-
-        // Use Google AI SDK directly with proper error handling
-        const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
-        if (!apiKey) {
-            console.error('[API generateAIReply] No API key configured');
-            return NextResponse.json(
-                { error: 'API key not configured' },
-                { status: 500 }
-            );
-        }
-
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-2.0-flash-exp'
-        });
-
-        console.log(`[API generateAIReply] Starting chat with ${history.length} messages`);
-
-        const chat = model.startChat({
-            history: history,
-            generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 2048,
-            },
-        });
-
-        // Send message with timeout
-        const timeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Request timeout after 25s')), 25000)
-        );
-
-        const result = await Promise.race([
-            chat.sendMessage(userInput),
-            timeoutPromise
-        ]);
-
-        const aiResponse = result.response.text();
-        console.log(`[API generateAIReply] AI generated ${aiResponse.length} chars`);
-
-        // Create and save AI message
-        const aiMessage = Message.create(
-            conversationId,
-            'system-ai',
-            'system',
-            aiResponse,
-            'text',
-            {}
-        );
-
-        await conversationDependencies.conversationRepository.saveMessage(aiMessage);
-        console.log(`[API generateAIReply] Saved message: ${aiMessage.id}`);
-
-        return NextResponse.json({
-            success: true,
-            message: aiResponse
-        });
-
+        return NextResponse.json({ success: true, message: 'Reply generated via GenkitAgentService.' });
     } catch (error) {
-        console.error('[API generateAIReply] Error:', error);
-
+        console.error('[DEPRECATED route] Error:', error);
         return NextResponse.json(
-            {
-                error: 'Failed to generate AI response',
-                details: error instanceof Error ? error.message : 'Unknown error'
-            },
+            { error: 'Failed to generate AI response', details: error instanceof Error ? error.message : 'Unknown' },
             { status: 500 }
         );
     }

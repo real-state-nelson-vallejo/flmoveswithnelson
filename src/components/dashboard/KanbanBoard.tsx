@@ -48,13 +48,13 @@ function KanbanCard({ lead, isOverlay = false }: { lead: Lead, isOverlay?: boole
             style={style}
             {...attributes}
             {...listeners}
-            className={`bg-white p-4 rounded-lg shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing mb-3 hover:shadow-md transition-shadow ${isOverlay ? "shadow-xl ring-2 ring-indigo-500 rotate-2" : ""}`}
+            className={`bg-card p-4 rounded-lg shadow-sm border border-border cursor-grab active:cursor-grabbing mb-3 hover:shadow-md transition-shadow ${isOverlay ? "shadow-xl ring-2 ring-primary rotate-2" : ""}`}
         >
-            <h4 className="font-semibold text-slate-800">{lead.name}</h4>
-            <p className="text-xs text-slate-500 mb-2">{lead.source}</p>
-            <div className="flex justify-between items-center text-xs text-slate-400">
+            <h4 className="font-semibold text-foreground">{lead.name}</h4>
+            <p className="text-xs text-muted-foreground mb-2">{lead.source}</p>
+            <div className="flex justify-between items-center text-xs text-muted-foreground">
                 <span>{new Date(lead.updatedAt).toLocaleDateString()}</span>
-                {lead.propertyId && <span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded">Property Interest</span>}
+                {lead.propertyId && <span className="bg-primary/10 text-primary px-2 py-0.5 rounded">Property Interest</span>}
             </div>
         </div>
     );
@@ -64,10 +64,11 @@ function KanbanColumn({ id, title, leads }: { id: string, title: string, leads: 
     const { setNodeRef } = useSortable({ id });
 
     return (
-        <div ref={setNodeRef} className="flex flex-col bg-slate-50 rounded-xl min-w-[280px] w-80 max-h-full">
-            <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-                <h3 className="font-semibold text-slate-700">{title}</h3>
-                <span className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-xs font-medium">
+
+        <div ref={setNodeRef} className="flex flex-col bg-muted/50 rounded-xl min-w-[280px] w-80 max-h-full">
+            <div className="p-4 border-b border-border/50 flex justify-between items-center">
+                <h3 className="font-semibold text-foreground">{title}</h3>
+                <span className="bg-background text-muted-foreground px-2 py-0.5 rounded-full text-xs font-medium">
                     {leads.length}
                 </span>
             </div>
@@ -78,7 +79,7 @@ function KanbanColumn({ id, title, leads }: { id: string, title: string, leads: 
                     ))}
                 </SortableContext>
                 {leads.length === 0 && (
-                    <div className="h-full flex items-center justify-center text-slate-300 text-sm italic py-8">
+                    <div className="h-full flex items-center justify-center text-muted-foreground text-sm italic py-8">
                         Empty column
                     </div>
                 )}
@@ -168,16 +169,16 @@ export function KanbanBoard() {
     };
 
     if (loading && leads.length === 0) {
-        return <div className="p-12 flex justify-center"><Loader2 className="animate-spin text-slate-400" /></div>;
+        return <div className="p-12 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
     }
 
     return (
         <div className="h-full flex flex-col">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-slate-800">Pipeline</h2>
+                <h2 className="text-2xl font-bold text-foreground">Pipeline</h2>
                 <button
                     onClick={handleMock}
-                    className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors flex items-center gap-2"
+                    className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-colors flex items-center gap-2"
                 >
                     <Plus size={16} /> Generate Mock Leads
                 </button>

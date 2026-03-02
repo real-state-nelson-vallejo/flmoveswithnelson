@@ -10,6 +10,7 @@ import { startConversationAction, generateAIReplyAction } from "@/actions/crm/ac
 import { signInWithCustomToken } from "firebase/auth";
 import { collection, query, orderBy, onSnapshot, Unsubscribe, where } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase/client";
+import { ChatMessage } from "@/components/ai/chat/ChatMessage";
 
 const COUNTRY_CODES = [
     { code: "+1", label: "🇺🇸 +1", country: "USA/Canada" },
@@ -32,7 +33,7 @@ export function AIChatWidget() {
     const [otpCode, setOtpCode] = useState('');
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const [conversationId, setConversationId] = useState<string | null>(null);
-    // const [leadId, setLeadId] = useState<string | null>(null);
+    const [leadId, setLeadId] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -83,7 +84,7 @@ export function AIChatWidget() {
         const tempMsg: Message = {
             id: crypto.randomUUID(),
             conversationId: conversationId || 'temp',
-            senderId: 'guest',
+            senderId: leadId || 'guest',
             senderRole: 'user',
             content: txt,
             type: 'text',
@@ -102,15 +103,21 @@ export function AIChatWidget() {
         const { sendMessageAction } = await import("@/actions/crm/actions");
         await sendMessageAction({
             conversationId,
-            senderId: 'guest', // or leadId if we had it, but 'guest' might fail rules? 
-            // We need the ACTUAL lead ID.
-            // So we must store LeadID in state.
+            senderId: leadId || 'guest',
             senderRole: 'user',
             content: txt,
             type: 'text'
         });
 
-        await generateAIReplyAction(conversationId);
+        try {
+            await generateAIReplyAction(conversationId);
+        } catch (error) {
+            console.error("[Widget] Failed to generate AI reply (likely timeout):", error);
+            // Optionally set typing to false or show an error toast, 
+            // but the server might still be working. 
+            // Better to just catch it so the UI doesn't break.
+            setIsTyping(false);
+        }
     };
 
     const handleGateSubmit = async (e: React.FormEvent) => {
@@ -148,15 +155,16 @@ export function AIChatWidget() {
             console.log("[Widget] ✅ Signed in with custom token for lead:", res.leadId);
 
             if (res.existingConversationId) {
-                // Resume existing
-                console.log("[Widget] Resuming conversation:", res.existingConversationId);
+                console.log('[Widget] Resuming conversation:', res.existingConversationId);
                 setConversationId(res.existingConversationId);
+                setLeadId(res.leadId);
                 setStep('chat');
                 setOtpCode('');
                 localStorage.setItem('nelson_lead_id', res.leadId);
                 setIsSendingVerification(false);
             } else {
-                // Start new
+                // Start new — pass the verified leadId
+                setLeadId(res.leadId);
                 startChatSession(res.leadId);
             }
         } catch (authError) {
@@ -184,7 +192,12 @@ export function AIChatWidget() {
             setOtpCode('');
 
             // Trigger AI Reply - onSnapshot will auto-fetch messages in real-time
-            await generateAIReplyAction(convoRes.conversationId);
+            try {
+                await generateAIReplyAction(convoRes.conversationId);
+            } catch (error) {
+                console.error("[Widget] Failed to generate initial AI reply:", error);
+                setIsTyping(false);
+            }
             // Note: isTyping will be set to false by onSnapshot when messages arrive
         } else {
             alert("Failed to start chat session");
@@ -276,28 +289,53 @@ export function AIChatWidget() {
                                     </motion.div>
                                 )}
 
-                                {messages.map(msg => (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        key={msg.id}
-                                        className={`flex ${msg.senderRole === 'user' ? 'justify-end' : 'justify-start'}`}
-                                    >
-                                        <div className={`flex flex-col items-end max-w-[85%]`}>
-                                            <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.senderRole === 'user'
-                                                ? 'bg-slate-900 text-white rounded-br-sm'
-                                                : 'bg-white border text-slate-700 rounded-bl-sm'
-                                                }`}>
-                                                {msg.content}
+                                {messages.map(msg => {
+                                    // Robust type handling for ChatMessage
+                                    const isUser = msg.senderRole === 'user';
+                                    const role: 'user' | 'model' = isUser ? 'user' : 'model';
+
+                                    // Safe metadata access with type assertion for toolOutput
+                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                    const toolOutput = (msg.metadata as any)?.toolOutput;
+
+                                    return (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            key={msg.id}
+                                            className="w-full flex flex-col gap-2"
+                                        >
+                                            {/* 1. Render Text Content */}
+                                            <div className={`w-full flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+                                                <div className={isUser ? 'max-w-[85%]' : 'w-full'}>
+                                                    <ChatMessage
+                                                        message={{
+                                                            role,
+                                                            content: msg.content
+                                                        }}
+                                                        locale="en"
+                                                    />
+                                                </div>
                                             </div>
-                                            {msg.senderRole === 'user' && (
-                                                <span className="text-[10px] text-slate-400 mt-1 flex items-center gap-0.5">
-                                                    Read <span className="text-blue-500">✓✓</span>
-                                                </span>
+
+                                            {/* 2. Render Tool Output (if any) from Metadata */}
+                                            {!isUser && toolOutput && (
+                                                <div className="w-full flex justify-start">
+                                                    <div className="w-full">
+                                                        <ChatMessage
+                                                            message={{
+                                                                role: 'tool',
+                                                                toolType: toolOutput.type,
+                                                                toolData: toolOutput
+                                                            }}
+                                                            locale="en"
+                                                        />
+                                                    </div>
+                                                </div>
                                             )}
-                                        </div>
-                                    </motion.div>
-                                ))}
+                                        </motion.div>
+                                    );
+                                })}
 
                                 {isTyping && (
                                     <motion.div

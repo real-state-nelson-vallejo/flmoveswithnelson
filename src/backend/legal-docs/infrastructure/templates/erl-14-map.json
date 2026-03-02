@@ -1,0 +1,482 @@
+[
+  {
+    "fieldId": "owner",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Owner"
+  },
+  {
+    "fieldId": "landlord",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Landlord"
+  },
+  {
+    "fieldId": "owner_2",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Owner 2"
+  },
+  {
+    "fieldId": "broker_in_a_florida",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker in a Florida"
+  },
+  {
+    "fieldId": "monthly",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Monthly $"
+  },
+  {
+    "fieldId": "security_deposit",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Security Deposit $"
+  },
+  {
+    "fieldId": "pet_deposit",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Pet Deposit"
+  },
+  {
+    "fieldId": "refundable",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "refundable"
+  },
+  {
+    "fieldId": "is_currently_occupied_by",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Is Currently Occupied By"
+  },
+  {
+    "fieldId": "broker",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker"
+  },
+  {
+    "fieldId": "owner_3",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Owner 3"
+  },
+  {
+    "fieldId": "use_owner_s_name_in_connection_with_marketing_or_advertising_the_property",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Use Owner's name in connection with marketing or advertising the Property"
+  },
+  {
+    "fieldId": "display_appropriate_transaction_signs_including_a_for_rent_sign_on_the_property",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Display appropriate transaction signs including a For Rent sign on the Property"
+  },
+  {
+    "fieldId": "use_a_lockbox_system_to_access_and_show_the_property",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Use a Lockbox system to access and show the Property"
+  },
+  {
+    "fieldId": "execute_leases_on_behalf_of_owner_owner_must_execute_a_special_power_of_attorney",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Execute leases on behalf of owner owner must execute a special power of attorney"
+  },
+  {
+    "fieldId": "single_agent_of_owner",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Single Agent of Owner"
+  },
+  {
+    "fieldId": "nonrepresentative_of_owner",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Nonrepresentative of Owner"
+  },
+  {
+    "fieldId": "single_agent_of_owner_with_consent_to_transition_into_a_transaction_broker",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Single Agent of Owner with Consent to Transition into a Transaction Broker"
+  },
+  {
+    "fieldId": "compensate_any_tenant_s_consumer_s_brokers_in_the_transaction_except_when_not_in_owner_s_best_interest",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Compensate any Tenant's Consumer's Brokers in the transaction except when not in Owner's best interest"
+  },
+  {
+    "fieldId": "bearing_escrow_account_tenant_to_receive_5_per_year_simple_interest_any_balance_of_interest_will_accrue",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Bearing Escrow Account Tenant to receive 5 per year simple interest any balance of interest will accrue"
+  },
+  {
+    "fieldId": "no_compensation_will_be_offered_to_tenant_s_consumer_s_broker",
+    "type": "checkbox",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "No Compensation will be offered to Tenant's Consumer's Broker"
+  },
+  {
+    "fieldId": "owner_authorizes_broker_to_offer_compensation_to_tenant_s_broker_from_broker_in_the_amount",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Owner Authorizes Broker to offer compensation to Tenant's Broker from Broker in the Amount"
+  },
+  {
+    "fieldId": "owner_authorizes_broker_to_offer_compensation_to_tenant_s_broker_from_owner_in_the_amount_of",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Owner Authorizes Broker to offer compensation to Tenant's Broker from Owner in the Amount of"
+  },
+  {
+    "fieldId": "owner_will_pay_broker_s_fee_within",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Owner will pay Broker's fee within"
+  },
+  {
+    "fieldId": "property_address",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Property Address"
+  },
+  {
+    "fieldId": "property_description",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Property Description"
+  },
+  {
+    "fieldId": "listing_period_from",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Listing Period From"
+  },
+  {
+    "fieldId": "listing_period_to",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Listing Period To"
+  },
+  {
+    "fieldId": "rental_price",
+    "type": "money",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Rental Price"
+  },
+  {
+    "fieldId": "lease_term_months",
+    "type": "date",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Lease Term Months"
+  },
+  {
+    "fieldId": "commission_percent",
+    "type": "money",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Commission Percent"
+  },
+  {
+    "fieldId": "flat_fee",
+    "type": "money",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Flat Fee"
+  },
+  {
+    "fieldId": "no_pets_allowed",
+    "type": "checkbox",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "No Pets Allowed"
+  },
+  {
+    "fieldId": "credit_check_fee_paid_by_tenant",
+    "type": "money",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Credit Check Fee Paid By Tenant"
+  },
+  {
+    "fieldId": "broker_name",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker Name"
+  },
+  {
+    "fieldId": "broker_license_number",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker License Number"
+  },
+  {
+    "fieldId": "broker_company",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker Company"
+  },
+  {
+    "fieldId": "broker_phone",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker Phone"
+  },
+  {
+    "fieldId": "broker_email",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker Email"
+  },
+  {
+    "fieldId": "broker_address",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker Address"
+  }
+]

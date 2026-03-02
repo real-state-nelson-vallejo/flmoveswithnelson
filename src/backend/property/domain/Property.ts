@@ -1,6 +1,7 @@
 import { PropertyDTO } from "../infrastructure/dto/PropertyDTO";
 import { PropertyPersistenceModel } from "../infrastructure/dto/PropertyPersistence";
 import crypto from 'crypto';
+import { serializeFirestoreData } from "@/lib/utils";
 
 export interface Money {
     amount: number;
@@ -45,6 +46,16 @@ export interface PropertyProps {
     images: string[];
     type: 'sale' | 'rent';
     status: 'available' | 'sold' | 'reserved';
+    opportunityScore?: number;
+    listingQualityScore?: number;
+    marketStatus?: 'normal' | 'distressed' | 'price_drop' | 'back_on_market';
+    investmentAnalysis?: {
+        cashFlow?: number;
+        roi?: number;
+        capRate?: number;
+        description?: string;
+    };
+    rentCastData?: any;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -66,6 +77,7 @@ export class Property {
     static fromPersistence(data: PropertyPersistenceModel): Property {
         return new Property({
             ...data,
+            rentCastData: (data as any).rentCastData, // Ensure we map it if it exists in persistence
             createdAt: new Date(data.createdAt),
             updatedAt: new Date(data.updatedAt)
         });
@@ -82,6 +94,7 @@ export class Property {
     toDTO(): PropertyDTO {
         return {
             ...this.props,
+            rentCastData: serializeFirestoreData(this.props.rentCastData), // Serialize for Client Components
             createdAt: this.props.createdAt.getTime(),
             updatedAt: this.props.updatedAt.getTime()
         };
@@ -104,10 +117,35 @@ export class Property {
     get images() { return [...this.props.images]; }
     get type() { return this.props.type; }
     get status() { return this.props.status; }
+    get opportunityScore() { return this.props.opportunityScore; }
+    get listingQualityScore() { return this.props.listingQualityScore; }
+    get marketStatus() { return this.props.marketStatus; }
+    get investmentAnalysis() { return this.props.investmentAnalysis ? { ...this.props.investmentAnalysis } : undefined; }
+    get rentCastData() { return this.props.rentCastData; }
     get createdAt() { return this.props.createdAt; }
     get updatedAt() { return this.props.updatedAt; }
 
     // Business Methods
+    toEmbeddingText(): string {
+        // "Atom" Strategy: Serialize the full entity into a rich semantic string.
+        // We purposefully exclude exact price to rely on metadata filtering, 
+        // but include range indicators or qualitative aspects if needed. 
+        // For now, we focus on the "What" and "Where".
+
+        const featureList = this.props.features.join(', ');
+        const locationStr = `${this.props.location.city}, ${this.props.location.state || ''} ${this.props.location.zip || ''}`.trim();
+
+        return `
+        Title: ${this.props.title}
+        Type: ${this.props.type}
+        Status: ${this.props.status}
+        Location: ${locationStr}
+        Details: ${this.props.specs.beds} Beds, ${this.props.specs.baths} Baths.
+        Features: ${featureList}
+        Description: ${this.props.description}
+        `.replace(/\s+/g, ' ').trim(); // Normalize whitespace
+    }
+
     updatePrice(newPrice: Money): void {
         this.props.price = newPrice;
         this.touch();

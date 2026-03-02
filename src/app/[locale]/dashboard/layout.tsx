@@ -3,9 +3,10 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, Menu, X, Home, Inbox, Building2, Users, Sparkles, LogOut } from "lucide-react";
+import { Loader2, Menu, X, Home, Inbox, Building2, Users, Sparkles, LogOut, Calendar, Bot, TrendingUp, FileText } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function DashboardLayout({
     children,
@@ -31,8 +32,8 @@ export default function DashboardLayout({
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50">
-                <Loader2 className="animate-spin text-slate-400" size={32} />
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <Loader2 className="animate-spin text-muted-foreground" size={32} />
             </div>
         );
     }
@@ -43,40 +44,50 @@ export default function DashboardLayout({
         { href: `/${locale}/dashboard`, label: 'Overview', icon: Home },
         { href: `/${locale}/dashboard/inbox`, label: 'Inbox', icon: Inbox },
         { href: `/${locale}/dashboard/properties`, label: 'Properties', icon: Building2 },
+        { href: `/${locale}/dashboard/opportunities`, label: 'Opportunities', icon: TrendingUp },
+        { href: `/${locale}/dashboard/documents`, label: 'Documents', icon: FileText },
         { href: `/${locale}/dashboard/crm`, label: 'Leads', icon: Users },
         { href: `/${locale}/dashboard/content`, label: 'Content AI', icon: Sparkles },
+        { href: `/${locale}/dashboard/ai-agent`, label: 'AI Agent', icon: Bot },
+        { href: `/${locale}/dashboard/calendar`, label: 'Calendar', icon: Calendar },
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 flex">
+        <div className="min-h-screen bg-background text-foreground flex">
             {/* Desktop Sidebar */}
-            <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
-                <div className="p-6 font-bold text-xl tracking-wider">
-                    VISION<span className="text-blue-500">REALTY</span>
+            <aside className="w-64 border-r border-border bg-card hidden md:flex flex-col">
+                <div className="p-6">
+                    {/* Logo Update */}
+                    <div className="font-bold text-xl tracking-wider text-foreground">
+                        NELSON <span className="text-primary font-light">VALLEJO</span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">Real Estate</p>
                 </div>
-                <nav className="flex-1 p-4 space-y-2">
+
+                <nav className="flex-1 p-4 space-y-1">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
+                        // Simple active check logic could be added here
                         return (
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="flex items-center gap-3 px-4 py-2 hover:bg-slate-800 rounded-lg text-sm font-medium transition-colors cursor-pointer text-slate-400 hover:text-white group"
+                                className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-accent group"
                             >
-                                <Icon size={18} className="group-hover:scale-110 transition-transform" />
+                                <Icon size={18} className="group-hover:text-primary transition-colors" />
                                 {item.label}
                             </Link>
                         );
                     })}
                 </nav>
-                <div className="p-4 border-t border-slate-800">
+                <div className="p-4 border-t border-border">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
                             {user.email?.charAt(0).toUpperCase()}
                         </div>
                         <div className="overflow-hidden flex-1">
                             <p className="text-sm font-medium truncate">{user.email}</p>
-                            <p className="text-xs text-slate-500 capitalize">{role || 'User'}</p>
+                            <p className="text-xs text-muted-foreground capitalize">{role || 'User'}</p>
                         </div>
                     </div>
                 </div>
@@ -101,20 +112,24 @@ export default function DashboardLayout({
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="md:hidden fixed left-0 top-0 bottom-0 w-64 bg-slate-900 text-white flex flex-col z-50"
+                            className="md:hidden fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border flex flex-col z-50"
                         >
-                            <div className="p-6 font-bold text-xl tracking-wider flex items-center justify-between">
-                                <span>VISION<span className="text-blue-500">REALTY</span></span>
+                            <div className="p-6 flex items-center justify-between">
+                                <div>
+                                    <div className="font-bold text-xl tracking-wider text-foreground">
+                                        NELSON <span className="text-primary font-light">VALLEJO</span>
+                                    </div>
+                                </div>
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="p-1 hover:bg-slate-800 rounded-lg"
+                                    className="p-1 hover:bg-accent rounded-lg text-muted-foreground"
                                 >
                                     <X size={24} />
                                 </motion.button>
                             </div>
 
-                            <nav className="flex-1 p-4 space-y-2">
+                            <nav className="flex-1 p-4 space-y-1">
                                 {menuItems.map((item, index) => {
                                     const Icon = item.icon;
                                     return (
@@ -126,9 +141,9 @@ export default function DashboardLayout({
                                         >
                                             <Link
                                                 href={item.href}
-                                                className="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-lg text-sm font-medium transition-colors cursor-pointer text-slate-400 hover:text-white active:scale-95 group"
+                                                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-accent group"
                                             >
-                                                <Icon size={20} className="group-hover:scale-110 transition-transform" />
+                                                <Icon size={20} className="group-hover:text-primary transition-colors" />
                                                 {item.label}
                                             </Link>
                                         </motion.div>
@@ -136,19 +151,19 @@ export default function DashboardLayout({
                                 })}
                             </nav>
 
-                            <div className="p-4 border-t border-slate-800 space-y-3">
+                            <div className="p-4 border-t border-border space-y-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-sm font-bold">
+                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
                                         {user.email?.charAt(0).toUpperCase()}
                                     </div>
                                     <div className="overflow-hidden flex-1">
                                         <p className="text-sm font-medium truncate">{user.email}</p>
-                                        <p className="text-xs text-slate-500 capitalize">{role || 'User'}</p>
+                                        <p className="text-xs text-muted-foreground capitalize">{role || 'User'}</p>
                                     </div>
                                 </div>
                                 <motion.button
                                     whileTap={{ scale: 0.95 }}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors"
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg text-sm font-medium transition-colors"
                                 >
                                     <LogOut size={16} />
                                     Log Out
@@ -160,32 +175,38 @@ export default function DashboardLayout({
             </AnimatePresence>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto h-screen">
-                <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
-                    {/* Mobile Menu Button */}
-                    <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => setMobileMenuOpen(true)}
-                        className="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                    >
-                        <Menu size={24} className="text-slate-700" />
-                    </motion.button>
+            <main className="flex-1 overflow-auto h-screen bg-background">
+                <header className="h-16 border-b border-border bg-background/80 backdrop-blur w-full flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
+                    <div className="flex items-center gap-4">
+                        {/* Mobile Menu Button */}
+                        <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setMobileMenuOpen(true)}
+                            className="md:hidden p-2 hover:bg-accent rounded-lg transition-colors text-muted-foreground"
+                        >
+                            <Menu size={24} />
+                        </motion.button>
 
-                    <h1 className="text-lg font-semibold text-slate-800">Dashboard</h1>
+                        {/* Breadcrumbs or Page Title could go here */}
+                    </div>
 
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        className="hidden md:block text-sm text-slate-500 hover:text-slate-900 font-medium transition-colors"
-                    >
-                        Log Out
-                    </motion.button>
+                    <div className="flex items-center gap-4">
+                        <ModeToggle />
 
-                    {/* Mobile: User Avatar as visual indicator */}
-                    <div className="md:hidden w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white">
-                        {user.email?.charAt(0).toUpperCase()}
+                        <motion.button
+                            whileTap={{ scale: 0.95 }}
+                            className="hidden md:block text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
+                        >
+                            Log Out
+                        </motion.button>
+
+                        {/* Mobile: User Avatar as visual indicator */}
+                        <div className="md:hidden w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                            {user.email?.charAt(0).toUpperCase()}
+                        </div>
                     </div>
                 </header>
-                <div className="p-4 md:p-8">
+                <div className="flex-1">
                     {children}
                 </div>
             </main>

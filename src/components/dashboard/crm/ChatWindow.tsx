@@ -64,9 +64,9 @@ export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWi
         if (role === 'ai' || senderId === 'system-ai') {
             return {
                 container: 'justify-start',
-                bubble: 'bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 text-purple-900 rounded-tl-none shadow-sm',
-                time: 'text-purple-400',
-                icon: <Bot size={14} className="text-purple-600" />,
+                bubble: 'bg-primary/10 border border-primary/20 text-foreground rounded-tl-none shadow-sm',
+                time: 'text-muted-foreground',
+                icon: <Bot size={14} className="text-primary" />,
                 label: 'AI Assistant',
                 showLabel: true
             };
@@ -76,9 +76,9 @@ export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWi
         if (role === 'user') {
             return {
                 container: 'justify-start',
-                bubble: 'bg-white border border-slate-200 text-slate-800 rounded-tl-none shadow-sm',
-                time: 'text-slate-400',
-                icon: <User size={14} className="text-slate-500" />,
+                bubble: 'bg-card border border-border text-foreground rounded-tl-none shadow-sm',
+                time: 'text-muted-foreground',
+                icon: <User size={14} className="text-muted-foreground" />,
                 label: 'User',
                 showLabel: true
             };
@@ -88,8 +88,8 @@ export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWi
         if (role === 'agent') {
             return {
                 container: 'justify-end',
-                bubble: 'bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-none shadow-md',
-                time: 'text-blue-100',
+                bubble: 'bg-primary text-primary-foreground rounded-tr-none shadow-md',
+                time: 'text-primary-foreground/70',
                 icon: null,
                 label: 'You',
                 showLabel: false
@@ -99,8 +99,8 @@ export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWi
         // Default
         return {
             container: 'justify-start',
-            bubble: 'bg-slate-100 border border-slate-200 text-slate-800',
-            time: 'text-slate-400',
+            bubble: 'bg-secondary border border-border text-foreground',
+            time: 'text-muted-foreground',
             icon: null,
             label: 'Unknown',
             showLabel: true
@@ -110,18 +110,18 @@ export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWi
     return (
         <div className="flex flex-col h-full">
             {/* Header - Desktop only */}
-            <div className="hidden md:flex h-16 px-4 bg-white border-b border-slate-200 justify-between items-center">
+            <div className="hidden md:flex h-16 px-4 bg-card border-b border-border justify-between items-center">
                 <div>
-                    <h3 className="font-semibold text-slate-800">Conversation Details</h3>
-                    <p className="text-xs text-slate-500">ID: {conversation.id.slice(0, 20)}...</p>
+                    <h3 className="font-semibold text-foreground">Conversation Details</h3>
+                    <p className="text-xs text-muted-foreground">ID: {conversation.id.slice(0, 20)}...</p>
                 </div>
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background/50" ref={scrollRef}>
                 {messages.length === 0 && (
                     <div className="flex items-center justify-center h-full">
-                        <p className="text-slate-400 text-sm">No messages yet. Start the conversation!</p>
+                        <p className="text-muted-foreground text-sm">No messages yet. Start the conversation!</p>
                     </div>
                 )}
                 {messages.map((msg) => {
@@ -132,14 +132,14 @@ export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWi
                         <div key={msg.id} className={`flex ${style.container} animate-in slide-in-from-bottom-2 duration-200`}>
                             <div className="flex items-start gap-2 max-w-[75%]">
                                 {!isAgent && style.icon && (
-                                    <div className="mt-1 p-1.5 bg-white rounded-full shadow-sm border flex-shrink-0">
+                                    <div className="mt-1 p-1.5 bg-card rounded-full shadow-sm border border-border flex-shrink-0">
                                         {style.icon}
                                     </div>
                                 )}
                                 <div className="flex-1">
                                     {!isAgent && style.showLabel && (
                                         <div className="flex items-center gap-2 mb-1 ml-1">
-                                            <span className="text-xs font-semibold text-slate-600">{style.label}</span>
+                                            <span className="text-xs font-semibold text-muted-foreground">{style.label}</span>
                                         </div>
                                     )}
                                     <div className={`rounded-lg px-4 py-3 ${style.bubble}`}>
@@ -156,13 +156,13 @@ export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWi
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-white border-t">
-                <div className="flex gap-2 items-center bg-slate-50 p-2 rounded-lg border focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-                    <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
+            <div className="p-4 bg-card border-t border-border">
+                <div className="flex gap-2 items-center bg-secondary/50 p-2 rounded-lg border border-border focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                    <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
                         <Paperclip size={20} />
                     </button>
                     <input
-                        className="flex-1 bg-transparent border-none focus:outline-none text-sm p-1"
+                        className="flex-1 bg-transparent border-none focus:outline-none text-sm p-1 text-foreground placeholder:text-muted-foreground"
                         placeholder="Type your message..."
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
@@ -170,7 +170,7 @@ export function ChatWindow({ conversation, currentUser, refreshTrigger }: ChatWi
                     />
                     <button
                         onClick={handleSend}
-                        className="p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
+                        className="p-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm"
                         disabled={!inputValue.trim()}
                     >
                         <Send size={18} />

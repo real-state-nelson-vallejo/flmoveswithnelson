@@ -50,23 +50,23 @@ export default function ContentManagerPage() {
     }
 
     return (
-        <div className="space-y-6 h-full flex flex-col">
+        <div className="space-y-6 h-full flex flex-col w-full p-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800">Content Manager</h2>
-                    <p className="text-slate-500 text-sm">Manage blog posts, news, and scheduling.</p>
+                    <h2 className="text-2xl font-bold text-foreground">Content Manager</h2>
+                    <p className="text-muted-foreground text-sm">Manage blog posts, news, and scheduling.</p>
                 </div>
                 <div className="flex gap-3">
-                    <div className="bg-slate-100 p-1 rounded-lg flex items-center">
+                    <div className="bg-secondary p-1 rounded-lg flex items-center">
                         <button
                             onClick={() => setView('list')}
-                            className={`p-2 rounded-md transition-all ${view === 'list' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`p-2 rounded-md transition-all ${view === 'list' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             <LayoutList size={18} />
                         </button>
                         <button
                             onClick={() => setView('calendar')}
-                            className={`p-2 rounded-md transition-all ${view === 'calendar' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`p-2 rounded-md transition-all ${view === 'calendar' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                         >
                             <CalendarIcon size={18} />
                         </button>
@@ -74,7 +74,7 @@ export default function ContentManagerPage() {
 
                     <button
                         onClick={() => setEditingPost(null)}
-                        className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors flex items-center gap-2"
+                        className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-colors flex items-center gap-2"
                         disabled={loading}
                     >
                         {loading ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}

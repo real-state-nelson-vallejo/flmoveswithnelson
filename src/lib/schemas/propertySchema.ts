@@ -34,6 +34,16 @@ export const PropertySchema = z.object({
     images: z.array(z.string()),
     type: z.enum(['sale', 'rent']),
     status: z.enum(['available', 'sold', 'reserved']),
+    opportunityScore: z.number().optional(),
+    listingQualityScore: z.number().optional(),
+    marketStatus: z.enum(['normal', 'distressed', 'price_drop', 'back_on_market']).optional(),
+    investmentAnalysis: z.object({
+        cashFlow: z.number(),
+        roi: z.number(),
+        capRate: z.number(),
+        description: z.string()
+    }).optional(),
+    rentCastData: z.any().optional(), // Stores RentCastEnrichment data
     createdAt: z.number(),
     updatedAt: z.number()
 });

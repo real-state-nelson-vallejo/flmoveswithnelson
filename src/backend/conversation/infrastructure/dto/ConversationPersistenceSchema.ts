@@ -9,7 +9,8 @@ export const MessagePersistenceSchema: z.ZodType<MessagePersistence> = z.object(
     content: z.string(),
     type: z.enum(['text', 'image', 'audio', 'system']),
     createdAt: z.number(),
-    readBy: z.array(z.string())
+    readBy: z.array(z.string()),
+    metadata: z.record(z.unknown()).optional()
 });
 
 export const ConversationPersistenceSchema: z.ZodType<ConversationPersistence> = z.object({

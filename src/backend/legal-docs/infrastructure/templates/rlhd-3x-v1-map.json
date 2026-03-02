@@ -1,0 +1,578 @@
+[
+  {
+    "fieldId": "landlord_2",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Landlord"
+  },
+  {
+    "fieldId": "tenant",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Tenant"
+  },
+  {
+    "fieldId": "tenant_2",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Tenant 2"
+  },
+  {
+    "fieldId": "property_address_2",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Property Address"
+  },
+  {
+    "fieldId": "city",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "City"
+  },
+  {
+    "fieldId": "county",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "County"
+  },
+  {
+    "fieldId": "state",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "State"
+  },
+  {
+    "fieldId": "zip",
+    "type": "text",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Zip"
+  },
+  {
+    "fieldId": "lease_start_date",
+    "type": "date",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Lease Start Date"
+  },
+  {
+    "fieldId": "lease_end_date",
+    "type": "date",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Lease End Date"
+  },
+  {
+    "fieldId": "monthly_rent_amount",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Monthly Rent Amount"
+  },
+  {
+    "fieldId": "rent_due_day",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Rent Due Day"
+  },
+  {
+    "fieldId": "late_fee_amount",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Late Fee Amount"
+  },
+  {
+    "fieldId": "late_fee_grace_period_days",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Late Fee Grace Period Days"
+  },
+  {
+    "fieldId": "security_deposit_amount",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Security Deposit Amount"
+  },
+  {
+    "fieldId": "first_month_rent",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "First Month Rent"
+  },
+  {
+    "fieldId": "last_month_rent",
+    "type": "money",
+    "page": 0,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Last Month Rent"
+  },
+  {
+    "fieldId": "no_pets_allowed_2",
+    "type": "checkbox",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "No Pets Allowed"
+  },
+  {
+    "fieldId": "pets_allowed",
+    "type": "checkbox",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Pets Allowed"
+  },
+  {
+    "fieldId": "pet_deposit_amount",
+    "type": "checkbox",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Pet Deposit Amount"
+  },
+  {
+    "fieldId": "pet_fee_non_refundable",
+    "type": "checkbox",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Pet Fee Non-Refundable"
+  },
+  {
+    "fieldId": "pet_weight_limit",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Pet Weight Limit"
+  },
+  {
+    "fieldId": "number_of_pets",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Number of Pets"
+  },
+  {
+    "fieldId": "landlord_pays_electricity",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Landlord Pays Electricity"
+  },
+  {
+    "fieldId": "tenant_pays_electricity",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Tenant Pays Electricity"
+  },
+  {
+    "fieldId": "landlord_pays_water",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Landlord Pays Water"
+  },
+  {
+    "fieldId": "tenant_pays_water",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Tenant Pays Water"
+  },
+  {
+    "fieldId": "landlord_pays_internet",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Landlord Pays Internet"
+  },
+  {
+    "fieldId": "tenant_pays_internet",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Tenant Pays Internet"
+  },
+  {
+    "fieldId": "landlord_pays_trash",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Landlord Pays Trash"
+  },
+  {
+    "fieldId": "tenant_pays_trash",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Tenant Pays Trash"
+  },
+  {
+    "fieldId": "landlord_pays_landscaping",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Landlord Pays Landscaping"
+  },
+  {
+    "fieldId": "tenant_pays_landscaping",
+    "type": "text",
+    "page": 1,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Tenant Pays Landscaping"
+  },
+  {
+    "fieldId": "hoa_exists",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "HOA Exists"
+  },
+  {
+    "fieldId": "hoa_fee_amount",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "HOA Fee Amount"
+  },
+  {
+    "fieldId": "lead_paint_disclosure",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Lead Paint Disclosure"
+  },
+  {
+    "fieldId": "property_built_before_1978",
+    "type": "text",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Property Built Before 1978"
+  },
+  {
+    "fieldId": "military_clause",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Military Clause"
+  },
+  {
+    "fieldId": "radon_gas_disclosure",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Radon Gas Disclosure"
+  },
+  {
+    "fieldId": "mold_disclosure",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Mold Disclosure"
+  },
+  {
+    "fieldId": "furnished",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Furnished"
+  },
+  {
+    "fieldId": "month_to_month_after_term",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Month to Month After Term"
+  },
+  {
+    "fieldId": "hold_over_provision",
+    "type": "checkbox",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Hold Over Provision"
+  },
+  {
+    "fieldId": "landlord_name_signature",
+    "type": "text",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Landlord Name Signature"
+  },
+  {
+    "fieldId": "tenant_name_signature",
+    "type": "text",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Tenant Name Signature"
+  },
+  {
+    "fieldId": "signature_date",
+    "type": "date",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Signature Date"
+  },
+  {
+    "fieldId": "broker_name_2",
+    "type": "text",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker Name"
+  },
+  {
+    "fieldId": "broker_license",
+    "type": "text",
+    "page": 2,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0
+    },
+    "originalLabel": "Broker License"
+  }
+]

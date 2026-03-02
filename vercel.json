@@ -1,0 +1,8 @@
+{
+    "crons": [
+        {
+            "path": "/api/cron/scalper",
+            "schedule": "0 5 * * *"
+        }
+    ]
+}
