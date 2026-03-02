@@ -46,9 +46,16 @@ export function FloatingHeader() {
                             </div>
 
                             <div className={styles.actions}>
-                                <Link href="/contact" className={styles.contactBtn}>
+                                <button
+                                    onClick={() => {
+                                        window.dispatchEvent(new CustomEvent('open-ai-chat', {
+                                            detail: { message: "Hi, I would like to get in contact with you." }
+                                        }));
+                                    }}
+                                    className={styles.contactBtn}
+                                >
                                     Contact Me
-                                </Link>
+                                </button>
                                 {/* Burger Icon for Mobile */}
                                 <button
                                     className={styles.burgerBtn}

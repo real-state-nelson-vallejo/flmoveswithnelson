@@ -41,10 +41,10 @@ export function ContactSection() {
                                     <p className={styles.question}>I am interested in...</p>
                                     <div className={styles.choiceGrid}>
                                         {[
-                                            { id: 'Comprar', icon: <Home size={20} /> },
-                                            { id: 'Vender', icon: <Banknote size={20} /> },
-                                            { id: 'Rentar', icon: <Key size={20} /> },
-                                            { id: 'Invertir', icon: <TrendingUp size={20} /> }
+                                            { id: 'Buy', icon: <Home size={20} /> },
+                                            { id: 'Sell', icon: <Banknote size={20} /> },
+                                            { id: 'Rent', icon: <Key size={20} /> },
+                                            { id: 'Invest', icon: <TrendingUp size={20} /> }
                                         ].map((option) => (
                                             <button
                                                 key={option.id}

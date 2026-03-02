@@ -41,6 +41,22 @@ export function AIChatWidget() {
 
     const scrollRef = useRef<HTMLDivElement>(null);
 
+    // Custom Event Listener for global CTAs
+    useEffect(() => {
+        const handleOpenChat = (e: Event) => {
+            const customEvent = e as CustomEvent<{ message?: string }>;
+            setIsOpen(true);
+
+            // If the chat is closed or we're at the very beginning and a message was passed
+            if (customEvent.detail?.message && step === 'cta') {
+                setInputValue(customEvent.detail.message);
+            }
+        };
+
+        window.addEventListener('open-ai-chat', handleOpenChat);
+        return () => window.removeEventListener('open-ai-chat', handleOpenChat);
+    }, [step]);
+
     // Auto scroll
     useEffect(() => {
         if (scrollRef.current) {
