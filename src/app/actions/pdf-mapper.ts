@@ -20,6 +20,7 @@ export async function getMapDetailsAction(templateId: string) {
     };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function saveMapDetailsAction(templateId: string, fields: any[]) {
     const repo = new FirestoreDocumentTemplateRepository();
     const template = await repo.findById(templateId);

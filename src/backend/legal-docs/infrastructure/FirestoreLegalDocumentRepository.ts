@@ -14,7 +14,7 @@ export class FirestoreLegalDocumentRepository implements LegalDocumentRepository
     async findById(id: string): Promise<LegalDocument | null> {
         const doc = await adminDb.collection(COLLECTION_NAME).doc(id).get();
         if (!doc.exists) return null;
-        return LegalDocument.fromPersistence(doc.data() as any);
+        return LegalDocument.fromPersistence(doc.data() as unknown as Parameters<typeof LegalDocument.fromPersistence>[0]);
     }
 
     async findByPropertyId(propertyId: string): Promise<LegalDocument[]> {
@@ -24,7 +24,7 @@ export class FirestoreLegalDocumentRepository implements LegalDocumentRepository
             .get();
 
         return snapshot.docs.map((doc: QueryDocumentSnapshot) =>
-            LegalDocument.fromPersistence(doc.data() as any)
+            LegalDocument.fromPersistence(doc.data() as unknown as Parameters<typeof LegalDocument.fromPersistence>[0])
         );
     }
 
@@ -34,7 +34,7 @@ export class FirestoreLegalDocumentRepository implements LegalDocumentRepository
             .get();
 
         return snapshot.docs.map((doc: QueryDocumentSnapshot) =>
-            LegalDocument.fromPersistence(doc.data() as any)
+            LegalDocument.fromPersistence(doc.data() as unknown as Parameters<typeof LegalDocument.fromPersistence>[0])
         );
     }
 

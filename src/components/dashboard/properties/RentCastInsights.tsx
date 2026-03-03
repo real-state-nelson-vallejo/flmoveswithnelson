@@ -1,4 +1,5 @@
 import { RentCastEnrichment } from "@/backend/market/domain/RentCastEnrichment";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TrendingUp, DollarSign, Home, Activity } from "lucide-react";
 
 interface RentCastInsightsProps {

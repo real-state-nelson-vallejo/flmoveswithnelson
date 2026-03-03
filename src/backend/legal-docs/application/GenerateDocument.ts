@@ -1,7 +1,7 @@
 import { DocumentConfiguration } from "../infrastructure/DocumentConfiguration";
 import { PdfLibDocumentGenerator } from "../infrastructure/PdfLibDocumentGenerator";
 import { GeminiDocumentExtractor } from "../infrastructure/GeminiDocumentExtractor";
-import { LegalDocument } from "../domain/LegalDocument";
+import { LegalDocument, DocumentType } from "../domain/LegalDocument";
 import { Property } from "@/backend/property/domain/Property";
 
 export class GenerateDocument {
@@ -17,14 +17,14 @@ export class GenerateDocument {
         propertyId: string;
         templateId: string;
         userContext?: string;
-        existingData?: Record<string, any>; // If user already reviewed/edited
+        existingData?: Record<string, unknown>; // If user already reviewed/edited
         property?: Property; // Optimization to avoid refetching if already available
     }): Promise<{ document: LegalDocument; pdfBuffer: Buffer }> {
 
         const template = await DocumentConfiguration.getTemplate(input.templateId);
 
         // 1. Prepare Data
-        let data = input.existingData || {};
+        const data = input.existingData || {};
 
         // If data is missing or we want AI to fill:
         // Ideally we check if we need to run AI. 
@@ -43,7 +43,7 @@ export class GenerateDocument {
         // But I will keep the logical link to extraction if needed.
 
         // Create the Domain Entity
-        const document = LegalDocument.create(input.propertyId, template.id as any, data);
+        const document = LegalDocument.create(input.propertyId, template.id as unknown as DocumentType, data);
 
         // Generate PDF
         const buffer = await this.generator.generate(document, template);

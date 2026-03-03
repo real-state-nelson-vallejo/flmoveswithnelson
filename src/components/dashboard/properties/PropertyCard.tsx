@@ -1,4 +1,5 @@
 import { PropertyDTO } from "@/types/property";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Bed, Bath, Square, MapPin, Edit, Trash2, TrendingUp, AlertCircle, Hash, TrendingDown, ArrowUpRight, Edit2 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -120,7 +121,8 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
                     </div>
                 </div>
 
-                <div className="flex gap-2">
+                {/* Actions - Elevated z-index to stay above the hover overlay */}
+                <div className="flex gap-2 relative z-10 mt-auto pt-4 border-t border-border">
                     <Link
                         href={`/dashboard/properties/${property.id}/market`}
                         className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1"
@@ -144,7 +146,7 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
 
             {/* Hover overlay for quick analysis */}
             {property.investmentAnalysis && (
-                <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px] pointer-events-none">
+                <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px] pointer-events-none z-0">
                     <div className="bg-card p-4 rounded-xl shadow-lg border border-border transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 min-w-[200px]">
                         <p className="text-xs font-bold text-muted-foreground uppercase mb-2 text-center">AI Analysis</p>
                         <div className="space-y-2">

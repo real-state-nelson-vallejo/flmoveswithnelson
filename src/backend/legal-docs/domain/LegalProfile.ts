@@ -30,7 +30,7 @@ export class LegalProfile {
         });
     }
 
-    toPersistence(): any {
+    toPersistence(): Record<string, unknown> {
         return {
             ...this.props,
             updatedAt: this.props.updatedAt.getTime()

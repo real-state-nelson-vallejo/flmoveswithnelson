@@ -1,6 +1,6 @@
 
 import { LeadRepository } from "@/backend/lead/domain/LeadRepository";
-import { Lead } from "@/backend/lead/domain/Lead";
+// Removed unused import
 
 export class QualifyLeadService {
     constructor(private readonly repository: LeadRepository) { }

@@ -20,7 +20,8 @@ export default async function DocumentsPage() {
         documents.map(async (doc) => {
             const property = await propertyRepo.findById(doc.propertyId).catch(() => null);
             const lead = doc.leadId ? await leadRepo.findById(doc.leadId).catch(() => null) : null;
-            const p = doc.toPersistence();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const p = doc.toPersistence() as any;
             return {
                 ...p,
                 propertyTitle: property?.title || doc.propertyId,

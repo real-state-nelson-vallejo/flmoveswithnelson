@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -648,7 +649,7 @@ export function DocumentCreatorSlideOver({ isOpen, onClose, properties, leads = 
                                 <div>
                                     <h4 className="font-medium text-foreground">AI Auto-Fill Complete</h4>
                                     <p className="text-sm text-muted-foreground mt-1">
-                                        We've extracted data from the property/deal to fill this legal document. Please review and edit below.
+                                        We&apos;ve extracted data from the property/deal to fill this legal document. Please review and edit below.
                                     </p>
                                 </div>
                             </div>

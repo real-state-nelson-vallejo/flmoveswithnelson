@@ -19,8 +19,7 @@ export class GeminiContentGenerator implements ContentGenerator {
         specs: { beds: number; baths: number; area: number };
         type: string;
     }): Promise<string> {
-        // Updated to optimized flash model as requested
-        const model = this.genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `
             Act as a professional real estate copywriter. Write a compelling, engaging, and SEO-friendly property description for the following listing:
@@ -45,7 +44,8 @@ export class GeminiContentGenerator implements ContentGenerator {
             return "Failed to generate description via AI. Please try again later.";
         }
     }
-    async analyzeProperty(data: any, rentCastData?: any): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    async analyzeProperty(_data: any, _rentCastData?: any): Promise<any> {
         throw new Error("Method not implemented.");
     }
 }

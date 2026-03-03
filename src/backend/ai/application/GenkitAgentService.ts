@@ -56,13 +56,13 @@ const agentChatFlow = (globalThis as any)[FLOW_NAME] || ai.defineFlow(
         }
 
         // System tools are automatically provided in voice context
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
         const isVoiceChannel = input.history?.some((m: any) => m.content === 'voice') || true; // Best effort inference or handled by input params if passed to flow
         const systemTools = getSystemTools();
         tools.push(...systemTools);
         debugLogs.push('Tool enabled: system_tools (System Operations)');
 
         // 2. Format History
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const rawHistory = input.history || [];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const formattedHistory = rawHistory.map((msg: any) => {
@@ -71,6 +71,7 @@ const agentChatFlow = (globalThis as any)[FLOW_NAME] || ai.defineFlow(
                 content = [{ text: content }];
             } else if (Array.isArray(content)) {
                 // Sanitize Tool Responses: Genkit crashes if 'output' is missing
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 content = content.map((part: any) => {
                     if (part.toolResponse && !part.toolResponse.output) {
                         console.warn(`[GenkitAgentService] Found malformed toolRef ${part.toolResponse.name} without output. Injecting fallback.`);
@@ -127,6 +128,7 @@ const agentChatFlow = (globalThis as any)[FLOW_NAME] || ai.defineFlow(
             // 4. Extract Tool Output for UI
             // We need to look into the messages generated during this turn to find tool outputs.
             // response.messages contains the new messages added.
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let toolOutputData: any = null;
 
             if (response.messages && response.messages.length > 0) {
@@ -157,9 +159,10 @@ const agentChatFlow = (globalThis as any)[FLOW_NAME] || ai.defineFlow(
                 toolOutput: toolOutputData
             };
 
-        } catch (error: any) {
-            console.error('Error in agentChatFlow:', error);
-            debugLogs.push(`Error: ${error.message}`);
+        } catch (error: unknown) {
+            const err = error as Error;
+            console.error('Error in agentChatFlow:', err);
+            debugLogs.push(`Error: ${err.message}`);
             return {
                 text: "An error occurred while processing your request.",
                 debugLogs: debugLogs,
@@ -187,7 +190,7 @@ export class GenkitAgentService {
         const config = await this.getAgentConfiguration.execute();
 
         // 2. Construct System Prompt with Context
-        let systemPrompt = config.systemPrompt;
+        const systemPrompt = config.systemPrompt;
 
         // Add Context Header
         const dateContext = `Current Date and Time: ${new Date().toLocaleString('en-US')}\n`;

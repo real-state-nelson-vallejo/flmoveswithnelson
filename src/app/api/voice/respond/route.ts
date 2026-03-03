@@ -192,7 +192,7 @@ async function handleRespondRequest(request: NextRequest) {
         twiml.say({ voice: finalVoiceName, language: finalGatherLanguage }, aiText);
 
         // Continue listening
-        const gather = twiml.gather({
+        twiml.gather({
             input: ['speech', 'dtmf'],
             action: '/api/voice/respond',
             method: 'POST',

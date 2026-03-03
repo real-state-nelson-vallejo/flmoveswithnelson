@@ -1,5 +1,5 @@
 import { genkit } from 'genkit';
-import { googleAI, gemini20Flash } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/googleai';
 import { z } from 'zod';
 import { ContentGenerator, AnalysisResult } from "../domain/ContentGenerator";
 
@@ -15,7 +15,7 @@ export class GenkitContentGenerator implements ContentGenerator {
 
         this.ai = genkit({
             plugins: [googleAI()],
-            model: gemini20Flash, // Set default model
+            model: 'googleai/gemini-2.5-flash', // Set default model explicitly via string
         });
     }
 
@@ -49,6 +49,7 @@ export class GenkitContentGenerator implements ContentGenerator {
             throw new Error("Failed to generate content via Genkit");
         }
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async analyzeProperty(data: any, rentCastData?: any): Promise<AnalysisResult> {
         const AnalysisSchema = z.object({
             opportunityScore: z.number().min(0).max(100),
@@ -98,7 +99,7 @@ export class GenkitContentGenerator implements ContentGenerator {
 
         try {
             const { output } = await this.ai.generate({
-                model: gemini20Flash,
+                model: 'googleai/gemini-2.5-flash',
                 prompt: prompt,
                 output: { schema: AnalysisSchema }
             });

@@ -8,7 +8,7 @@ import { DeleteProperty } from "@/backend/property/application/DeleteProperty";
 import { UpdateProperty } from "@/backend/property/application/UpdateProperty";
 import { GetPropertyBySlug } from "@/backend/property/application/GetPropertyBySlug";
 import { GetAdjacentProperties } from "@/backend/property/application/GetAdjacentProperties";
-import { AnalyzeProperty } from "@/backend/property/application/AnalyzeProperty";
+// Removed unused import
 import { PropertyDTO } from "@/types/property";
 import { PropertyFilter } from "@/backend/property/domain/PropertyRepository";
 import { EnrichPropertyData } from "@/backend/market/application/EnrichPropertyData";
@@ -23,7 +23,7 @@ const deletePropertyUseCase = new DeleteProperty(propertyDependencies.propertyRe
 const updatePropertyUseCase = new UpdateProperty(propertyDependencies.propertyRepository);
 const getPropertyBySlugUseCase = new GetPropertyBySlug(propertyDependencies.propertyRepository);
 const getAdjacentPropertiesUseCase = new GetAdjacentProperties(propertyDependencies.propertyRepository);
-const analyzePropertyUseCase = new AnalyzeProperty(propertyDependencies.propertyRepository, propertyDependencies.contentGenerator);
+// const analyzePropertyUseCase = new AnalyzeProperty(propertyDependencies.propertyRepository, propertyDependencies.contentGenerator);
 const enrichPropertyDataUseCase = new EnrichPropertyData(marketDependencies.marketDataService, marketDependencies.marketRepository);
 
 export type CreatePropertyDTO = Omit<PropertyDTO, "id" | "createdAt" | "updatedAt">;
@@ -128,6 +128,7 @@ export async function getAdjacentPropertiesAction(id: string) {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function analyzePropertyContentAction(data: any, propertyId?: string) {
     try {
         let enrichmentData = null;

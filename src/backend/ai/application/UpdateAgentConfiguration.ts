@@ -19,7 +19,7 @@ export class UpdateAgentConfiguration {
             config = AgentConfiguration.create({
                 systemPrompt: input.systemPrompt || "You are a helpful virtual assistant.",
                 enabledTools: input.enabledTools || [],
-                modelParams: input.modelParams || { temperature: 0.7, modelName: "gemini-1.5-flash" }
+                modelParams: input.modelParams || { temperature: 0.7, modelName: "googleai/gemini-2.5-flash" }
             });
         } else {
             // Update existing

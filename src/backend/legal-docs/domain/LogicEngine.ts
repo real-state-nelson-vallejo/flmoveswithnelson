@@ -9,8 +9,8 @@ export interface FieldOverride {
 }
 
 export class LogicEngine {
-    static evaluate(property: Property, preset?: TransactionPreset | null): Record<string, any> {
-        const overrides: Record<string, any> = {};
+    static evaluate(property: Property, preset?: TransactionPreset | null): Record<string, unknown> {
+        const overrides: Record<string, unknown> = {};
 
         // 1. Apply Preset Defaults (Base Layer)
         // Presets are explicit user choices, so they should generally override generic AI.

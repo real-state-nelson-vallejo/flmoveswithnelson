@@ -54,12 +54,12 @@ export class SmartPresetLearner {
         }
 
         // Extract values that meet the threshold
-        const learnedData: Record<string, any> = {};
+        const learnedData: Record<string, unknown> = {};
         for (const [key, freqs] of Object.entries(valueFrequencies)) {
             for (const [strValue, count] of Object.entries(freqs)) {
                 if (count >= thresholdCount) {
                     // Try to restore original type (boolean vs string)
-                    let finalVal: any = strValue;
+                    let finalVal: unknown = strValue;
                     if (strValue === 'true') finalVal = true;
                     if (strValue === 'false') finalVal = false;
 

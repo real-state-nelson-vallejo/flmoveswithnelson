@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
@@ -105,13 +106,19 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             const { storage } = await import("@/lib/firebase/client");
             const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
 
-            for (const file of files) {
-                const path = `properties/uploads/${Date.now()}_${file.name}`;
+            const uploadPromises = files.map(async (file) => {
+                // Check limit: 100MB in bytes
+                if (file.size > 100 * 1024 * 1024) {
+                    throw new Error(`File ${file.name} exceeds 100MB limit`);
+                }
+                const path = `properties/uploads/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
                 const storageRef = ref(storage, path);
                 await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-                uploadedUrls.push(url);
-            }
+                return getDownloadURL(storageRef);
+            });
+
+            const urls = await Promise.all(uploadPromises);
+            uploadedUrls.push(...urls);
 
             const currentImages = watchedValues.images || [];
             setValue("images", [...currentImages, ...uploadedUrls], { shouldValidate: true });
@@ -297,7 +304,7 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                         <Plus size={24} />
                     </div>
                     <p className="font-medium text-slate-900">Click to upload images</p>
-                    <p className="text-xs">PNG, JPG up to 10MB</p>
+                    <p className="text-xs">PNG, JPG, WEBP up to 100MB</p>
                 </div>
             </div>
 

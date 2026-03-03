@@ -3,12 +3,13 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
+// Removed unused Link import
 import { useParams } from "next/navigation";
 import { Eye, Target, Award, Users, TrendingUp, CalendarDays, MessageSquare, Play, Pause, Volume2, VolumeX, Maximize } from "lucide-react";
 
 export default function AboutPage() {
     const params = useParams();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const locale = (params?.locale as string) || 'en';
 
     // Video Player State

@@ -112,8 +112,8 @@ class VoiceSessionStore {
 
 // Singleton (survives HMR in dev), version bumped to clear cache
 const STORE_KEY = '__voiceSessionStore_v2';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const voiceSessionManager: VoiceSessionStore =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any)[STORE_KEY] || new VoiceSessionStore();
 
 if (process.env.NODE_ENV !== 'production') {

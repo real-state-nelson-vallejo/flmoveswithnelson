@@ -69,7 +69,7 @@ export async function sendMessageAction(message: any) {
 
 import { GenkitAgentService } from "@/backend/ai/application/GenkitAgentService";
 
-export async function generateAIReplyAction(conversationId: string, modelId?: string) {
+export async function generateAIReplyAction(conversationId: string) {
     try {
         // 1. Fetch conversation history via Service
         const messages = await conversationDependencies.conversationRepository.findMessagesByConversationId(conversationId, 20);

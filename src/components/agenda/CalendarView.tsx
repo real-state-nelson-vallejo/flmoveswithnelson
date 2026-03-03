@@ -300,7 +300,7 @@ export function CalendarView({ initialAppointments }: CalendarViewProps) {
 
                                 {app.notes && (
                                     <div className="p-4 bg-indigo-50/30 border border-indigo-100/50 rounded-2xl italic text-sm text-slate-600 line-clamp-2">
-                                        "{app.notes}"
+                                        &quot;{app.notes}&quot;
                                     </div>
                                 )}
                             </div>

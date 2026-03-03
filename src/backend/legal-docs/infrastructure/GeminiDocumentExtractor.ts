@@ -7,8 +7,7 @@ import { LegalProfile } from "../domain/LegalProfile";
 import { TransactionPreset } from "../domain/TransactionPreset";
 
 export class GeminiDocumentExtractor implements DocumentExtractor {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private ai: any;
+    private ai: ReturnType<typeof genkit>;
 
     constructor() {
         if (!process.env.GEMINI_API_KEY) {
@@ -27,8 +26,9 @@ export class GeminiDocumentExtractor implements DocumentExtractor {
         template: DocumentTemplate,
         profile?: LegalProfile | null,
         preset?: TransactionPreset | null,
-        lead?: any | null
-    ): Promise<{ data: Record<string, any>; confidence: Record<string, number> }> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        lead?: Record<string, any> | null
+    ): Promise<{ data: Record<string, unknown>; confidence: Record<string, number> }> {
 
         const FIELDS_PER_CHUNK = 20; // Reduced for safety and faster TTFB per promise
         const totalChunks = Math.ceil(template.fields.length / FIELDS_PER_CHUNK);
@@ -77,7 +77,7 @@ export class GeminiDocumentExtractor implements DocumentExtractor {
             8. Format dates as MM/DD/YYYY. For Money/Price, use "$X,XXX.XX" format.
         `;
 
-        const extractedData: Record<string, any> = {};
+        const extractedData: Record<string, unknown> = {};
         const extractedConfidence: Record<string, number> = {};
 
         // Generate chunks Promises
@@ -132,10 +132,11 @@ export class GeminiDocumentExtractor implements DocumentExtractor {
                     model: 'googleai/gemini-2.5-flash',
                     prompt: chunkPrompt,
                     output: { schema: ChunkSchema }
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 }).then((response: any) => {
                     const parsed = response.output || {};
                     // Reverse map the aliases back to their original PDF fieldIds
-                    const mappedOutput: Record<string, any> = {};
+                    const mappedOutput: Record<string, unknown> = {};
                     for (const [alias, obj] of Object.entries(parsed)) {
                         const originalFieldId = aliasMap[alias];
                         if (originalFieldId) {
@@ -143,7 +144,7 @@ export class GeminiDocumentExtractor implements DocumentExtractor {
                         }
                     }
                     return mappedOutput;
-                }).catch((error: any) => {
+                }).catch((error: unknown) => {
                     console.error(`Gemini Chunk ${i} Extraction Error:`, error);
                     return {}; // Return empty object on chunk failure so we don't crash whole process
                 })
@@ -156,9 +157,9 @@ export class GeminiDocumentExtractor implements DocumentExtractor {
         // Merge results
         for (const parsedOutput of chunkResults) {
             for (const [key, obj] of Object.entries(parsedOutput)) {
-                // @ts-ignore
+                // @ts-expect-error dynamic genkit mapping
                 extractedData[key] = obj?.value ?? null;
-                // @ts-ignore
+                // @ts-expect-error dynamic genkit mapping
                 extractedConfidence[key] = obj?.confidence ?? 0;
             }
         }

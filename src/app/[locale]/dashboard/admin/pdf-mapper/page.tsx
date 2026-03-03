@@ -19,7 +19,7 @@ export default function AdminPdfMapperPage() {
                 <DialogContent className="sm:max-w-[600px] border-border bg-card p-0 overflow-hidden">
                     <DialogTitle className="sr-only">Upload PDF Template</DialogTitle>
                     <div className="bg-card">
-                        <PDFUploaderWidget onUploadComplete={(id) => {
+                        <PDFUploaderWidget onUploadComplete={() => {
                             setRefreshKey(prev => prev + 1);
                             setIsUploaderOpen(false);
                         }} />

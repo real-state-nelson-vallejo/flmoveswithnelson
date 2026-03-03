@@ -6,6 +6,7 @@ export interface ContentGenerator {
         specs: { beds: number; baths: number; area: number };
         type: string;
     }): Promise<string>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     analyzeProperty(data: any, rentCastData?: any): Promise<AnalysisResult>;
 }
 

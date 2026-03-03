@@ -13,6 +13,7 @@ export class RentCastAPIAdapter implements MarketDataService {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async fetchFromApi(endpoint: string, params: Record<string, string | number | undefined>): Promise<any> {
         if (!this.apiKey) {
             throw new Error("RentCast API Key is missing");
@@ -102,6 +103,7 @@ export class RentCastAPIAdapter implements MarketDataService {
                     averageRent: marketData?.averageRent || 0,
                     averagePrice: marketData?.averagePrice || 0,
                 },
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 rentalComps: (rentalComps || []).map((c: any) => ({
                     id: c.id,
                     address: c.formattedAddress || c.addressLine1,
@@ -110,6 +112,7 @@ export class RentCastAPIAdapter implements MarketDataService {
                     distance: c.distance || 0,
                     listedDate: c.createdDate || new Date().toISOString()
                 })),
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 saleComps: (saleComps || []).map((c: any) => ({
                     id: c.id,
                     address: c.formattedAddress || c.addressLine1,
@@ -141,6 +144,7 @@ export class RentCastAPIAdapter implements MarketDataService {
                 return [];
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return listings.map((l: any) => ({
                 id: l.id,
                 address: l.formattedAddress,

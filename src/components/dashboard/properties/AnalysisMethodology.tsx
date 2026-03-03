@@ -34,7 +34,7 @@ export function AnalysisMethodology({ children }: { children?: React.ReactNode }
                         <h4 className="font-semibold text-foreground mb-2 text-sm">Automated Valuation Model (AVM)</h4>
                         <p className="text-sm text-muted-foreground leading-relaxed">
                             Currently, this analysis uses a <strong>Generative Heuristic Model</strong>.
-                            Our AI analyzes the property's location, specifications, and listing details against its internal database of market trends to <em>infer</em> likely financial performance.
+                            Our AI analyzes the property&apos;s location, specifications, and listing details against its internal database of market trends to <em>infer</em> likely financial performance.
                         </p>
                     </div>
 

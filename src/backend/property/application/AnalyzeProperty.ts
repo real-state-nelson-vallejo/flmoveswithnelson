@@ -1,6 +1,5 @@
 import { ContentGenerator, AnalysisResult } from "../domain/ContentGenerator";
 import { PropertyRepository } from "../domain/PropertyRepository";
-import { Property } from "../domain/Property";
 
 export class AnalyzeProperty {
     constructor(

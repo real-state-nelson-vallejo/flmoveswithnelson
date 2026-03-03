@@ -8,7 +8,9 @@ const qualifyLead = new QualifyLeadService(leadRepository);
 
 export const getLeadTools = () => {
     const TOOLS_NAME = 'leadToolsInstances';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((globalThis as any)[TOOLS_NAME]) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (globalThis as any)[TOOLS_NAME];
     }
 
@@ -39,6 +41,7 @@ export const getLeadTools = () => {
         )
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any)[TOOLS_NAME] = tools;
     return tools;
 };

@@ -49,6 +49,7 @@ export interface PropertyDTO {
         capRate?: number;
         description?: string;
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rentCastData?: any; // Stores RentCastEnrichment data
     createdAt: number;
     updatedAt: number;

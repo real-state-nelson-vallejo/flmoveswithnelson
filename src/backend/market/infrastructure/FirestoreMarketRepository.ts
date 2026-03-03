@@ -1,8 +1,6 @@
 import { MarketRepository } from "../domain/MarketRepository";
 import { RentCastEnrichment } from "../domain/RentCastEnrichment";
 import { adminDb } from "@/lib/firebase/admin";
-import crypto from 'crypto';
-
 export class FirestoreMarketRepository implements MarketRepository {
 
     private getCacheKey(address: string, zip: string): string {

@@ -10,6 +10,6 @@ export interface DocumentExtractor {
         template: DocumentTemplate,
         profile?: LegalProfile | null,
         preset?: TransactionPreset | null,
-        lead?: any | null // CRM Lead context
-    ): Promise<{ data: Record<string, any>; confidence: Record<string, number> }>;
+        lead?: unknown | null // CRM Lead context
+    ): Promise<{ data: Record<string, unknown>; confidence: Record<string, number> }>;
 }

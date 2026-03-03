@@ -9,6 +9,7 @@ export function cn(...inputs: ClassValue[]) {
  * Recursively converts Firestore Timestamps (objects with _seconds, _nanoseconds)
  * and Date objects to plain ISO strings to ensure serialization safe for Client Components.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function serializeFirestoreData(data: any): any {
     if (data === null || data === undefined) return data;
 

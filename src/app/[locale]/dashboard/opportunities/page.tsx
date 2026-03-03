@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, TrendingUp, DollarSign, MapPin, ExternalLink, RefreshCw, AlertCircle, Sparkles, Filter, X } from "lucide-react";
+import { Loader2, TrendingUp, DollarSign, MapPin, ExternalLink, RefreshCw, Sparkles, Filter, X } from "lucide-react";
 import { getMarketOpportunitiesAction, runMarketScanAction } from "@/actions/market/actions";
 import { formatDistanceToNow } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function OpportunitiesPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [opportunities, setOpportunities] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [filteredOpportunities, setFilteredOpportunities] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [scanning, setScanning] = useState(false);
@@ -123,6 +124,7 @@ export default function OpportunitiesPage() {
                                             {['all', 'flip', 'cashflow'].map((t) => (
                                                 <button
                                                     key={t}
+                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                     onClick={() => setFilterType(t as any)}
                                                     className={`flex-1 text-xs py-1.5 rounded-md capitalize transition-all ${filterType === t ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
                                                 >

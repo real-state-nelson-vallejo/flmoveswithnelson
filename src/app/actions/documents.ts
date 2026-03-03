@@ -4,7 +4,7 @@ import { GenerateDocument } from "@/backend/legal-docs/application/GenerateDocum
 import { DocumentConfiguration } from "@/backend/legal-docs/infrastructure/DocumentConfiguration";
 import { GeminiDocumentExtractor } from "@/backend/legal-docs/infrastructure/GeminiDocumentExtractor";
 import { FirestorePropertyRepository } from "@/backend/property/infrastructure/FirestorePropertyRepository"; // Or use dependency container
-import { LegalDocument } from "@/backend/legal-docs/domain/LegalDocument";
+// import { LegalDocument } from "@/backend/legal-docs/domain/LegalDocument";
 import { LogicEngine } from "@/backend/legal-docs/domain/LogicEngine";
 
 // Re-export types for client usage if needed
@@ -35,6 +35,7 @@ export async function extractDocumentDataAction(
     userId?: string,
     presetId?: string,
     leadId?: string, // Existing: Lead data (tenant/buyer)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     manualTenant?: { name: string, email: string, phone: string } // NEW: Manual tenant info if no lead selected
 ) {
     const propertyRepo = new FirestorePropertyRepository();
@@ -107,6 +108,7 @@ export async function getTransactionPresetsAction(userId: string) {
     return presets.map(p => p.toPersistence());
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createTransactionPresetAction(userId: string, name: string, data: Record<string, any>, description?: string) {
     const repo = new FirestoreTransactionPresetRepository();
     const preset = TransactionPreset.create(userId, name, data, description);
@@ -125,6 +127,7 @@ export async function deleteTransactionPresetAction(id: string) {
 export async function generateDocumentAction(
     propertyId: string,
     templateId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: Record<string, any>,
     userId?: string, // Added to trigger learning
     leadId?: string  // Added to bind the document to the CRM lead
@@ -140,6 +143,7 @@ export async function generateDocumentAction(
     if (leadId) {
         // We temporarily update the internal props directly.
         // A correct DDD approach would update `GenerateDocument` to take leadId.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (document as any).props.leadId = leadId;
     }
 

@@ -17,7 +17,7 @@ export class GetAgentConfiguration {
             enabledTools: [] as AgentTool[],
             modelParams: {
                 temperature: 0.7,
-                modelName: "gemini-2.5-flash"
+                modelName: "googleai/gemini-2.5-flash"
             }
         });
     }

@@ -8,7 +8,9 @@ export const PropertyTools = {
     register: () => {
         const TOOLS_NAME = 'propertyToolsInstances_v5';
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((globalThis as any)[TOOLS_NAME]) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return (globalThis as any)[TOOLS_NAME];
         }
 

@@ -5,7 +5,7 @@ export interface TransactionPresetProps {
     userId: string;
     name: string; // e.g., "Standard No-Pet Lease", "My Listing Agreement"
     description?: string;
-    defaultData: Record<string, any>; // Key-Value pairs to pre-fill
+    defaultData: Record<string, unknown>; // Key-Value pairs to pre-fill
     createdAt: Date;
     updatedAt: Date;
 }
@@ -13,7 +13,7 @@ export interface TransactionPresetProps {
 export class TransactionPreset {
     private constructor(private readonly props: TransactionPresetProps) { }
 
-    static create(userId: string, name: string, defaultData: Record<string, any>, description?: string): TransactionPreset {
+    static create(userId: string, name: string, defaultData: Record<string, unknown>, description?: string): TransactionPreset {
         return new TransactionPreset({
             id: crypto.randomUUID(),
             userId,
@@ -33,7 +33,7 @@ export class TransactionPreset {
         });
     }
 
-    toPersistence(): any {
+    toPersistence(): Record<string, unknown> {
         return {
             ...this.props,
             createdAt: this.props.createdAt.getTime(),
@@ -41,7 +41,7 @@ export class TransactionPreset {
         };
     }
 
-    update(name: string, defaultData: Record<string, any>, description?: string) {
+    update(name: string, defaultData: Record<string, unknown>, description?: string) {
         this.props.name = name;
         this.props.defaultData = defaultData;
         if (description !== undefined) this.props.description = description;

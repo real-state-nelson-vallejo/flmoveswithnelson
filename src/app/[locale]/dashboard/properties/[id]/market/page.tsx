@@ -1,7 +1,5 @@
 import { getPropertyAction } from "@/actions/property/actions";
-import { getMarketOpportunitiesAction } from "@/actions/market/actions";
-import { PropertyDTO } from "@/types/property";
-import { ArrowLeft, Home, MapPin, Building, DollarSign, TrendingUp, TrendingDown, Clock, Activity, AlertCircle, BarChart3, LineChart } from "lucide-react";
+import { ArrowLeft, MapPin, DollarSign, Clock, Activity, AlertCircle, BarChart3, LineChart } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarketMap } from "@/components/market/MarketMap";
@@ -211,7 +209,7 @@ export default async function PropertyMarketPage({ params }: { params: Promise<{
                                         <span className="text-xs font-mono text-muted-foreground">{enrichment.rentalComps.length} found</span>
                                     </div>
                                     <div className="overflow-y-auto flex-1 p-2 space-y-2 custom-scrollbar">
-                                        {enrichment.rentalComps.map((comp: any) => (
+                                        {enrichment.rentalComps.map((comp: { id: string, price: number, distance: number, address: string, listedDate: string }) => (
                                             <div key={comp.id} className="p-3 rounded-lg bg-background border border-border hover:border-blue-500/30 transition-colors group">
                                                 <div className="flex justify-between items-start mb-1">
                                                     <span className="font-mono text-blue-400 font-medium">{formatCurrency(comp.price)}</span>
@@ -239,7 +237,7 @@ export default async function PropertyMarketPage({ params }: { params: Promise<{
                                         <span className="text-xs font-mono text-muted-foreground">{enrichment.saleComps.length} found</span>
                                     </div>
                                     <div className="overflow-y-auto flex-1 p-2 space-y-2 custom-scrollbar">
-                                        {enrichment.saleComps.map((comp: any) => (
+                                        {enrichment.saleComps.map((comp: { id: string, price: number, distance: number, address: string, listedDate: string }) => (
                                             <div key={comp.id} className="p-3 rounded-lg bg-background border border-border hover:border-amber-500/30 transition-colors group">
                                                 <div className="flex justify-between items-start mb-1">
                                                     <span className="font-mono text-amber-400 font-medium">{formatCurrency(comp.price)}</span>

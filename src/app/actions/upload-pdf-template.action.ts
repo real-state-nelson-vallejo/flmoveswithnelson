@@ -79,8 +79,8 @@ export async function uploadPDFTemplateAction(
         await adminDb.collection("document_templates").doc(templateId).set(templateData);
 
         return { success: true, templateId };
-    } catch (error: any) {
+    } catch (error) {
         console.error("Failed to upload PDF template:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
     }
 }

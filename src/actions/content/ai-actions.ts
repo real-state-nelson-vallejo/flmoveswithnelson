@@ -1,13 +1,13 @@
 "use server";
 
 import { genkit } from 'genkit';
-import { googleAI, gemini20Flash } from '@genkit-ai/googleai';
+import { googleAI } from '@genkit-ai/googleai';
 
 // Initialize Genkit specifically for actions (server-side only)
 // Reuse this logic or extract to shared provider if needed regularly
 const ai = genkit({
     plugins: [googleAI()],
-    model: gemini20Flash,
+    model: 'googleai/gemini-2.5-flash',
 });
 
 export async function generateBlogPostAction(title: string, type: string) {

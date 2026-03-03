@@ -33,7 +33,6 @@ export function AgentConfigForm({ initialConfig }: AgentConfigFormProps) {
     const availableModels = [
         { value: 'googleai/gemini-2.5-flash', label: 'Gemini 2.5 Flash (Fastest)' },
         { value: 'googleai/gemini-2.5-pro', label: 'Gemini 2.5 Pro (Advanced)' },
-        { value: 'googleai/gemini-2.0-flash', label: 'Gemini 2.0 Flash (Stable)' },
     ];
 
     async function handleSave() {
@@ -339,7 +338,7 @@ export function AgentConfigForm({ initialConfig }: AgentConfigFormProps) {
                                     </svg>
                                 </div>
                                 <p className="text-slate-400 font-medium mb-2">Simulate a user query</p>
-                                <p className="text-xs text-slate-600 font-mono">Try: "What are the latest luxury listings?"</p>
+                                <p className="text-xs text-slate-600 font-mono">Try: &quot;What are the latest luxury listings?&quot;</p>
                             </div>
                         )}
 

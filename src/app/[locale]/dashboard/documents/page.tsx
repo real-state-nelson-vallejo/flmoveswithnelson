@@ -5,9 +5,13 @@ import { FirestoreTransactionPresetRepository } from "@/backend/legal-docs/infra
 import { DocumentsDashboard } from "@/components/dashboard/DocumentsDashboard";
 
 export default async function DocumentsPage() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let documents: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let properties: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let leads: any[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let presets: any[] = [];
 
     try {

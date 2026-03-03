@@ -66,8 +66,8 @@ export async function chatWithAgent(message: string, history: any[] = []) {
             context: adminContext
         });
         return { success: true, data: response };
-    } catch (error: any) {
+    } catch (error) {
         console.error("AI Chat Error:", error);
-        return { error: error.message || "Failed to generate response" };
+        return { error: error instanceof Error ? error.message : "Failed to generate response" };
     }
 }

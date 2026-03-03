@@ -23,8 +23,8 @@ export async function GET(request: Request) {
                 'Cache-Control': 'public, max-age=3600'
             }
         });
-    } catch (e: any) {
+    } catch (e) {
         console.error("Proxy error:", e);
-        return new NextResponse(e.message, { status: 500 });
+        return new NextResponse(e instanceof Error ? e.message : "Unknown Error", { status: 500 });
     }
 }

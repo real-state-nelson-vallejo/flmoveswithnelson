@@ -55,7 +55,7 @@ export interface PropertyProps {
         capRate?: number;
         description?: string;
     };
-    rentCastData?: any;
+    rentCastData?: Record<string, unknown>;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -77,7 +77,8 @@ export class Property {
     static fromPersistence(data: PropertyPersistenceModel): Property {
         return new Property({
             ...data,
-            rentCastData: (data as any).rentCastData, // Ensure we map it if it exists in persistence
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rentCastData: (data as any).rentCastData as Record<string, unknown>, // Ensure we map it if it exists in persistence
             createdAt: new Date(data.createdAt),
             updatedAt: new Date(data.updatedAt)
         });

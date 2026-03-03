@@ -21,7 +21,7 @@ interface FieldMappingToolProps {
     onOpenUploader?: () => void;
 }
 
-export function FieldMappingTool({ refreshKey, onOpenUploader }: FieldMappingToolProps = {}) {
+export function FieldMappingTool({ onOpenUploader }: FieldMappingToolProps = {}) {
     const [templates, setTemplates] = useState<{ id: string, title: string }[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<string>("");
 
@@ -49,6 +49,7 @@ export function FieldMappingTool({ refreshKey, onOpenUploader }: FieldMappingToo
             try {
                 const data = await getMapDetailsAction(selectedTemplate);
                 setPdfPath(data.pdfPath);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 setFields(data.fields.map((f: any) => ({
                     ...f,
                     rect: {
@@ -60,6 +61,7 @@ export function FieldMappingTool({ refreshKey, onOpenUploader }: FieldMappingToo
                 })));
                 setCurrentPage(1);
                 setSelectedField(null);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
                 toast.error("Failed to load map: " + err.message);
             }
@@ -71,6 +73,7 @@ export function FieldMappingTool({ refreshKey, onOpenUploader }: FieldMappingToo
         try {
             await saveMapDetailsAction(selectedTemplate, fields);
             toast.success("Map saved successfully!");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             toast.error("Failed to save: " + err.message);
         }
@@ -186,7 +189,7 @@ export function FieldMappingTool({ refreshKey, onOpenUploader }: FieldMappingToo
                 <div className="flex-1 overflow-y-auto p-2 space-y-1">
                     {fields.length === 0 && selectedTemplate && (
                         <div className="text-center p-4 text-xs text-muted-foreground border border-dashed rounded-lg m-2">
-                            No fields found. Click "Add Field" to define fields manually.
+                            No fields found. Click &quot;Add Field&quot; to define fields manually.
                         </div>
                     )}
                     {fields.map(f => {

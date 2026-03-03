@@ -1,10 +1,12 @@
 import { tool, z } from 'genkit';
-import { voiceSessionManager } from '@/backend/voice/VoiceSessionManager';
+// Removed unused import
 
 export const getSystemTools = () => {
     const TOOLS_NAME = 'systemToolsInstances';
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((globalThis as any)[TOOLS_NAME]) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (globalThis as any)[TOOLS_NAME];
     }
 
@@ -40,6 +42,7 @@ export const getSystemTools = () => {
         )
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (globalThis as any)[TOOLS_NAME] = tools;
     return tools;
 };

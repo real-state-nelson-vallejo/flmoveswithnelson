@@ -9,7 +9,7 @@ export interface LegalDocumentProps {
     leadId?: string; // Links document to a CRM lead (tenant/buyer)
     type: DocumentType;
     status: DocumentStatus;
-    data: Record<string, any>; // JSON data mapped to form fields
+    data: Record<string, unknown>; // JSON data mapped to form fields
     fieldConfidence?: Record<string, number>; // AI confidence per field (0-1)
     generatedPdfUrl?: string;
     signedPdfUrl?: string;
@@ -24,7 +24,7 @@ export class LegalDocument {
     static create(
         propertyId: string,
         type: DocumentType,
-        initialData: Record<string, any> = {},
+        initialData: Record<string, unknown> = {},
         leadId?: string
     ): LegalDocument {
         const now = new Date();
@@ -50,7 +50,7 @@ export class LegalDocument {
         });
     }
 
-    toPersistence(): any {
+    toPersistence(): Record<string, unknown> {
         return {
             ...this.props,
             createdAt: this.props.createdAt.getTime(),
@@ -58,7 +58,7 @@ export class LegalDocument {
         };
     }
 
-    updateData(data: Record<string, any>, confidence?: Record<string, number>): void {
+    updateData(data: Record<string, unknown>, confidence?: Record<string, number>): void {
         this.props.data = { ...this.props.data, ...data };
         if (confidence) {
             this.props.fieldConfidence = { ...this.props.fieldConfidence, ...confidence };
