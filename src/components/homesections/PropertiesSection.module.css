@@ -1,0 +1,49 @@
+/* PropertiesSection.module.css */
+
+.section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 8rem var(--spacing-sm);
+}
+
+.header {
+    margin-bottom: 4rem;
+    text-align: center;
+}
+
+.title {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-xs);
+    text-transform: uppercase;
+    color: #0f172a;
+}
+
+.subtitle {
+    color: hsl(var(--muted-foreground));
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 3rem;
+}
+
+/* Responsive Handling */
+@media (max-width: 1024px) {
+    .section {
+        padding: 4rem var(--spacing-sm);
+    }
+
+    .header {
+        margin-bottom: 2rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}

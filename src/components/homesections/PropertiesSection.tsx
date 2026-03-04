@@ -5,6 +5,7 @@ import { PropertyCard } from '@/components/property/PropertyCard';
 import { PropertyDTO } from "@/types/property";
 import { getPropertiesAction } from '@/actions/property/actions';
 import { Loader2 } from 'lucide-react';
+import styles from './PropertiesSection.module.css';
 
 interface PropertiesSectionProps {
     locale: string;
@@ -33,7 +34,7 @@ export function PropertiesSection({ locale }: PropertiesSectionProps) {
 
     if (loading) {
         return (
-            <section className="container" style={{ padding: 'var(--spacing-xl) var(--spacing-sm)' }}>
+            <section className={styles.section}>
                 <div className="flex justify-center items-center py-20">
                     <Loader2 className="animate-spin text-slate-400" size={32} />
                 </div>
@@ -44,21 +45,17 @@ export function PropertiesSection({ locale }: PropertiesSectionProps) {
     if (properties.length === 0) return null;
 
     return (
-        <section className="container" style={{ padding: 'var(--spacing-xl) var(--spacing-sm)' }}>
-            <div style={{ marginBottom: 'var(--spacing-md)', textAlign: 'center' }}>
-                <h2 style={{ fontSize: '3rem', marginBottom: 'var(--spacing-xs)', textTransform: 'uppercase', color: '#0f172a' }}>
+        <section className={styles.section}>
+            <div className={styles.header}>
+                <h2 className={styles.title}>
                     Featured Listings
                 </h2>
-                <p style={{ color: 'hsl(var(--muted-foreground))' }}>
+                <p className={styles.subtitle}>
                     Explore our handpicked selection of premium properties.
                 </p>
             </div>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                gap: '3rem'
-            }}>
+            <div className={styles.grid}>
                 {properties.map(p => (
                     <PropertyCard key={p.id} property={p} locale={locale} />
                 ))}

@@ -16,6 +16,7 @@ export interface LeadDTO {
     phone?: string | undefined;
     status: 'new' | 'contacted' | 'viewing' | 'negotiation' | 'closed' | 'qualified' | 'lost';
     source: string;
+    intent?: string | undefined;
     propertyId?: string | undefined;
     notes?: string | undefined;
     score?: number | undefined;

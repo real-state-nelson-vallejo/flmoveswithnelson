@@ -7,6 +7,7 @@ export interface LeadPersistence {
     phone?: string | undefined;
     status: LeadStatus;
     source: string;
+    intent?: string | undefined;
     propertyId?: string | undefined;
     notes?: string | undefined;
     interactions: Interaction[];

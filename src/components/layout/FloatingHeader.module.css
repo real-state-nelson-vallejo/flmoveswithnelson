@@ -14,8 +14,8 @@
     pointer-events: auto;
     display: flex;
     align-items: center;
-    gap: 2rem;
-    padding: 0.75rem 2rem;
+    gap: 1.5rem;
+    padding: 0.4rem 1.25rem;
     background: rgba(15, 23, 42, 0.6);
     /* Dark slate semi-transparent */
     backdrop-filter: blur(12px);
@@ -32,11 +32,19 @@
     font-size: 1.25rem;
     color: #fff;
     letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
 }
 
 .navLinks {
     display: flex;
-    gap: 1.5rem;
+    gap: 1.25rem;
 }
 
 .link {
@@ -54,7 +62,7 @@
     background-color: #2563eb;
     /* Hardcoded Primary Blue */
     color: #fff;
-    padding: 0.5rem 1.25rem;
+    padding: 0.4rem 1rem;
     border-radius: 9999px;
     font-size: 0.9rem;
     font-weight: 600;
@@ -140,7 +148,18 @@
         /* Often hide main CTA on mobile header if space is tight, put in menu? Or keep icon? Let's hide text button, show burger */
     }
 
+    .navPill {
+        width: 90%;
+        justify-content: space-between;
+        padding: 0.6rem 1rem;
+    }
+
     .burgerBtn {
         display: block;
+    }
+
+    .logo img {
+        height: 28px !important;
+        width: auto !important;
     }
 }

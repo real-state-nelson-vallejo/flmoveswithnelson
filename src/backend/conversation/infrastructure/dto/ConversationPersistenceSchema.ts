@@ -19,7 +19,7 @@ export const ConversationPersistenceSchema: z.ZodType<ConversationPersistence> =
     lastMessage: MessagePersistenceSchema,
     unreadCount: z.record(z.number()),
     status: z.enum(['active', 'archived', 'spam']),
-    channel: z.enum(['web_chat', 'whatsapp', 'email', 'voice']),
+    channel: z.enum(['web_chat', 'whatsapp', 'email', 'voice', 'sms']),
     metadata: z.record(z.unknown()).optional(),
     createdAt: z.number(),
     updatedAt: z.number()

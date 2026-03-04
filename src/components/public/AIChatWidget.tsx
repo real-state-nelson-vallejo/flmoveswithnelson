@@ -5,7 +5,7 @@ import { Bot, X, Send, ChevronDown } from 'lucide-react';
 import { MessageDTO as Message } from "@/types/conversation";
 import { motion, AnimatePresence } from "framer-motion";
 import ReCAPTCHA from "react-google-recaptcha";
-import { sendVerificationEmailAction, verifyOtpAction } from "@/actions/crm/verificationActions";
+import { sendVerificationCodeAction, verifyOtpAction } from "@/actions/crm/verificationActions";
 import { startConversationAction, generateAIReplyAction } from "@/actions/crm/actions";
 import { signInWithCustomToken } from "firebase/auth";
 import { collection, query, orderBy, onSnapshot, Unsubscribe, where } from "firebase/firestore";
@@ -31,6 +31,7 @@ export function AIChatWidget() {
     const [countryCode, setCountryCode] = useState('+1');
     const [isVerificationSent, setIsVerificationSent] = useState(false);
     const [otpCode, setOtpCode] = useState('');
+    const [otpChannel, setOtpChannel] = useState<'email' | 'sms'>('email');
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const [conversationId, setConversationId] = useState<string | null>(null);
     const [leadId, setLeadId] = useState<string | null>(null);
@@ -142,8 +143,8 @@ export function AIChatWidget() {
 
         setIsSendingVerification(true);
         const fullPhone = `${countryCode} ${contactInfo.phone}`;
-        const res = await sendVerificationEmailAction(
-            { name: contactInfo.name, email: contactInfo.email, phone: fullPhone },
+        const res = await sendVerificationCodeAction(
+            { name: contactInfo.name, email: contactInfo.email, phone: fullPhone, channel: otpChannel },
             captchaToken
         );
         setIsSendingVerification(false);
@@ -234,16 +235,16 @@ export function AIChatWidget() {
                     >
                         <button
                             onClick={() => setIsOpen(true)}
-                            className="bg-slate-900 text-white shadow-2xl rounded-full px-6 py-4 flex items-center gap-4 hover:scale-105 transition-transform w-full max-w-md pointer-events-auto border border-slate-700"
+                            className="bg-black text-white shadow-2xl rounded-full px-6 py-4 flex items-center gap-4 hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all w-full max-w-md pointer-events-auto border border-zinc-800"
                         >
-                            <div className="bg-gradient-to-tr from-blue-400 to-purple-500 rounded-full p-2 shadow-inner">
-                                <Bot size={24} className="text-white" />
+                            <div className="rounded-full w-12 h-12 flex items-center justify-center shrink-0 overflow-hidden bg-zinc-800">
+                                <img src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2FJessica%20Asistente.png?alt=media&token=35a784bd-6f2d-4925-9bb7-2218fe6f7156" alt="Jessica AI" className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 text-left">
-                                <p className="font-bold text-base">Virtual Assistant</p>
-                                <p className="text-xs text-slate-300">Looking for a property? Ask me.</p>
+                                <p className="font-semibold text-sm tracking-wide text-zinc-100 uppercase">Jesika AI Assistant</p>
+                                <p className="text-xs text-zinc-400 tracking-wide mt-0.5" style={{ fontFamily: 'var(--font-heading)' }}>How can I help you today?</p>
                             </div>
-                            <ChevronDown size={20} className="rotate-180 text-slate-400" />
+                            <ChevronDown size={20} className="rotate-180 text-zinc-500 shrink-0" />
                         </button>
                     </motion.div>
                 )}
@@ -265,20 +266,20 @@ export function AIChatWidget() {
                             className="bg-white w-full sm:max-w-lg sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[100dvh] sm:max-h-[85vh] h-full sm:h-auto border border-slate-200"
                         >
                             {/* Header */}
-                            <div className="bg-slate-900 p-5 flex justify-between items-center text-white shrink-0 shadow-md z-10">
+                            <div className="bg-black p-5 flex justify-between items-center text-white shrink-0 shadow-md z-10 border-b border-zinc-800">
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-gradient-to-tr from-blue-400 to-purple-500 rounded-full p-2">
-                                        <Bot size={20} />
+                                    <div className="rounded-full flex items-center justify-center w-10 h-10 shrink-0 overflow-hidden bg-zinc-800">
+                                        <img src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2FJessica%20Asistente.png?alt=media&token=35a784bd-6f2d-4925-9bb7-2218fe6f7156" alt="Jessica AI" className="w-full h-full object-cover" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-lg">Nelson AI</h3>
-                                        <div className="flex items-center gap-1.5 opacity-80">
-                                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                                            <p className="text-xs font-medium">Online</p>
+                                        <h3 className="font-semibold text-lg tracking-wide uppercase text-zinc-100">Jesika AI</h3>
+                                        <div className="flex items-center gap-1.5 opacity-80 mt-0.5">
+                                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                            <p className="text-xs font-light text-zinc-400 uppercase tracking-widest">Online</p>
                                         </div>
                                     </div>
                                 </div>
-                                <button onClick={() => setIsOpen(false)} className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
+                                <button onClick={() => setIsOpen(false)} className="bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors text-zinc-400 hover:text-white">
                                     <X size={20} />
                                 </button>
                             </div>
@@ -291,15 +292,23 @@ export function AIChatWidget() {
                                         animate={{ opacity: 1, y: 0 }}
                                         className="text-center py-10 space-y-6"
                                     >
-                                        <h2 className="text-2xl font-bold text-slate-800">Hello.<br />What&apos;s on your mind?</h2>
-                                        <div className="grid gap-3 text-sm text-slate-600 px-4">
-                                            <button onClick={() => setInputValue("Looking for an apartment downtown")} className="bg-white p-4 rounded-xl shadow-sm border hover:border-blue-500 hover:shadow-md text-left transition-all group">
-                                                <span className="text-xl mr-2 group-hover:scale-110 inline-block transition-transform">🏢</span>
-                                                Looking for an apartment downtown
+                                        <h2 className="text-2xl font-light text-slate-800 tracking-wide" style={{ fontFamily: 'var(--font-heading)' }}>Hello, I'm Jesika.<br />How can I assist you?</h2>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-slate-600 px-4">
+                                            <button onClick={() => setInputValue("I am looking to sell my house")} className="bg-white p-3.5 rounded shadow-sm border border-slate-200 hover:border-slate-800 hover:shadow-md text-left transition-all group flex flex-col justify-center items-center">
+                                                <span className="font-medium tracking-wide">Looking to Sell</span>
+                                                <span className="text-xs text-slate-400 mt-1">Get an estimate</span>
                                             </button>
-                                            <button onClick={() => setInputValue("I want to sell my house")} className="bg-white p-4 rounded-xl shadow-sm border hover:border-blue-500 hover:shadow-md text-left transition-all group">
-                                                <span className="text-xl mr-2 group-hover:scale-110 inline-block transition-transform">💰</span>
-                                                I want to sell my house
+                                            <button onClick={() => setInputValue("I am looking to rent")} className="bg-white p-3.5 rounded shadow-sm border border-slate-200 hover:border-slate-800 hover:shadow-md text-left transition-all group flex flex-col justify-center items-center">
+                                                <span className="font-medium tracking-wide">Looking to Rent</span>
+                                                <span className="text-xs text-slate-400 mt-1">Find a lease</span>
+                                            </button>
+                                            <button onClick={() => setInputValue("I am looking for a house to buy")} className="bg-white p-3.5 rounded shadow-sm border border-slate-200 hover:border-slate-800 hover:shadow-md text-left transition-all group flex flex-col justify-center items-center">
+                                                <span className="font-medium tracking-wide">Looking to Buy</span>
+                                                <span className="text-xs text-slate-400 mt-1">Found your dream home</span>
+                                            </button>
+                                            <button onClick={() => setInputValue("I am looking to invest")} className="bg-white p-3.5 rounded shadow-sm border border-slate-200 hover:border-slate-800 hover:shadow-md text-left transition-all group flex flex-col justify-center items-center">
+                                                <span className="font-medium tracking-wide">Looking to Invest</span>
+                                                <span className="text-xs text-slate-400 mt-1">Explore opportunities</span>
                                             </button>
                                         </div>
                                     </motion.div>
@@ -413,7 +422,13 @@ export function AIChatWidget() {
                                                     <select
                                                         className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                                                         value={countryCode}
-                                                        onChange={e => setCountryCode(e.target.value)}
+                                                        onChange={e => {
+                                                            const newCode = e.target.value;
+                                                            setCountryCode(newCode);
+                                                            if (newCode !== '+1' && otpChannel === 'sms') {
+                                                                setOtpChannel('email');
+                                                            }
+                                                        }}
                                                         disabled={isVerificationSent}
                                                     >
                                                         {COUNTRY_CODES.map(c => (
@@ -430,6 +445,34 @@ export function AIChatWidget() {
                                                         disabled={isVerificationSent}
                                                     />
                                                 </div>
+                                            </div>
+
+                                            {/* Channel Selector */}
+                                            <div className="pt-2">
+                                                <label className="text-xs font-semibold text-slate-500 uppercase ml-1 block mb-2">How should we send the code?</label>
+                                                <div className="flex gap-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setOtpChannel('email')}
+                                                        className={`flex-1 p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-all ${otpChannel === 'email' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
+                                                    >
+                                                        Email
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setOtpChannel('sms')}
+                                                        disabled={countryCode !== '+1'}
+                                                        className={`flex-1 p-2.5 rounded-lg border text-sm font-medium flex items-center justify-center gap-2 transition-all ${otpChannel === 'sms' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400'}`}
+                                                        title={countryCode !== '+1' ? "SMS verification is only available in US/Canada" : ""}
+                                                    >
+                                                        SMS
+                                                    </button>
+                                                </div>
+                                                {countryCode !== '+1' && (
+                                                    <p className="text-[10px] text-amber-600 mt-1.5 ml-1">
+                                                        * SMS verification is currently only available for US/Canada numbers.
+                                                    </p>
+                                                )}
                                             </div>
 
                                             {!isVerificationSent ? (
@@ -457,8 +500,8 @@ export function AIChatWidget() {
                                                     <div className="p-3 bg-blue-50 text-blue-900 text-xs rounded-lg border border-blue-100 flex items-start gap-2 leading-relaxed">
                                                         <span className="text-lg">📩</span>
                                                         <p>
-                                                            Code sent to <b>{contactInfo.email}</b>.
-                                                            <br />Check your inbox or spam folder.
+                                                            Code sent to <b>{otpChannel === 'email' ? contactInfo.email : contactInfo.phone}</b>.
+                                                            <br />Check your {otpChannel === 'email' ? 'inbox or spam folder' : 'messages'}.
                                                             <span className="opacity-50 block mt-1">(Dev Check Console)</span>
                                                         </p>
                                                     </div>

@@ -4,6 +4,7 @@ import { motion, useScroll, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import styles from "./FloatingHeader.module.css";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 export function FloatingHeader() {
@@ -34,15 +35,22 @@ export function FloatingHeader() {
                         transition={{ duration: 0.4, ease: "circOut" }}
                     >
                         <nav className={styles.navPill}>
-                            <div className={styles.logo}>
-                                <Link href="/" className="text-white no-underline">NELSON VALLEJO</Link>
-                            </div>
+                            {/* Brand / Logo */}
+                            <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className={styles.logo}>
+                                <Image
+                                    src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Flogo-blanco.png?alt=media&token=e6caedc9-a247-4e7d-a4ed-c3af55912c4d"
+                                    alt="Nelson Vallejo"
+                                    width={150}
+                                    height={38}
+                                    priority
+                                />
+                            </Link>
 
                             <div className={styles.navLinks}>
                                 <Link href="/" className={styles.link}>Home</Link>
                                 <Link href="/properties" className={styles.link}>Properties</Link>
                                 <Link href="/services" className={styles.link}>Services</Link>
-                                <Link href="/about" className={styles.link}>About</Link>
+                                <Link href="/about" className={styles.link}>About Me</Link>
                             </div>
 
                             <div className={styles.actions}>
@@ -90,7 +98,7 @@ export function FloatingHeader() {
                             <Link href="/" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
                             <Link href="/properties" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Properties</Link>
                             <Link href="/services" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
-                            <Link href="/about" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>About</Link>
+                            <Link href="/about" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>About Me</Link>
                             <Link href="/contact" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
                         </div>
                     </motion.div>

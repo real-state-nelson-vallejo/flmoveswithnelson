@@ -66,9 +66,13 @@ export class Property {
     // Aggregate Root Methods
     static create(data: Omit<PropertyProps, 'id' | 'createdAt' | 'updatedAt'>): Property {
         const now = new Date();
+        const baseSlug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        const generatedSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
+
         return new Property({
             ...data,
             id: crypto.randomUUID(),
+            slug: generatedSlug,
             createdAt: now,
             updatedAt: now
         });

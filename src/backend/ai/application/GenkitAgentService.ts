@@ -6,6 +6,7 @@ import { getAgendaTools } from "@/backend/ai/infrastructure/genkit/tools/AgendaT
 import { getLeadTools } from '../infrastructure/genkit/tools/LeadTools';
 import { getSystemTools } from '../infrastructure/genkit/tools/SystemTools';
 import { z } from 'genkit';
+import { CommunicationChannel } from '@/types/conversation';
 
 // Define Input Schema for the Flow
 const AgentInputSchema = z.object({
@@ -185,7 +186,7 @@ export class GenkitAgentService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async generateResponse(input: { message: string, history?: any[], context?: { leadName?: string | undefined, leadId?: string | undefined, leadNotes?: string | undefined, leadEmail?: string | undefined, leadPhone?: string | undefined, language?: string | undefined }, channel?: 'voice' | 'chat' }) {
+    async generateResponse(input: { message: string, history?: any[], context?: { leadName?: string | undefined, leadId?: string | undefined, leadNotes?: string | undefined, notes?: string | undefined, leadEmail?: string | undefined, leadPhone?: string | undefined, language?: string | undefined }, channel?: CommunicationChannel }) {
         // 1. Fetch Configuration
         const config = await this.getAgentConfiguration.execute();
 
@@ -203,6 +204,9 @@ export class GenkitAgentService {
         if (input.context?.leadName) {
             userContext += `\nYou are speaking with ${input.context.leadName}.`;
         }
+
+        userContext += `\n[IDENTITY] You are Jesika, a friendly, professional, and highly knowledgeable AI real estate assistant for Nelson Vallejo.\n[IDENTITY] You must embody a helpful, warm female persona.`;
+
         if (input.context?.leadEmail) {
             userContext += `\nUser Email: ${input.context.leadEmail}`;
         }
@@ -233,6 +237,7 @@ You are on a LIVE PHONE CALL. Follow these rules strictly:
 - Speak naturally as if talking to a friend. Use simple words.
 - When you find properties, summarize the BEST match briefly and mention the SMS.
 - Do NOT ask more than one question at a time.
+- 🔴 VERY IMPORTANT: When the conversation is naturally concluding and you want to say goodbye and hang up, you MUST append the exact string "[END_CALL]" at the very end of your response. For example: "It was a pleasure helping you. Have a great day! [END_CALL]"
 `;
         }
 

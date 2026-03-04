@@ -74,7 +74,7 @@ async function handleRespondRequest(request: NextRequest) {
 
         const isSpanish = session.language.startsWith('es');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const voiceName: any = isSpanish ? 'Polly.Lucia' : 'Polly.Matthew';
+        const voiceName: any = isSpanish ? 'Polly.Lucia' : 'Polly.Joanna';
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const gatherLanguage: any = session.language;
 
@@ -142,7 +142,13 @@ async function handleRespondRequest(request: NextRequest) {
             channel: 'voice',
         });
 
-        const aiText = response.text;
+        let aiText = response.text;
+        const shouldEndCall = aiText.includes('[END_CALL]');
+
+        if (shouldEndCall) {
+            aiText = aiText.replace('[END_CALL]', '').trim();
+            console.log(`[Voice] AI requested to hang up the call. (CallSid: ${callSid})`);
+        }
 
         // Add AI response to history
         voiceSessionManager.addMessage(callSid, 'model', aiText);
@@ -176,7 +182,7 @@ async function handleRespondRequest(request: NextRequest) {
         // Re-evaluate voiceName and gatherLanguage after potential AI change
         const finalIsSpanish = session.language.startsWith('es');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const finalVoiceName: any = finalIsSpanish ? 'Polly.Lucia' : 'Polly.Matthew';
+        const finalVoiceName: any = finalIsSpanish ? 'Polly.Lucia' : 'Polly.Joanna';
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const finalGatherLanguage: any = session.language;
 
@@ -191,25 +197,30 @@ async function handleRespondRequest(request: NextRequest) {
         // Speak the AI response
         twiml.say({ voice: finalVoiceName, language: finalGatherLanguage }, aiText);
 
-        // Continue listening
-        twiml.gather({
-            input: ['speech', 'dtmf'],
-            action: '/api/voice/respond',
-            method: 'POST',
-            speechTimeout: 'auto',
-            language: finalGatherLanguage,
-            numDigits: 1
-        });
+        if (shouldEndCall) {
+            twiml.hangup();
+            voiceSessionManager.remove(callSid);
+        } else {
+            // Continue listening
+            twiml.gather({
+                input: ['speech', 'dtmf'],
+                action: '/api/voice/respond',
+                method: 'POST',
+                speechTimeout: 'auto',
+                language: finalGatherLanguage,
+                numDigits: 1
+            });
 
-        // If no input after response, prompt
-        twiml.say({ voice: finalVoiceName, language: finalGatherLanguage }, finalIsSpanish ? "¿Sigues ahí?" : "Are you still there?");
-        twiml.redirect('/api/voice/incoming');
+            // If no input after response, prompt
+            twiml.say({ voice: finalVoiceName, language: finalGatherLanguage }, finalIsSpanish ? "¿Sigues ahí?" : "Are you still there?");
+            twiml.redirect('/api/voice/incoming');
+        }
 
     } catch (error) {
         console.error('[Voice] Error processing speech:', error);
-        // Fallback voice is Matthew if session language fails before assignment
+        // Fallback voice is Joanna if session language fails before assignment
         twiml.say(
-            { voice: 'Polly.Matthew', language: 'en-US' },
+            { voice: 'Polly.Joanna', language: 'en-US' },
             "I'm sorry, I had trouble processing that. Let me try again."
         );
         twiml.redirect('/api/voice/incoming');

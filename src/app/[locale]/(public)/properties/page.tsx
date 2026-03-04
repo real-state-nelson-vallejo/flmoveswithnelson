@@ -16,6 +16,7 @@ export default function PropertiesPage({ params }: { params: Promise<{ locale: s
     const searchParams = useSearchParams();
     const [properties, setProperties] = useState<PropertyDTO[]>([]);
     const [loading, setLoading] = useState(true);
+    const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
 
     const [showMapMobile, setShowMapMobile] = useState(false);
 
@@ -108,7 +109,12 @@ export default function PropertiesPage({ params }: { params: Promise<{ locale: s
                         ) : (
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                 {properties.map(p => (
-                                    <PropertyCard key={p.id} property={p} locale={locale} />
+                                    <PropertyCard
+                                        key={p.id}
+                                        property={p}
+                                        locale={locale}
+                                        onHover={(isHovered) => setHoveredPropertyId(isHovered ? p.id : null)}
+                                    />
                                 ))}
                             </div>
                         )}
@@ -123,7 +129,7 @@ export default function PropertiesPage({ params }: { params: Promise<{ locale: s
 
                 {/* Right: Map (Sticky/Fixed on Desktop, Full on Mobile if toggled) */}
                 <div className={`w-full md:w-[40%] lg:w-[45%] h-full border-l border-slate-200 ${showMapMobile ? 'block' : 'hidden md:block'}`}>
-                    <PropertiesWebMap properties={properties} />
+                    <PropertiesWebMap properties={properties} hoveredPropertyId={hoveredPropertyId} />
                 </div>
             </div>
         </motion.div>

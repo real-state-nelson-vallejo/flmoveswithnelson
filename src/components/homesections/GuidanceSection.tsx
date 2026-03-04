@@ -12,21 +12,21 @@ const STEPS = [
         id: 1,
         title: "First-Time Buyer Guidance",
         description: "Buying your first home is a big step. I'll guide you through the process, ensuring you feel confident and excited, not overwhelmed.",
-        image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        image: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fhome-1.jpg?alt=media&token=eb2b7e70-1c65-4889-bd52-b8a4a7847fc3",
         icon: Home
     },
     {
         id: 2,
         title: "Strategic Investing",
         description: "I help you identify high-growth investment opportunities in the real estate market, specializing in newly built properties.",
-        image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
+        image: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fhome-2.JPG?alt=media&token=2ef23d98-eefa-45f3-8be0-8a2cef6b069e",
         icon: TrendingUp
     },
     {
         id: 3,
         title: "New Construction Specialist",
         description: "Buying directly from a builder is a unique process. I give you expert access to the best projects and navigate the details on your behalf.",
-        image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+        image: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fhome-3.JPG?alt=media&token=8dcfd908-c781-4337-b705-30da049ff23e",
         icon: Hammer
     }
 ];

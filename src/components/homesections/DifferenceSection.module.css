@@ -5,6 +5,12 @@
     background-color: #fff;
 }
 
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+}
+
 .header {
     text-align: center;
     margin-bottom: var(--spacing-lg);

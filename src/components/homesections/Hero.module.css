@@ -126,8 +126,8 @@
 }
 
 .textHighlight {
-  color: hsl(var(--primary));
-  /* Vibrant Blue Highlight */
+  color: #3b82f6;
+  /* Lighter blue, Tailwind blue-500 equivalent */
 }
 
 .subtitle {
@@ -142,15 +142,36 @@
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Stats Logic */
+/* Stats Logic & Partners Box */
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+  width: 100%;
+}
+
 .statsRow {
   display: flex;
   gap: 3rem;
   /* Reduced gap */
-  margin-top: auto;
-  position: relative;
-  bottom: auto;
-  left: auto;
+}
+
+.partnersRow {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  opacity: 0.8;
+  /* Subtle transparency */
+  transition: opacity 0.3s ease;
+}
+
+.partnersRow:hover {
+  opacity: 1;
+}
+
+.partnerLogo img {
+  filter: brightness(0) invert(1);
 }
 
 .statItem {
@@ -177,8 +198,8 @@
 /* Mobile */
 @media (max-width: 768px) {
   .hero {
-    padding: 0.5rem;
-    /* Less padding on mobile to maximize space */
+    padding: 1.5rem var(--spacing-sm);
+    /* Standardized mobile padding */
     min-height: 100vh;
     /* Full screen */
   }
@@ -218,13 +239,22 @@
     /* Screenshot shows pill. */
   }
 
-  .statsRow {
-    flex-direction: row;
-    /* Keep row or wrap? Screenshot shows row */
-    gap: 1.5rem;
+  .bottomRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
     margin-top: 1rem;
+  }
+
+  .statsRow {
     flex-wrap: wrap;
     /* Ensure stats are at the bottom */
+  }
+
+  .partnersRow {
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   .statValue {

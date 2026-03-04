@@ -49,8 +49,12 @@ export function PropertySearchFilter() {
 
                     {/* Home Link & Search Inputs Group */}
                     <div className="flex-1 flex flex-col md:flex-row gap-4 w-full items-center">
-                        <Link href="/" className="text-slate-900 font-bold uppercase tracking-widest text-sm whitespace-nowrap hover:opacity-70 transition-opacity">
-                            Nelson Vallejo
+                        <Link href="/" className="flex-shrink-0 hover:opacity-70 transition-opacity">
+                            <img
+                                src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Flogo.png?alt=media&token=e59824a2-1159-4fe7-9ea2-131c3a32ae22"
+                                alt="Nelson Vallejo Logo"
+                                className="h-10 md:h-12 w-auto object-contain"
+                            />
                         </Link>
                         <div className="flex-1 flex flex-col md:flex-row gap-2 w-full">
                             <div className="relative flex-grow">

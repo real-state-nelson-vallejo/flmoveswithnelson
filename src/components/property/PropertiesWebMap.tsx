@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
 import { PropertyDTO } from "@/types/property";
-import { formatPrice } from "@/lib/formatters";
+import { formatCurrency } from "@/lib/formatters";
 
 interface PropertiesWebMapProps {
     properties?: PropertyDTO[];
+    hoveredPropertyId?: string | null;
 }
 
-export function PropertiesWebMap({ properties = [] }: PropertiesWebMapProps) {
+export function PropertiesWebMap({ properties = [], hoveredPropertyId }: PropertiesWebMapProps) {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     });
@@ -16,14 +17,21 @@ export function PropertiesWebMap({ properties = [] }: PropertiesWebMapProps) {
 
     const markers = useMemo(() => {
         return properties
-            .filter(p => p.location.coordinates) // Only show properties with coordinates
-            .map(p => ({
-                id: p.id,
-                position: p.location.coordinates!,
-                price: formatPrice(p.price.amount, { notation: 'compact', compactDisplay: 'short' }),
-                title: p.title
-            }));
-    }, [properties]);
+            .map((p, index) => {
+                // Determine a position, using fallback random offsets based on the map center if property lacks coordinates
+                const position = p.location.coordinates || {
+                    lat: center.lat + (Math.random() - 0.5) * 0.1, // Small mock offset for testing
+                    lng: center.lng + (Math.random() - 0.5) * 0.1
+                };
+
+                return {
+                    id: p.id,
+                    position,
+                    labelString: `${formatCurrency(p.price.amount)} - ${p.type === 'sale' ? 'For Sale' : 'For Rent'}`,
+                    title: p.title
+                };
+            });
+    }, [properties, center]);
 
     if (!isLoaded) return <div className="w-full h-full bg-slate-100 animate-pulse flex items-center justify-center text-slate-400">Loading Map...</div>;
 
@@ -51,12 +59,16 @@ export function PropertiesWebMap({ properties = [] }: PropertiesWebMapProps) {
                     <MarkerF
                         key={marker.id}
                         position={marker.position}
+                        zIndex={hoveredPropertyId === marker.id ? 50 : 1}
                         label={{
-                            text: `$${marker.price}`,
+                            text: marker.labelString,
                             color: "white",
-                            fontSize: "12px",
+                            fontSize: "13px",
                             fontWeight: "bold",
-                            className: "bg-slate-900 px-2 py-1 rounded shadow-lg font-sans"
+                            className: `px-2 py-1 rounded shadow-lg font-sans transition-all ${hoveredPropertyId === marker.id
+                                ? 'bg-blue-600 ring-2 ring-white scale-110'
+                                : 'bg-slate-900'
+                                }`
                         }}
                     />
                 ))}

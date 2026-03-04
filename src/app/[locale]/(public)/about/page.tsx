@@ -134,7 +134,7 @@ export default function AboutPage() {
                             onClick={togglePlay}
                             poster="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2Fnelson_vallejo_profile.webp?alt=media&token=855aa562-e57b-4775-99a8-c3b1a40ca395"
                         >
-                            <source src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fabout-me.mp4?alt=media&token=1fc175d6-529c-4dff-88ef-7d1e234156a5" type="video/mp4" />
+                            <source src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fabout-me.mp4?alt=media&token=520a5097-bd67-49ac-9c90-310c3b84e326" type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
 
@@ -226,7 +226,7 @@ export default function AboutPage() {
                             </div>
                             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100/50 text-center flex flex-col items-center justify-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                                 <Award className="w-8 h-8 mb-3 text-blue-600" />
-                                <div className="text-4xl font-extrabold text-slate-900 mb-1">70+</div>
+                                <div className="text-4xl font-extrabold text-slate-900 mb-1">50+</div>
                                 <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Happy Clients</div>
                             </div>
                             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100/50 text-center col-span-2 md:col-span-1 flex flex-col items-center justify-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">

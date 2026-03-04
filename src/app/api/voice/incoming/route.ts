@@ -90,10 +90,10 @@ async function handleIncomingRequest(request: Request) {
     // Greeting in English
     gather.say(
         {
-            voice: 'Polly.Matthew',
+            voice: 'Polly.Joanna',
             language: 'en-US',
         },
-        'Welcome to FL Moves with Nelson, your Florida real estate expert. How can I help you today?'
+        'Welcome to FL Moves with Nelson, your Florida real estate expert. I am Jesika, how can I help you today?'
     );
 
     // Instruction in Spanish
@@ -102,12 +102,12 @@ async function handleIncomingRequest(request: Request) {
             voice: 'Polly.Lucia',
             language: 'es-US',
         },
-        'Para continuar en español, presione 1.'
+        'Para continuar en español, diga "Español".'
     );
 
     // If no input, prompt again
     twiml.say(
-        { voice: 'Polly.Matthew' },
+        { voice: 'Polly.Joanna' },
         "I didn't catch that. Please try again, or press 1 for Spanish."
     );
     twiml.redirect('/api/voice/incoming');

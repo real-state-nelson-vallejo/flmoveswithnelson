@@ -55,7 +55,7 @@ export function DifferenceSection() {
     return (
         <section className={styles.section}>
             {/* Universal Container Class for Alignment */}
-            <div className="container">
+            <div className={styles.container}>
                 <div className={styles.header}>
                     <span className={styles.pill}>MY COMMITMENT TO YOU</span>
                     <h2 className={styles.title}>

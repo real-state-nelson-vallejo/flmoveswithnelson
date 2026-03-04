@@ -3,10 +3,11 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, Menu, X, Home, Inbox, Building2, Users, Sparkles, LogOut, Calendar, Bot, TrendingUp, FileText } from "lucide-react";
+import { Loader2, Menu, X, Home, Inbox, Building2, Users, Sparkles, LogOut, Calendar, Bot, TrendingUp, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useTheme } from "next-themes";
 
 export default function DashboardLayout({
     children,
@@ -18,6 +19,31 @@ export default function DashboardLayout({
     const params = useParams();
     const locale = params.locale as string;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    // Theme state
+    const { theme, systemTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        try {
+            const { auth } = await import('@/lib/firebase/client');
+            const { signOut } = await import('firebase/auth');
+            await signOut(auth);
+            router.push(`/${locale}/login`);
+        } catch (error) {
+            console.error("Error signing out:", error);
+            setIsLoggingOut(false);
+        }
+    };
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const currentTheme = theme === 'system' ? systemTheme : theme;
 
     useEffect(() => {
         if (!loading && !user) {
@@ -55,13 +81,40 @@ export default function DashboardLayout({
     return (
         <div className="min-h-screen bg-background text-foreground flex">
             {/* Desktop Sidebar */}
-            <aside className="w-64 border-r border-border bg-card hidden md:flex flex-col">
-                <div className="p-6">
+            <aside className={`border-r border-border bg-card hidden md:flex flex-col transition-all duration-300 relative ${isCollapsed ? 'w-20' : 'w-64'}`}>
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="absolute -right-3 top-6 bg-background border border-border rounded-full p-1 text-muted-foreground hover:text-foreground z-10 hover:scale-110 transition-transform shadow-sm"
+                    aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                >
+                    {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                </button>
+
+                <div className={`p-6 flex items-center ${isCollapsed ? 'justify-center px-4' : ''}`}>
                     {/* Logo Update */}
-                    <div className="font-bold text-xl tracking-wider text-foreground">
-                        NELSON <span className="text-primary font-light">VALLEJO</span>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mt-1">Real Estate</p>
+                    {!isCollapsed ? (
+                        <Link href={`/${locale}/dashboard`} className="block w-full">
+                            {!mounted ? (
+                                <div className="h-10"></div>
+                            ) : currentTheme === 'dark' ? (
+                                <img
+                                    src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Flogo-blanco.png?alt=media&token=e6caedc9-a247-4e7d-a4ed-c3af55912c4d"
+                                    alt="Nelson Vallejo Real Estate"
+                                    className="h-10 w-auto object-contain"
+                                />
+                            ) : (
+                                <img
+                                    src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Flogo.png?alt=media&token=9ca6bbfe-2541-4301-9d85-c335efd5f153"
+                                    alt="Nelson Vallejo Real Estate"
+                                    className="h-12 w-auto object-contain"
+                                />
+                            )}
+                        </Link>
+                    ) : (
+                        <Link href={`/${locale}/dashboard`} className="block w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center shrink-0">
+                            <span className="font-bold text-primary">N</span>
+                        </Link>
+                    )}
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1">
@@ -72,23 +125,26 @@ export default function DashboardLayout({
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-accent group"
+                                className={`flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'gap-3 px-4 py-2.5'} rounded-lg text-sm font-medium transition-colors cursor-pointer text-muted-foreground hover:text-foreground hover:bg-accent group`}
+                                title={isCollapsed ? item.label : undefined}
                             >
-                                <Icon size={18} className="group-hover:text-primary transition-colors" />
-                                {item.label}
+                                <Icon size={18} className="group-hover:text-primary transition-colors shrink-0" />
+                                {!isCollapsed && <span>{item.label}</span>}
                             </Link>
                         );
                     })}
                 </nav>
-                <div className="p-4 border-t border-border">
+                <div className={`p-4 border-t border-border ${isCollapsed ? 'flex justify-center' : ''}`}>
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0" title={user.email || ""}>
                             {user.email?.charAt(0).toUpperCase()}
                         </div>
-                        <div className="overflow-hidden flex-1">
-                            <p className="text-sm font-medium truncate">{user.email}</p>
-                            <p className="text-xs text-muted-foreground capitalize">{role || 'User'}</p>
-                        </div>
+                        {!isCollapsed && (
+                            <div className="overflow-hidden flex-1">
+                                <p className="text-sm font-medium truncate">{user.email}</p>
+                                <p className="text-xs text-muted-foreground capitalize">{role || 'User'}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </aside>
@@ -116,9 +172,23 @@ export default function DashboardLayout({
                         >
                             <div className="p-6 flex items-center justify-between">
                                 <div>
-                                    <div className="font-bold text-xl tracking-wider text-foreground">
-                                        NELSON <span className="text-primary font-light">VALLEJO</span>
-                                    </div>
+                                    <Link href={`/${locale}/dashboard`} className="block w-full">
+                                        {!mounted ? (
+                                            <div className="h-8"></div>
+                                        ) : currentTheme === 'dark' ? (
+                                            <img
+                                                src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Flogo-blanco.png?alt=media&token=e6caedc9-a247-4e7d-a4ed-c3af55912c4d"
+                                                alt="Nelson Vallejo Real Estate"
+                                                className="h-8 w-auto object-contain"
+                                            />
+                                        ) : (
+                                            <img
+                                                src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Flogo.png?alt=media&token=e59824a2-1159-4fe7-9ea2-131c3a32ae22"
+                                                alt="Nelson Vallejo Real Estate"
+                                                className="h-8 w-auto object-contain"
+                                            />
+                                        )}
+                                    </Link>
                                 </div>
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
@@ -163,10 +233,12 @@ export default function DashboardLayout({
                                 </div>
                                 <motion.button
                                     whileTap={{ scale: 0.95 }}
+                                    onClick={handleLogout}
+                                    disabled={isLoggingOut}
                                     className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg text-sm font-medium transition-colors"
                                 >
-                                    <LogOut size={16} />
-                                    Log Out
+                                    {isLoggingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                                    {isLoggingOut ? "Logging out..." : "Log Out"}
                                 </motion.button>
                             </div>
                         </motion.aside>
@@ -195,9 +267,12 @@ export default function DashboardLayout({
 
                         <motion.button
                             whileTap={{ scale: 0.95 }}
-                            className="hidden md:block text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
+                            onClick={handleLogout}
+                            disabled={isLoggingOut}
+                            className="hidden md:flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground font-medium transition-colors"
                         >
-                            Log Out
+                            {isLoggingOut ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                            {isLoggingOut ? "Logging out..." : "Log Out"}
                         </motion.button>
 
                         {/* Mobile: User Avatar as visual indicator */}

@@ -57,7 +57,7 @@ export function AboutSection() {
                                 <span className={styles.statLabel}>Families Guided</span>
                             </div>
                             <div className={styles.statItem}>
-                                <span className={styles.statValue}>70+</span>
+                                <span className={styles.statValue}>50+</span>
                                 <span className={styles.statLabel}>Happy Clients</span>
                             </div>
                             <div className={styles.statItem}>
@@ -73,7 +73,14 @@ export function AboutSection() {
                             viewport={{ once: true }}
                             transition={{ delay: 0.4 }}
                         >
-                            <button className={styles.ctaButton}>
+                            <button
+                                className={styles.ctaButton}
+                                onClick={() => {
+                                    window.dispatchEvent(new CustomEvent('open-ai-chat', {
+                                        detail: { message: "Hi, I would like to book a free consultation." }
+                                    }));
+                                }}
+                            >
                                 Book a Free Consultation
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <line x1="5" y1="12" x2="19" y2="12"></line>

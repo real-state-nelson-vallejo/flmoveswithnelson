@@ -83,7 +83,7 @@ export default function OpportunitiesPage() {
     const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
 
     return (
-        <div className="space-y-8 min-h-screen">
+        <div className="space-y-8 min-h-screen p-6 lg:p-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-light tracking-tight text-foreground">Market Opportunities</h1>

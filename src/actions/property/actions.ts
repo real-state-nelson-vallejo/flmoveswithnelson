@@ -83,7 +83,13 @@ export async function getPropertyAction(id: string) {
 
 export async function getPropertyBySlugAction(slug: string) {
     try {
-        const property = await getPropertyBySlugUseCase.execute(slug);
+        let property = await getPropertyBySlugUseCase.execute(slug);
+
+        if (!property) {
+            // Fallback: If slug is not found, maybe it's an old ID
+            property = await propertyDependencies.propertyRepository.findById(slug);
+        }
+
         if (!property) return { success: false, error: "Property not found" };
         return { success: true, property: property.toDTO() };
     } catch (error) {

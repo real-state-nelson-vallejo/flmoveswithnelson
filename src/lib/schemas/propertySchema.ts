@@ -15,7 +15,11 @@ export const PropertySchema = z.object({
         city: z.string(),
         country: z.string(),
         state: z.string().optional(),
-        zip: z.string().optional()
+        zip: z.string().optional(),
+        coordinates: z.object({
+            lat: z.number(),
+            lng: z.number()
+        }).optional()
     }),
     specs: z.object({
         beds: z.number(),

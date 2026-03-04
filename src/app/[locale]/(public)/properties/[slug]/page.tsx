@@ -14,6 +14,7 @@ import { formatPrice } from '@/lib/formatters';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { motion, Variants } from "framer-motion";
+import { LetsStartConversationCTA } from "@/components/property/LetsStartConversationCTA";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -220,7 +221,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ local
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-8 rounded-3xl">
                                 {property.features.map((f, index) => (
                                     <motion.div
-                                        key={f}
+                                        key={`${f}-${index}`}
                                         className="flex items-center gap-3 text-slate-700 font-medium"
                                         initial={{ opacity: 0, x: -10 }}
                                         whileInView={{ opacity: 1, x: 0 }}

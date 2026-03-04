@@ -12,6 +12,7 @@ export interface LeadProps {
     phone?: string | undefined;
     status: LeadStatus;
     source: string;
+    intent?: string | undefined;
     propertyId?: string | undefined;
     notes?: string | undefined;
     interactions: Interaction[];
@@ -23,7 +24,7 @@ export interface LeadProps {
 export class Lead {
     private constructor(private props: LeadProps) { }
 
-    static create(data: { name: string; email: string; phone?: string | undefined; source?: string | undefined; }): Lead {
+    static create(data: { name: string; email: string; phone?: string | undefined; source?: string | undefined; intent?: string | undefined; }): Lead {
         const now = Date.now();
         return new Lead({
             id: crypto.randomUUID(),
@@ -32,6 +33,7 @@ export class Lead {
             phone: data.phone,
             status: 'new',
             source: data.source || 'web',
+            intent: data.intent,
             interactions: [],
             score: 0,
             createdAt: now,
@@ -61,6 +63,7 @@ export class Lead {
             phone: this.props.phone,
             status: this.props.status,
             source: this.props.source,
+            intent: this.props.intent,
             propertyId: this.props.propertyId,
             notes: this.props.notes,
             score: this.props.score,
@@ -108,6 +111,7 @@ export class Lead {
     get phone() { return this.props.phone; }
     get status() { return this.props.status; }
     get source() { return this.props.source; }
+    get intent() { return this.props.intent; }
     get interactions() { return [...this.props.interactions]; }
     get score() { return this.props.score; }
 }

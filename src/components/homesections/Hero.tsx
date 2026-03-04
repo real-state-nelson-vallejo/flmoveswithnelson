@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import styles from "./Hero.module.css";
 import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 export function Hero() {
     return (
@@ -49,24 +51,48 @@ export function Hero() {
                             Your guide to new construction homes. Honest advice for a stress-free purchase in today&apos;s market.
                         </p>
 
-                        <button className={styles.actionButton}>
+                        <Link href="/properties" className={styles.actionButton}>
                             Explore Properties <ArrowUpRight size={20} />
-                        </button>
+                        </Link>
                     </motion.div>
 
-                    {/* Stats Row - Now part of the flow */}
-                    <div className={styles.statsRow}>
-                        <div className={styles.statItem}>
-                            <span className={styles.statValue}>100+</span>
-                            <span className={styles.statLabel}>Families Guided</span>
+                    {/* Stats Row & Partners - Bottom aligned */}
+                    <div className={styles.bottomRow}>
+                        <div className={styles.statsRow}>
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue}>50+</span>
+                                <span className={styles.statLabel}>Families Guided</span>
+                            </div>
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue}>50+</span>
+                                <span className={styles.statLabel}>Happy Clients</span>
+                            </div>
+                            <div className={styles.statItem}>
+                                <span className={styles.statValue}>$10M+</span>
+                                <span className={styles.statLabel}>In Sales</span>
+                            </div>
                         </div>
-                        <div className={styles.statItem}>
-                            <span className={styles.statValue}>100+</span>
-                            <span className={styles.statLabel}>Happy Clients</span>
-                        </div>
-                        <div className={styles.statItem}>
-                            <span className={styles.statValue}>$10M+</span>
-                            <span className={styles.statLabel}>In Sales</span>
+
+                        {/* Partners Wrapper */}
+                        <div className={styles.partnersRow}>
+                            <div className={styles.partnerLogo}>
+                                <Image
+                                    src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fvesti.png?alt=media&token=8a715137-32d4-4935-b2b0-8c1bf9597708"
+                                    alt="Vesti Partner"
+                                    width={120}
+                                    height={40}
+                                    style={{ objectFit: 'contain' }}
+                                />
+                            </div>
+                            <div className={styles.partnerLogo}>
+                                <Image
+                                    src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fequal-housing-opportunity.png?alt=media&token=9ff72c53-ee77-400c-8f73-bb487e528a92"
+                                    alt="Equal Housing Opportunity"
+                                    width={60}
+                                    height={60}
+                                    style={{ objectFit: 'contain' }}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

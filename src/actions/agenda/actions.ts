@@ -4,12 +4,20 @@ import { ScheduleAppointment } from "../../backend/agenda/application/ScheduleAp
 import { CheckAvailability } from "../../backend/agenda/application/CheckAvailability";
 import { FirestoreAppointmentRepository } from "../../backend/agenda/infrastructure/FirestoreAppointmentRepository";
 import { AppointmentType } from "../../backend/agenda/domain/Appointment";
+import { ScheduleEntityType, DaySchedule } from "../../backend/agenda/domain/Schedule";
+import { GetScheduleUseCase } from "../../backend/agenda/application/GetScheduleUseCase";
+import { UpdateScheduleUseCase } from "../../backend/agenda/application/UpdateScheduleUseCase";
+import { FirestoreScheduleRepository } from "../../backend/agenda/infrastructure/FirestoreScheduleRepository";
 import { revalidatePath } from "next/cache";
 
 // Dependencies
 const repository = new FirestoreAppointmentRepository();
 const scheduleUseCase = new ScheduleAppointment(repository);
 const checkAvailabilityUseCase = new CheckAvailability(repository);
+
+const scheduleRepo = new FirestoreScheduleRepository();
+const getScheduleUseCase = new GetScheduleUseCase(scheduleRepo);
+const updateScheduleUseCase = new UpdateScheduleUseCase(scheduleRepo, getScheduleUseCase);
 
 export interface AppointmentDTO {
     id: string;
@@ -70,5 +78,36 @@ export async function scheduleAppointmentAction(data: {
         ...(data.notes ? { notes: data.notes } : {})
     });
 
+    revalidatePath('/dashboard/calendar');
+}
+
+// --- Schedule (Availability) Actions ---
+
+export interface ScheduleDTO {
+    id: string;
+    entityId: string;
+    entityType: ScheduleEntityType;
+    timezone: string;
+    weeklySchedule: DaySchedule[];
+}
+
+export async function getScheduleAction(entityId: string, entityType: ScheduleEntityType = ScheduleEntityType.USER): Promise<ScheduleDTO> {
+    const schedule = await getScheduleUseCase.execute(entityId, entityType);
+
+    return {
+        id: schedule.id,
+        entityId: schedule.entityId,
+        entityType: schedule.entityType,
+        timezone: schedule.timezone,
+        weeklySchedule: schedule.weeklySchedule
+    };
+}
+
+export async function updateScheduleAction(
+    entityId: string,
+    entityType: ScheduleEntityType,
+    data: { timezone?: string, weeklySchedule?: DaySchedule[] }
+) {
+    await updateScheduleUseCase.execute(entityId, entityType, data);
     revalidatePath('/dashboard/calendar');
 }

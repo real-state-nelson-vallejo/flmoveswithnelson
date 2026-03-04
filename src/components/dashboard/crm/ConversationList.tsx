@@ -3,7 +3,7 @@
 import { ConversationDTO as Conversation } from "@/types/conversation";
 import { LeadDTO } from "@/types/lead";
 import { cn } from "@/lib/cn";
-import { Building } from "lucide-react";
+import { Building, PhoneCall, MessageCircle, MessageSquare } from "lucide-react";
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -51,11 +51,36 @@ export function ConversationList({ conversations, selectedId, onSelect, leadsMap
                             <p className="text-sm text-muted-foreground/80 truncate">
                                 {conv.lastMessage?.content || "No messages"}
                             </p>
-                            {!!conv.metadata?.['subject'] && (
-                                <span className="inline-flex items-center gap-1 mt-2 text-xs bg-secondary px-2 py-0.5 rounded text-secondary-foreground">
-                                    <Building size={10} /> {String(conv.metadata['subject'])}
-                                </span>
-                            )}
+                            {/* Metadata Tags */}
+                            <div className="flex gap-2 mt-2">
+                                {!!conv.metadata?.['subject'] && (
+                                    <span className="inline-flex items-center gap-1 text-xs bg-secondary px-2 py-0.5 rounded text-secondary-foreground">
+                                        <Building size={10} /> {String(conv.metadata['subject'])}
+                                    </span>
+                                )}
+
+                                {/* Channel Indicator */}
+                                {conv.channel === 'voice' && (
+                                    <span className="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                                        <PhoneCall size={10} /> Voice Call
+                                    </span>
+                                )}
+                                {conv.channel === 'whatsapp' && (
+                                    <span className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">
+                                        <MessageCircle size={10} /> WhatsApp
+                                    </span>
+                                )}
+                                {conv.channel === 'sms' && (
+                                    <span className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                                        <MessageSquare size={10} /> SMS
+                                    </span>
+                                )}
+                                {conv.channel === 'web_chat' && (
+                                    <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
+                                        <MessageSquare size={10} /> Web
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </button>
                 );

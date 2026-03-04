@@ -7,16 +7,21 @@ import { RescheduleAppointment } from '@/backend/agenda/application/RescheduleAp
 import { CancelAppointment } from '@/backend/agenda/application/CancelAppointment';
 import { FirestoreAppointmentRepository } from '@/backend/agenda/infrastructure/FirestoreAppointmentRepository';
 import { AppointmentType } from '@/backend/agenda/domain/Appointment';
+import { FirestoreScheduleRepository } from '@/backend/agenda/infrastructure/FirestoreScheduleRepository';
+import { GetScheduleUseCase } from '@/backend/agenda/application/GetScheduleUseCase';
+
+const scheduleRepository = new FirestoreScheduleRepository();
+const getScheduleUseCase = new GetScheduleUseCase(scheduleRepository);
 
 const appointmentRepository = new FirestoreAppointmentRepository();
-const checkAvailability = new CheckAvailability(appointmentRepository);
+const checkAvailability = new CheckAvailability(appointmentRepository, getScheduleUseCase);
 const scheduleAppointment = new ScheduleAppointment(appointmentRepository);
-const getAvailableSlots = new GetAvailableSlots(appointmentRepository);
+const getAvailableSlots = new GetAvailableSlots(appointmentRepository, getScheduleUseCase);
 const getUserAppointments = new GetUserAppointments(appointmentRepository);
 const rescheduleAppointment = new RescheduleAppointment(appointmentRepository, checkAvailability);
 const cancelAppointment = new CancelAppointment(appointmentRepository);
 
-const TOOLS_NAME = 'agendaToolsInstances_v2'; // bumped to pick up CancelAppointment
+const TOOLS_NAME = 'agendaToolsInstances_v3'; // bumped to pick up CancelAppointment and Property level schedule
 
 export const getAgendaTools = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,11 +45,12 @@ export const getAgendaTools = () => {
                 inputSchema: z.object({
                     startTime: z.string().describe('Start time in ISO format (e.g. 2024-01-01T10:00:00)'),
                     endTime: z.string().describe('End time in ISO format'),
+                    propertyId: z.string().optional().describe('ID of the property if applicable'),
                 }),
                 outputSchema: z.boolean().describe('True if available, false if overlapping'),
             },
             async (input) => {
-                return checkAvailability.execute(parseDate(input.startTime), parseDate(input.endTime));
+                return checkAvailability.execute(parseDate(input.startTime), parseDate(input.endTime), input.propertyId);
             }
         ),
 
@@ -111,7 +117,8 @@ export const getAgendaTools = () => {
                 description: 'Get a list of available appointment slots for the next few days. Use BEFORE proposing a time to the user.',
                 inputSchema: z.object({
                     startDate: z.string().optional().describe('Start date to check from (ISO). Defaults to now.'),
-                    days: z.number().optional().default(3).describe('Number of days to check.')
+                    days: z.number().optional().default(3).describe('Number of days to check.'),
+                    propertyId: z.string().optional().describe('ID of the property if applicable'),
                 }),
                 outputSchema: z.object({
                     availableSlots: z.array(z.string())
@@ -119,7 +126,7 @@ export const getAgendaTools = () => {
             },
             async (input) => {
                 const start = input.startDate ? new Date(input.startDate) : new Date();
-                const slots = await getAvailableSlots.execute(start, input.days);
+                const slots = await getAvailableSlots.execute(start, input.days, input.propertyId);
                 return { availableSlots: slots };
             }
         ),

@@ -114,7 +114,7 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
                     </div>
                     <div className="flex flex-col items-center justify-center p-2 bg-secondary/50 rounded-lg">
                         <div className="flex items-center gap-1 text-foreground font-semibold">
-                            <Hash size={16} />
+                            <Square size={16} />
                             <span>{property.specs.area}</span>
                         </div>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{property.specs.areaUnit}</span>
@@ -124,16 +124,23 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
                 {/* Actions - Elevated z-index to stay above the hover overlay */}
                 <div className="flex gap-2 relative z-10 mt-auto pt-4 border-t border-border">
                     <Link
+                        href={`/en/properties/${property.slug || property.id}`}
+                        target="_blank"
+                        className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground py-2 rounded-lg text-[10px] font-semibold transition-colors flex items-center justify-center gap-1"
+                    >
+                        <ArrowUpRight size={14} /> Preview
+                    </Link>
+                    <Link
                         href={`/dashboard/properties/${property.id}/market`}
-                        className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1"
+                        className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground py-2 rounded-lg text-[10px] font-semibold transition-colors flex items-center justify-center gap-1"
                     >
                         <TrendingUp size={14} /> Insights
                     </Link>
                     <button
                         onClick={() => onEdit(property)}
-                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1"
+                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground py-2 rounded-lg text-[10px] font-semibold transition-colors flex items-center justify-center gap-1"
                     >
-                        <Edit size={14} /> Review
+                        <Edit size={14} /> Edit
                     </button>
                     <button
                         onClick={() => onDelete(property.id)}
@@ -144,24 +151,7 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
                 </div>
             </div>
 
-            {/* Hover overlay for quick analysis */}
-            {property.investmentAnalysis && (
-                <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px] pointer-events-none z-0">
-                    <div className="bg-card p-4 rounded-xl shadow-lg border border-border transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 min-w-[200px]">
-                        <p className="text-xs font-bold text-muted-foreground uppercase mb-2 text-center">AI Analysis</p>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-foreground">Proj. ROI</span>
-                                <span className="font-bold text-emerald-600">{property.investmentAnalysis.roi}%</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-foreground">Cap Rate</span>
-                                <span className="font-bold text-blue-600">{property.investmentAnalysis.capRate}%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+
         </div>
     );
 }

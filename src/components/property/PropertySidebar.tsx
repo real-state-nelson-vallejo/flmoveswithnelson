@@ -3,7 +3,7 @@
 import { PropertyDTO } from "@/types/property";
 import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
-import { formatPrice } from "@/lib/formatters";
+import { formatCurrency } from "@/lib/formatters";
 
 interface PropertySidebarProps {
     property: PropertyDTO;
@@ -25,7 +25,7 @@ export function PropertySidebar({ property }: PropertySidebarProps) {
                     {statusLabel}
                 </span>
                 <h2 className="text-3xl font-bold text-slate-900 mt-2">
-                    {formatPrice(property.price.amount)}
+                    {formatCurrency(property.price.amount)}
                     {isForRent && <span className="text-lg text-slate-500 font-normal">/month</span>}
                 </h2>
             </div>
@@ -35,10 +35,27 @@ export function PropertySidebar({ property }: PropertySidebarProps) {
             </p>
 
             <div className="flex flex-col gap-3">
-                <Button fullWidth size="lg">
+                <Button
+                    fullWidth
+                    size="lg"
+                    onClick={() => {
+                        window.dispatchEvent(new CustomEvent('open-ai-chat', {
+                            detail: { message: `Hi, I would like to request more information about the property located at ${property.location.address}, ${property.location.city}.` }
+                        }));
+                    }}
+                >
                     Request Info
                 </Button>
-                <Button fullWidth variant="outline" size="lg">
+                <Button
+                    fullWidth
+                    variant="outline"
+                    size="lg"
+                    onClick={() => {
+                        window.dispatchEvent(new CustomEvent('open-ai-chat', {
+                            detail: { message: `Hi, I am interested in scheduling a tour for the property located at ${property.location.address}, ${property.location.city}.` }
+                        }));
+                    }}
+                >
                     Schedule Tour
                 </Button>
             </div>
