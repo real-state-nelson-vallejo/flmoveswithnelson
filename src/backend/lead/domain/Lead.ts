@@ -1,16 +1,16 @@
 import { LeadDTO } from "../infrastructure/dto/LeadDTO";
 import { LeadPersistence } from "../infrastructure/dto/LeadPersistence";
-import { Interaction, LeadStatus, LEAD_STATUSES } from "@/types/lead";
+import { Interaction, LeadStatus, DEFAULT_LEAD_STATUSES } from "@/types/lead";
 
 export type { Interaction, LeadStatus };
-export { LEAD_STATUSES };
+export { DEFAULT_LEAD_STATUSES as LEAD_STATUSES };
 
 export interface LeadProps {
     id: string;
     name: string;
     email: string;
     phone?: string | undefined;
-    status: LeadStatus;
+    status: string;
     source: string;
     intent?: string | undefined;
     propertyId?: string | undefined;

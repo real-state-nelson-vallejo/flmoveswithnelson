@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { motion, Variants } from "framer-motion";
 import { LetsStartConversationCTA } from "@/components/property/LetsStartConversationCTA";
+import ReactMarkdown from 'react-markdown';
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -141,6 +142,14 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ local
                             {property.title}
                         </h1>
 
+                        {property.propertyType && (
+                            <div className="mb-4">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-white border border-white/20 rounded-md text-sm font-medium backdrop-blur-sm">
+                                    <Scaling size={14} /> {property.propertyType}
+                                </span>
+                            </div>
+                        )}
+
                         <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 text-slate-200 text-lg font-medium">
                             <div className="flex items-center gap-2">
                                 <MapPin size={20} className="text-white" />
@@ -191,13 +200,32 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ local
                                 <span className="text-3xl font-bold text-slate-900 flex items-center gap-2"><Calendar className="text-blue-500" size={28} /> {property.specs.yearBuilt || 'N/A'}</span>
                                 <span className="text-xs uppercase text-slate-500 font-bold tracking-wider mt-1">Built</span>
                             </div>
+                            {property.petsAllowed !== undefined && (
+                                <>
+                                    <div className="w-px h-16 bg-slate-100 hidden md:block" />
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-3xl font-bold text-slate-900 flex items-center gap-2">
+                                            {property.petsAllowed ? <CheckCircle className="text-emerald-500" size={28} /> : <div className="text-red-500 font-bold text-2xl">X</div>}
+                                        </span>
+                                        <span className="text-xs uppercase text-slate-500 font-bold tracking-wider mt-1">Pets Allowed</span>
+                                    </div>
+                                </>
+                            )}
                         </motion.div>
 
                         {/* Description */}
                         <motion.div variants={itemVariants}>
                             <h3 className="text-2xl font-bold text-slate-900 mb-6">About this home</h3>
-                            <div className="prose prose-lg prose-slate text-slate-600 leading-relaxed max-w-none whitespace-pre-line">
-                                {property.description}
+                            <div className="prose prose-lg prose-slate text-slate-600 leading-relaxed max-w-none">
+                                <ReactMarkdown
+                                    components={{
+                                        strong: ({ ...props }) => <span className="font-bold text-slate-900" {...props} />,
+                                        ul: ({ ...props }) => <ul className="list-disc pl-5 my-4 space-y-2" {...props} />,
+                                        li: ({ ...props }) => <li className="text-slate-600 marker:text-blue-500" {...props} />
+                                    }}
+                                >
+                                    {property.description}
+                                </ReactMarkdown>
                             </div>
 
                             {/* Media Buttons Inline */}

@@ -1,5 +1,5 @@
-export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'viewing' | 'negotiation' | 'closed' | 'lost';
-export const LEAD_STATUSES: LeadStatus[] = ['new', 'contacted', 'qualified', 'viewing', 'negotiation', 'closed', 'lost'];
+export type LeadStatus = string; // Now a dynamic ID pointing to a CRMStage
+export const DEFAULT_LEAD_STATUSES = ['new', 'contacted', 'qualified', 'viewing', 'negotiation', 'closed', 'lost'];
 
 export interface Interaction {
     id: string;
@@ -14,7 +14,7 @@ export interface LeadDTO {
     name: string;
     email: string;
     phone?: string | undefined;
-    status: 'new' | 'contacted' | 'viewing' | 'negotiation' | 'closed' | 'qualified' | 'lost';
+    status: LeadStatus;
     source: string;
     intent?: string | undefined;
     propertyId?: string | undefined;

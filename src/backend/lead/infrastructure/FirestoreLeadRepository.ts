@@ -24,6 +24,10 @@ export class FirestoreLeadRepository implements LeadRepository {
         await this.update(id, { status });
     }
 
+    async delete(id: string): Promise<void> {
+        await adminDb.collection(this.collection).doc(id).delete();
+    }
+
     async findById(id: string): Promise<Lead | null> {
         const doc = await adminDb.collection(this.collection).doc(id).get();
         if (!doc.exists) return null;

@@ -38,7 +38,9 @@ export interface PropertyDTO {
     features: string[];
     images: string[];
     type: 'sale' | 'rent';
+    propertyType?: 'Single Family' | 'Condominium' | 'Mobile Home' | 'Townhome' | 'Villa' | 'Multifamily';
     status: 'available' | 'sold' | 'reserved';
+    petsAllowed?: boolean;
     // AI & Market Analysis Fields
     opportunityScore?: number; // 0-100
     listingQualityScore?: number; // 0-100

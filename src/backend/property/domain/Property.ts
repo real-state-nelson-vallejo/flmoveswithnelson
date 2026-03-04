@@ -45,7 +45,9 @@ export interface PropertyProps {
     features: string[];
     images: string[];
     type: 'sale' | 'rent';
+    propertyType?: 'Single Family' | 'Condominium' | 'Mobile Home' | 'Townhome' | 'Villa' | 'Multifamily';
     status: 'available' | 'sold' | 'reserved';
+    petsAllowed?: boolean;
     opportunityScore?: number;
     listingQualityScore?: number;
     marketStatus?: 'normal' | 'distressed' | 'price_drop' | 'back_on_market';
@@ -121,7 +123,9 @@ export class Property {
     get features() { return [...this.props.features]; }
     get images() { return [...this.props.images]; }
     get type() { return this.props.type; }
+    get propertyType() { return this.props.propertyType; }
     get status() { return this.props.status; }
+    get petsAllowed() { return this.props.petsAllowed; }
     get opportunityScore() { return this.props.opportunityScore; }
     get listingQualityScore() { return this.props.listingQualityScore; }
     get marketStatus() { return this.props.marketStatus; }
@@ -142,10 +146,10 @@ export class Property {
 
         return `
         Title: ${this.props.title}
-        Type: ${this.props.type}
+        Type: ${this.props.propertyType || this.props.type}
         Status: ${this.props.status}
         Location: ${locationStr}
-        Details: ${this.props.specs.beds} Beds, ${this.props.specs.baths} Baths.
+        Details: ${this.props.specs.beds} Beds, ${this.props.specs.baths} Baths. ${this.props.specs.yearBuilt ? `Built in ${this.props.specs.yearBuilt}.` : ''} ${this.props.petsAllowed ? 'Pets allowed.' : ''}
         Features: ${featureList}
         Description: ${this.props.description}
         `.replace(/\s+/g, ' ').trim(); // Normalize whitespace

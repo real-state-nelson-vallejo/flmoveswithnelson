@@ -8,4 +8,5 @@ export interface LeadRepository {
     findByEmail(email: string): Promise<Lead | null>;
     findByPhone(phone: string): Promise<Lead[]>;
     findAll(): Promise<Lead[]>;
+    delete(id: string): Promise<void>;
 }

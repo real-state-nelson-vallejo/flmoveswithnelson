@@ -408,12 +408,26 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Type</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Listing Type</label>
                     <select {...register("type")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
                         <option value="sale">For Sale</option>
                         <option value="rent">For Rent</option>
                     </select>
                 </div>
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">Property Type</label>
+                    <select {...register("propertyType")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
+                        <option value="">Select...</option>
+                        <option value="Single Family">Single Family</option>
+                        <option value="Condominium">Condominium</option>
+                        <option value="Mobile Home">Mobile Home</option>
+                        <option value="Townhome">Townhome</option>
+                        <option value="Villa">Villa</option>
+                        <option value="Multifamily">Multifamily</option>
+                    </select>
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">Status</label>
                     <select {...register("status")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
@@ -596,6 +610,32 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                     </select>
                 </div>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">Year Built</label>
+                    <input type="number" {...register("specs.yearBuilt", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
+                </div>
+                <div className="flex flex-col justify-end pb-2">
+                    <label className="flex items-center justify-between cursor-pointer">
+                        <span className="text-sm font-medium text-foreground">Pets Allowed?</span>
+                        <Controller
+                            control={control}
+                            name="petsAllowed"
+                            render={({ field }) => (
+                                <button
+                                    type="button"
+                                    role="switch"
+                                    aria-checked={field.value || false}
+                                    onClick={() => field.onChange(!field.value)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${field.value ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'}`}
+                                >
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${field.value ? 'translate-x-6' : 'translate-x-1'}`} />
+                                </button>
+                            )}
+                        />
+                    </label>
+                </div>
+            </div>
         </div>
     );
 
@@ -681,8 +721,8 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                 </div>
                 <textarea
                     {...register("description")}
-                    className="w-full min-h-[128px] px-3 py-2 border border-input rounded-lg outline-none resize-y focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-all placeholder:text-muted-foreground"
-                    placeholder="Describe the property..."
+                    className="w-full min-h-[350px] px-4 py-3 border border-input rounded-xl outline-none resize-y focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-all placeholder:text-muted-foreground font-mono text-sm leading-relaxed whitespace-pre-wrap"
+                    placeholder="Describe the property... (Supports Markdown **bold**, *italic*, - lists)"
                 />
             </div>
             <div>

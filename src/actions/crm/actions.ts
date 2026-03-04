@@ -67,6 +67,8 @@ export async function sendMessageAction(message: any) {
 
 // --- AI Integration ---
 
+import { CRMConfig } from "@/backend/crm/domain/CRMConfig";
+import { FirestoreCRMRepository } from "@/backend/crm/infrastructure/FirestoreCRMRepository";
 import { GenkitAgentService } from "@/backend/ai/application/GenkitAgentService";
 
 export async function generateAIReplyAction(conversationId: string) {
@@ -172,7 +174,7 @@ export async function startConversationAction(participants: string[], initialMes
 }
 // --- Leads Actions (CRM) ---
 
-import { Lead } from "@/backend/lead/domain/Lead";
+import { Lead, LeadProps } from "@/backend/lead/domain/Lead";
 import { leadDependencies } from "@/backend/lead/dependencies";
 
 // ...
@@ -197,6 +199,28 @@ export async function updateLeadStatusAction(leadId: string, status: LeadStatus)
     }
 }
 
+export async function updateLeadDetailsAction(leadId: string, data: Partial<LeadProps>) {
+    try {
+        await leadDependencies.leadRepository.update(leadId, data);
+        revalidatePath('/dashboard/crm');
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating lead details:", error);
+        return { success: false, error: "Failed to update lead" };
+    }
+}
+
+export async function deleteLeadAction(leadId: string) {
+    try {
+        await leadDependencies.leadRepository.delete(leadId);
+        revalidatePath('/dashboard/crm');
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting lead:", error);
+        return { success: false, error: "Failed to delete lead" };
+    }
+}
+
 export async function createMockLeadsAction() {
     try {
         const mockLeads: LeadPersistence[] = [
@@ -216,5 +240,59 @@ export async function createMockLeadsAction() {
     } catch (error) {
         console.error("Mock creation failed", error);
         return { success: false };
+    }
+}
+
+// --- Dynamics CRM Config Actions ---
+
+const DEFAULT_PIPELINE: CRMConfig = {
+    id: 'default',
+    updatedAt: Date.now(),
+    customFields: [],
+    pipelines: [
+        {
+            id: 'main-pipeline',
+            name: 'Sales Pipeline',
+            stages: [
+                { id: 'new', label: 'New', color: 'bg-slate-500', order: 0 },
+                { id: 'contacted', label: 'Contacted', color: 'bg-blue-500', order: 1 },
+                { id: 'qualified', label: 'Qualified', color: 'bg-amber-500', order: 2 },
+                { id: 'viewing', label: 'Viewing', color: 'bg-purple-500', order: 3 },
+                { id: 'negotiation', label: 'Negotiation', color: 'bg-orange-500', order: 4 },
+                { id: 'closed', label: 'Closed Won', color: 'bg-emerald-500', order: 5 },
+                { id: 'lost', label: 'Closed Lost', color: 'bg-red-500', order: 6 },
+            ]
+        }
+    ]
+};
+
+export async function getCRMConfigAction() {
+    try {
+        const repo = new FirestoreCRMRepository();
+        let config = await repo.getConfig('default');
+
+        if (!config) {
+            // Seed defaults
+            await repo.saveConfig(DEFAULT_PIPELINE);
+            config = DEFAULT_PIPELINE;
+        }
+
+        return { success: true, config };
+    } catch (error) {
+        console.error("Error fetching CRM config", error);
+        return { success: false, error: "Failed to fetch config" };
+    }
+}
+
+export async function updateCRMConfigAction(config: CRMConfig) {
+    try {
+        const repo = new FirestoreCRMRepository();
+        config.updatedAt = Date.now();
+        await repo.saveConfig(config);
+        revalidatePath('/dashboard/crm');
+        return { success: true };
+    } catch (error) {
+        console.error("Error saving CRM config", error);
+        return { success: false, error: "Failed to save config" };
     }
 }

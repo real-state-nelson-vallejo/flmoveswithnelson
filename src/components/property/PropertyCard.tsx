@@ -63,6 +63,7 @@ export function PropertyCard({ property, locale, onHover }: PropertyCardProps) {
                         <h3 className={styles.title}>
                             {property.title}
                         </h3>
+                        {property.propertyType && <p className="text-xs text-slate-500 font-medium mb-1">{property.propertyType}</p>}
 
                         <div className={styles.address}>
                             <MapPin size={14} />
