@@ -60,8 +60,8 @@ export function Footer() {
                         © {currentYear} Nelson Vallejo. All rights reserved.
                     </div>
                     <div className={styles.legal}>
-                        <Link href="#" className={styles.link}>Privacy Policy</Link>
-                        <Link href="#" className={styles.link}>Terms of Service</Link>
+                        <Link href="/privacy" className={styles.link}>Privacy Policy</Link>
+                        <Link href="/terms" className={styles.link}>Terms of Service</Link>
                     </div>
                 </div>
             </div>
