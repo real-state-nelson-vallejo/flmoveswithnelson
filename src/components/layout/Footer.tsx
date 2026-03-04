@@ -34,10 +34,11 @@ export function Footer() {
 
                     <div className={styles.column}>
                         <h4 className={styles.heading}>Services</h4>
-                        <Link href="#" className={styles.link}>Buy a Home</Link>
-                        <Link href="#" className={styles.link}>Sell a Home</Link>
-                        <Link href="#" className={styles.link}>Rent a home</Link>
-                        <Link href="#" className={styles.link}>Relocation</Link>
+                        <Link href="/services#buy" className={styles.link}>Buy a Home</Link>
+                        <Link href="/services#sell" className={styles.link}>Sell a Home</Link>
+                        <Link href="/services#rent-a-home" className={styles.link}>Rent a Home</Link>
+                        <Link href="/services#rent-my-home" className={styles.link}>Rent My Home</Link>
+                        <Link href="/services#investing" className={styles.link}>Investing & Wealth</Link>
                     </div>
 
                     <div className={styles.column}>
@@ -48,9 +49,9 @@ export function Footer() {
 
                     <div className={styles.column}>
                         <h4 className={styles.heading}>Contact</h4>
-                        <span className={styles.link}>davenport, FL</span>
-                        <span className={styles.link}>+1 (555) 123-4567</span>
-                        <span className={styles.link}>nelson@example.com</span>
+                        <span className={styles.link}>Polk County, FL</span>
+                        <span className={styles.link}>(352) 243-5370</span>
+                        <a href="mailto:Vallejonelson1722@gmail.com" className={styles.link}>Vallejonelson1722@gmail.com</a>
                     </div>
                 </div>
 

@@ -89,6 +89,19 @@
   z-index: 1;
 }
 
+.topRightLogo {
+  position: absolute;
+  top: 2.5rem;
+  right: 3rem;
+  z-index: 20;
+  opacity: 0.9;
+  filter: brightness(0) invert(1);
+}
+
+.topRightLogo:hover {
+  opacity: 1;
+}
+
 .contentContainer {
   position: relative;
   z-index: 10;
@@ -158,12 +171,7 @@
 }
 
 .partnersRow {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  opacity: 0.8;
-  /* Subtle transparency */
-  transition: opacity 0.3s ease;
+  display: none; /* Hidden on desktop by default */
 }
 
 .partnersRow:hover {
@@ -252,9 +260,15 @@
   }
 
   .partnersRow {
+    display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
+    opacity: 0.9;
+  }
+
+  .topRightLogo {
+    display: none; /* Hide top right placement on mobile */
   }
 
   .statValue {

@@ -33,6 +33,18 @@ export function Hero() {
                 {/* Dark Gradient Overlay */}
                 <div className={styles.overlay} />
 
+                {/* Top Right Logo (Desktop only) */}
+                <div className={styles.topRightLogo}>
+                    <Image
+                        src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fvesti.png?alt=media&token=8a715137-32d4-4935-b2b0-8c1bf9597708"
+                        alt="Vesti Partner"
+                        width={140}
+                        height={45}
+                        style={{ objectFit: 'contain' }}
+                        priority
+                    />
+                </div>
+
                 {/* Content Overlay */}
                 <div className={styles.contentContainer}>
                     <motion.div
@@ -73,23 +85,14 @@ export function Hero() {
                             </div>
                         </div>
 
-                        {/* Partners Wrapper */}
+                        {/* Partners Wrapper (Mobile only) */}
                         <div className={styles.partnersRow}>
                             <div className={styles.partnerLogo}>
                                 <Image
                                     src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fvesti.png?alt=media&token=8a715137-32d4-4935-b2b0-8c1bf9597708"
                                     alt="Vesti Partner"
-                                    width={120}
-                                    height={40}
-                                    style={{ objectFit: 'contain' }}
-                                />
-                            </div>
-                            <div className={styles.partnerLogo}>
-                                <Image
-                                    src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fequal-housing-opportunity.png?alt=media&token=9ff72c53-ee77-400c-8f73-bb487e528a92"
-                                    alt="Equal Housing Opportunity"
-                                    width={60}
-                                    height={60}
+                                    width={100}
+                                    height={35}
                                     style={{ objectFit: 'contain' }}
                                 />
                             </div>
