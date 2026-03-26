@@ -10,7 +10,7 @@ interface PropertySidebarProps {
 }
 
 export function PropertySidebar({ property }: PropertySidebarProps) {
-    const isForRent = property.type === 'rent';
+    const isForRent = property.PropertyType === 'Residential Lease';
     const statusLabel = isForRent ? 'For Rent' : 'For Sale';
 
     return (
@@ -25,7 +25,7 @@ export function PropertySidebar({ property }: PropertySidebarProps) {
                     {statusLabel}
                 </span>
                 <h2 className="text-3xl font-bold text-slate-900 mt-2">
-                    {formatCurrency(property.price.amount)}
+                    {formatCurrency(property.ListPrice)}
                     {isForRent && <span className="text-lg text-slate-500 font-normal">/month</span>}
                 </h2>
             </div>
@@ -40,7 +40,7 @@ export function PropertySidebar({ property }: PropertySidebarProps) {
                     size="lg"
                     onClick={() => {
                         window.dispatchEvent(new CustomEvent('open-ai-chat', {
-                            detail: { message: `Hi, I would like to request more information about the property located at ${property.location.address}, ${property.location.city}.` }
+                            detail: { message: `Hi, I would like to request more information about the property located at ${property.UnparsedAddress}, ${property.City}.` }
                         }));
                     }}
                 >
@@ -52,7 +52,7 @@ export function PropertySidebar({ property }: PropertySidebarProps) {
                     size="lg"
                     onClick={() => {
                         window.dispatchEvent(new CustomEvent('open-ai-chat', {
-                            detail: { message: `Hi, I am interested in scheduling a tour for the property located at ${property.location.address}, ${property.location.city}.` }
+                            detail: { message: `Hi, I am interested in scheduling a tour for the property located at ${property.UnparsedAddress}, ${property.City}.` }
                         }));
                     }}
                 >

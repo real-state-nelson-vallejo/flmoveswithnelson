@@ -17,11 +17,11 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
 
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-auto md:h-[500px] mb-8 rounded-2xl overflow-hidden">
-                {/* Main Image (Left, spans 2x2 on Desktop, Full on Mobile) */}
+            <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-3 h-auto md:h-[550px] rounded-3xl overflow-hidden group">
+                {/* Main Image (Left, spans 2x2 on Desktop) */}
                 <motion.div
-                    className="col-span-1 md:col-span-2 md:row-span-2 relative cursor-pointer h-[300px] md:h-auto"
-                    whileHover={{ scale: 1.02 }}
+                    className="col-span-1 md:col-span-2 md:row-span-2 relative cursor-pointer h-[350px] md:h-auto overflow-hidden"
+                    whileHover={{ opacity: 0.95 }}
                     transition={{ duration: 0.3 }}
                     onClick={() => setSelectedIndex(0)}
                 >
@@ -41,13 +41,13 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
                     )}
                 </motion.div>
 
-                {/* Smaller Images (Hidden on extremely small screens if needed, or grid) */}
-                <div className="col-span-1 md:col-span-2 md:row-span-2 grid grid-cols-2 grid-rows-2 gap-2 h-[200px] md:h-auto">
+                {/* Smaller Images */}
+                <div className="col-span-1 md:col-span-2 md:row-span-2 grid grid-cols-2 grid-rows-2 gap-3 h-[300px] md:h-auto">
                     {displayImages.slice(1).map((img, index) => (
                         <motion.div
                             key={index}
-                            className="relative cursor-pointer overflow-hidden h-full rounded-xl md:rounded-none"
-                            whileHover={{ scale: 1.05 }}
+                            className="relative cursor-pointer overflow-hidden h-full"
+                            whileHover={{ opacity: 0.95 }}
                             onClick={() => setSelectedIndex(index + 1)}
                         >
                             {img ? (

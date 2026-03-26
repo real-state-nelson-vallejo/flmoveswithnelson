@@ -3,61 +3,63 @@ import { PropertyPersistenceModel } from "../infrastructure/dto/PropertyPersiste
 import crypto from 'crypto';
 import { serializeFirestoreData } from "@/lib/utils";
 
-export interface Money {
-    amount: number;
-    currency: string;
-}
-
 export interface PropertyProps {
-    id: string;
+    ListingKey: string;
+    ListingId?: string;
     slug?: string;
-    title: string;
-    description: string;
-    videoUrl?: string;
-    virtualTourUrl?: string;
+    
+    StandardStatus: string;
+    PropertyType: string;
+    PropertySubType?: string;
+    
+    ListPrice: number;
+    ClosePrice?: number;
+    AssociationFee?: number;
+    
+    BedroomsTotal: number;
+    BathroomsTotalInteger: number;
+    LivingArea: number; 
+    LotSizeAcres?: number;
+    YearBuilt?: number;
+    
+    UnparsedAddress: string;
+    City: string;
+    StateOrProvince?: string;
+    PostalCode?: string;
+    Latitude?: number;
+    Longitude?: number;
+    
+    HOAFee?: number;
+    TaxAnnualAmount?: number;
+    PoolPrivateYN?: boolean;
+    WaterfrontYN?: boolean;
+    Cooling?: string[];
+    Heating?: string[];
+    Appliances?: string[];
+    GarageSpaces?: number;
+    DaysOnMarket?: number;
+    ArchitecturalStyle?: string[];
+    View?: string[];
+    AssociationAmenities?: string[];
+    
+    Media: string[]; 
+    ExteriorFeatures?: string[];
+    PublicRemarks: string;
+    
+    videoUrl?: string; 
+    virtualTourUrl?: string; 
     agentId?: string;
     views?: number;
-    price: Money;
-    location: {
-        address: string;
-        city: string;
-        country: string;
-        state?: string | undefined;
-        zip?: string | undefined;
-        coordinates?: {
-            lat: number;
-            lng: number;
-        };
-    };
-    specs: {
-        beds: number;
-        baths: number;
-        area: number;
-        areaUnit: 'sqft' | 'm2';
-        lotSize?: number | undefined;
-        lotUnit?: 'acres' | 'm2' | undefined;
-        yearBuilt?: number | undefined;
-    };
-    hoa?: {
-        amount: number;
-        period: 'monthly' | 'yearly';
-    } | undefined;
-    features: string[];
-    images: string[];
-    type: 'sale' | 'rent';
-    propertyType?: 'Single Family' | 'Condominium' | 'Mobile Home' | 'Townhome' | 'Villa' | 'Multifamily';
-    status: 'available' | 'sold' | 'reserved';
     petsAllowed?: boolean;
-    opportunityScore?: number;
-    listingQualityScore?: number;
+    
+    opportunityScore?: number; 
+    listingQualityScore?: number; 
     marketStatus?: 'normal' | 'distressed' | 'price_drop' | 'back_on_market';
     investmentAnalysis?: {
         cashFlow?: number;
-        roi?: number;
-        capRate?: number;
         description?: string;
     };
-    rentCastData?: Record<string, unknown>;
+    
     createdAt: Date;
     updatedAt: Date;
 }
@@ -65,26 +67,23 @@ export interface PropertyProps {
 export class Property {
     private constructor(private readonly props: PropertyProps) { }
 
-    // Aggregate Root Methods
-    static create(data: Omit<PropertyProps, 'id' | 'createdAt' | 'updatedAt'>): Property {
+    static create(data: Omit<PropertyProps, 'createdAt' | 'updatedAt'> & { ListingKey?: string }): Property {
         const now = new Date();
-        const baseSlug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        const baseSlug = data.slug || data.UnparsedAddress?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || 'property';
         const generatedSlug = `${baseSlug}-${Math.floor(Math.random() * 10000)}`;
 
         return new Property({
             ...data,
-            id: crypto.randomUUID(),
+            ListingKey: data.ListingKey || crypto.randomUUID(), 
             slug: generatedSlug,
             createdAt: now,
             updatedAt: now
         });
     }
 
-    static fromPersistence(data: PropertyPersistenceModel): Property {
+    static fromPersistence(data: any): Property {
         return new Property({
             ...data,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            rentCastData: (data as any).rentCastData as Record<string, unknown>, // Ensure we map it if it exists in persistence
             createdAt: new Date(data.createdAt),
             updatedAt: new Date(data.updatedAt)
         });
@@ -101,71 +100,87 @@ export class Property {
     toDTO(): PropertyDTO {
         return {
             ...this.props,
-            rentCastData: serializeFirestoreData(this.props.rentCastData), // Serialize for Client Components
             createdAt: this.props.createdAt.getTime(),
             updatedAt: this.props.updatedAt.getTime()
-        };
+        } as PropertyDTO;
     }
 
-    // Getters
-    get id() { return this.props.id; }
+    // Alias for old ID usage to prevent breaking infrastructure repos suddenly
+    get id() { return this.props.ListingKey; } 
+    // And alias for fetching externalId from SyncBridgeProperties
+    get externalId() { return this.props.ListingKey; }
+
+    get ListingKey() { return this.props.ListingKey; }
     get slug() { return this.props.slug; }
-    get title() { return this.props.title; }
-    get description() { return this.props.description; }
-    get videoUrl() { return this.props.videoUrl; }
-    get virtualTourUrl() { return this.props.virtualTourUrl; }
-    get agentId() { return this.props.agentId; }
-    get views() { return this.props.views ?? 0; }
-    get price() { return { ...this.props.price }; }
-    get location() { return { ...this.props.location }; }
-    get specs() { return { ...this.props.specs }; }
-    get hoa() { return this.props.hoa ? { ...this.props.hoa } : undefined; }
-    get features() { return [...this.props.features]; }
-    get images() { return [...this.props.images]; }
-    get type() { return this.props.type; }
-    get propertyType() { return this.props.propertyType; }
-    get status() { return this.props.status; }
-    get petsAllowed() { return this.props.petsAllowed; }
+    get StandardStatus() { return this.props.StandardStatus; }
+    get PropertyType() { return this.props.PropertyType; }
+    get ListPrice() { return this.props.ListPrice; }
+    get BedroomsTotal() { return this.props.BedroomsTotal; }
+    get BathroomsTotalInteger() { return this.props.BathroomsTotalInteger; }
+    get LivingArea() { return this.props.LivingArea; }
+    get UnparsedAddress() { return this.props.UnparsedAddress; }
+    get City() { return this.props.City; }
+    get StateOrProvince() { return this.props.StateOrProvince; }
+    get PostalCode() { return this.props.PostalCode; }
+    get Latitude() { return this.props.Latitude; }
+    get Longitude() { return this.props.Longitude; }
+    get Media() { return [...this.props.Media]; }
+    get PublicRemarks() { return this.props.PublicRemarks; }
+    get PropertySubType() { return this.props.PropertySubType; }
+    get ClosePrice() { return this.props.ClosePrice; }
+    get AssociationFee() { return this.props.AssociationFee; }
+    get LotSizeAcres() { return this.props.LotSizeAcres; }
+    get YearBuilt() { return this.props.YearBuilt; }
+
+    get HOAFee() { return this.props.HOAFee; }
+    get TaxAnnualAmount() { return this.props.TaxAnnualAmount; }
+    get PoolPrivateYN() { return this.props.PoolPrivateYN; }
+    get WaterfrontYN() { return this.props.WaterfrontYN; }
+    get Cooling() { return this.props.Cooling; }
+    get Heating() { return this.props.Heating; }
+    get Appliances() { return this.props.Appliances; }
+    get GarageSpaces() { return this.props.GarageSpaces; }
+    get DaysOnMarket() { return this.props.DaysOnMarket; }
+    get ArchitecturalStyle() { return this.props.ArchitecturalStyle; }
+    get View() { return this.props.View; }
+    get AssociationAmenities() { return this.props.AssociationAmenities; }
+
     get opportunityScore() { return this.props.opportunityScore; }
     get listingQualityScore() { return this.props.listingQualityScore; }
     get marketStatus() { return this.props.marketStatus; }
     get investmentAnalysis() { return this.props.investmentAnalysis ? { ...this.props.investmentAnalysis } : undefined; }
-    get rentCastData() { return this.props.rentCastData; }
-    get createdAt() { return this.props.createdAt; }
-    get updatedAt() { return this.props.updatedAt; }
 
-    // Business Methods
     toEmbeddingText(): string {
-        // "Atom" Strategy: Serialize the full entity into a rich semantic string.
-        // We purposefully exclude exact price to rely on metadata filtering, 
-        // but include range indicators or qualitative aspects if needed. 
-        // For now, we focus on the "What" and "Where".
-
-        const featureList = this.props.features.join(', ');
-        const locationStr = `${this.props.location.city}, ${this.props.location.state || ''} ${this.props.location.zip || ''}`.trim();
+        const locationStr = `${this.props.City}, ${this.props.StateOrProvince || ''} ${this.props.PostalCode || ''}`.trim();
+        const features = [
+            this.props.WaterfrontYN ? 'Waterfront' : '',
+            this.props.PoolPrivateYN ? 'Private Pool' : '',
+            this.props.GarageSpaces ? `${this.props.GarageSpaces} Car Garage` : '',
+            ...(this.props.ArchitecturalStyle || [])
+        ].filter(Boolean).join(', ');
 
         return `
-        Title: ${this.props.title}
-        Type: ${this.props.propertyType || this.props.type}
-        Status: ${this.props.status}
+        Title: ${this.props.UnparsedAddress}, ${this.props.City}
+        Type: ${this.props.PropertySubType || this.props.PropertyType}
+        Status: ${this.props.StandardStatus}
         Location: ${locationStr}
-        Details: ${this.props.specs.beds} Beds, ${this.props.specs.baths} Baths. ${this.props.specs.yearBuilt ? `Built in ${this.props.specs.yearBuilt}.` : ''} ${this.props.petsAllowed ? 'Pets allowed.' : ''}
-        Features: ${featureList}
-        Description: ${this.props.description}
-        `.replace(/\s+/g, ' ').trim(); // Normalize whitespace
+        Details: ${this.props.BedroomsTotal} Beds, ${this.props.BathroomsTotalInteger} Baths. ${this.props.YearBuilt ? `Built in ${this.props.YearBuilt}.` : ''} 
+        Features: ${features}
+        Description: ${this.props.PublicRemarks}
+        `.replace(/\s+/g, ' ').trim();
     }
 
-    updatePrice(newPrice: Money): void {
-        this.props.price = newPrice;
+    updatePrice(newPrice: number): void {
+        this.props.ListPrice = newPrice;
         this.touch();
     }
 
-    updateStatus(status: Property['status']): void {
-        this.props.status = status;
+    updateStatus(status: string): void {
+        this.props.StandardStatus = status;
         this.touch();
     }
 
-    update(props: Partial<Omit<PropertyProps, 'id' | 'createdAt' | 'updatedAt'>>): void {
+    update(props: Partial<Omit<PropertyProps, 'ListingKey' | 'createdAt' | 'updatedAt'>>): void {
         Object.assign(this.props, props);
         this.touch();
     }

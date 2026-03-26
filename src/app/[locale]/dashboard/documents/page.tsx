@@ -53,11 +53,14 @@ export default async function DocumentsPage() {
         };
     });
 
-    const serializedProperties = properties.map(p => ({
-        id: p.id,
-        title: p.title,
-        address: p.location.address || "No Address"
-    }));
+    const serializedProperties = properties.map(p => {
+        const dto = typeof p.toDTO === 'function' ? p.toDTO() : p;
+        return {
+            id: dto.id || dto.ListingKey,
+            title: dto.UnparsedAddress || dto.title || "No Title",
+            address: dto.UnparsedAddress || dto?.location?.address || "No Address"
+        };
+    });
 
     const serializedLeads = leads.map(l => ({
         id: l.id,

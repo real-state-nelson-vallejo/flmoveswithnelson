@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, use } from 'react';
-import Image from 'next/image';
 import { PropertyDTO } from "@/types/property";
 import { getPropertyBySlugAction, getAdjacentPropertiesAction } from '@/actions/property/actions';
 import { PropertyGallery } from "@/components/property/PropertyGallery";
@@ -9,36 +8,46 @@ import { PropertySidebar } from "@/components/property/PropertySidebar";
 import { PropertyMap } from "@/components/property/PropertyMap";
 import { SimilarProperties } from "@/components/property/SimilarProperties";
 import { PropertyPagination } from "@/components/property/PropertyPagination";
-import { MapPin, Calendar, Bed, Bath, Scaling, CheckCircle, Loader2, ArrowLeft, Video, PlayCircle } from "lucide-react";
+import { 
+    MapPin, Calendar, Bed, Bath, Scaling, CheckCircle, Loader2, ArrowLeft, 
+    Video, PlayCircle, Share, Heart,
+    Wind, Snowflake, Flame, Droplets, TreePine, Car, Wifi, Shield,
+    Coffee, Utensils, Tv, Shirt, Box, Dumbbell, Waves, Zap
+} from "lucide-react";
 import { formatPrice } from '@/lib/formatters';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { motion, Variants } from "framer-motion";
-import { LetsStartConversationCTA } from "@/components/property/LetsStartConversationCTA";
 import ReactMarkdown from 'react-markdown';
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-            delayChildren: 0.2
-        }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.05 } }
 };
 
 const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            type: "spring",
-            stiffness: 300,
-            damping: 24
-        }
-    }
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+};
+
+const getSmartIcon = (feature: string) => {
+    const f = feature.toLowerCase();
+    if (f.includes('pool') || f.includes('swim') || f.includes('spa')) return <Waves size={22} className="text-blue-500 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('cool') || f.includes('air') || f.includes('ac ') || f.includes('a/c') || f.includes('chill') || f.includes('refrigerat')) return <Snowflake size={22} className="text-sky-500 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('heat') || f.includes('fire') || f.includes('warm') || f.includes('oven')) return <Flame size={22} className="text-orange-500 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('park') || f.includes('tree') || f.includes('garden') || f.includes('yard') || f.includes('landscap') || f.includes('lawn') || f.includes('play')) return <TreePine size={22} className="text-emerald-500 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('garage') || f.includes('car')) return <Car size={22} className="text-slate-600 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('wash') || f.includes('dry') || f.includes('laundry')) return <Shirt size={22} className="text-indigo-500 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('dish') || f.includes('kitchen') || f.includes('cook') || f.includes('microwave') || f.includes('range') || f.includes('disposal')) return <Utensils size={22} className="text-amber-600 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('gym') || f.includes('fitness') || f.includes('exercis') || f.includes('sport')) return <Dumbbell size={22} className="text-rose-500 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('tv') || f.includes('cable') || f.includes('media') || f.includes('theater')) return <Tv size={22} className="text-purple-500 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('wifi') || f.includes('internet') || f.includes('network')) return <Wifi size={22} className="text-blue-600 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('secur') || f.includes('guard') || f.includes('gate') || f.includes('alarm') || f.includes('fence')) return <Shield size={22} className="text-slate-700 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('electric') || f.includes('power') || f.includes('generat')) return <Zap size={22} className="text-yellow-500 flex-shrink-0" strokeWidth={1.5} />;
+    if (f.includes('water') || f.includes('plumb') || f.includes('sprinkler') || f.includes('irrigation')) return <Droplets size={22} className="text-cyan-500 flex-shrink-0" strokeWidth={1.5} />;
+    
+    // Elegant Default
+    return <CheckCircle size={22} className="text-slate-400 flex-shrink-0" strokeWidth={1.5} />;
 };
 
 export default function PropertyDetailPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
@@ -53,9 +62,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ local
                 const res = await getPropertyBySlugAction(slug);
                 if (res.success && res.property) {
                     setProperty(res.property);
-
-                    // Fetch adjacent properties
-                    const adjRes = await getAdjacentPropertiesAction(res.property.id);
+                    const adjRes = await getAdjacentPropertiesAction(res.property.ListingKey);
                     if (adjRes.success) {
                         setAdjacent({ prev: adjRes.prev || null, next: adjRes.next || null });
                     }
@@ -68,230 +75,262 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ local
                 setLoading(false);
             }
         };
-
         fetchProperty();
     }, [slug]);
 
     if (loading) {
         return (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex justify-center items-center py-20 min-h-screen"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-center items-center py-32 min-h-screen">
                 <Loader2 className="animate-spin text-slate-400" size={32} />
             </motion.div>
         );
     }
 
-    if (!property) {
-        notFound();
-    }
+    if (!property) return notFound();
 
     return (
-        <motion.main
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="pb-20"
-        >
-            {/* HER HERO SECTION */}
-            <div className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
-                {/* Background Image with Overlay */}
-                <div className="absolute inset-0 z-0">
-                    {property.images[0] ? (
-                        <Image
-                            src={property.images[0]}
-                            alt={property.title}
-                            fill
-                            className="object-cover"
-                            priority
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-slate-900" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
-                </div>
+        <motion.main variants={containerVariants} initial="hidden" animate="visible" className="w-full bg-white min-h-screen pb-20">
+            <div className="max-w-[1200px] mx-auto px-4 lg:px-6 pt-8">
+                
+                {/* 1. Top Header */}
+                <motion.div variants={itemVariants} className="mb-6">
+                    <Link href={`/${locale}/properties`} className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-semibold transition-colors text-sm mb-6 underline decoration-slate-200 underline-offset-4 hover:decoration-slate-400">
+                        <ArrowLeft size={16} /> Back to properties
+                    </Link>
 
-                {/* Hero Content */}
-                <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-end pb-12 md:pb-20 max-w-[1400px]">
-                    {/* Back Button */}
-                    <div className="absolute top-8 left-4 md:left-8">
-                        <Link
-                            href={`/${locale}/properties`}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-full font-medium transition-colors text-sm"
-                        >
-                            <ArrowLeft size={16} />
-                            Back to Properties
-                        </Link>
-                    </div>
-
-                    <motion.div variants={itemVariants} className="max-w-4xl">
-                        <div className="flex flex-wrap gap-3 mb-4">
-                            <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-md ${property.status === 'available' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
-                                property.status === 'sold' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-orange-500/20 text-orange-300 border border-orange-500/30'
-                                }`}>
-                                {property.status}
-                            </span>
-                            <span className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-white/20 text-white border border-white/20 backdrop-blur-md">
-                                {property.type === 'sale' ? 'For Sale' : 'For Rent'}
-                            </span>
-                        </div>
-
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4 tracking-tight">
-                            {property.title}
-                        </h1>
-
-                        {property.propertyType && (
-                            <div className="mb-4">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-white border border-white/20 rounded-md text-sm font-medium backdrop-blur-sm">
-                                    <Scaling size={14} /> {property.propertyType}
+                    <div className="flex flex-col md:flex-row md:justify-between items-start md:items-end gap-6">
+                        <div className="max-w-3xl">
+                            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-slate-900 tracking-tight capitalize leading-tight mb-2">
+                                {property.UnparsedAddress?.toLowerCase()}
+                            </h1>
+                            <div className="flex items-center gap-2 text-slate-700 font-medium text-base sm:text-lg">
+                                <span className="flex items-center gap-1.5 underline decoration-slate-300 underline-offset-4 cursor-pointer hover:text-slate-900 transition-colors capitalize">
+                                    <MapPin size={18} /> {property.City?.toLowerCase()}, {property.StateOrProvince?.toUpperCase() || 'FL'}
                                 </span>
                             </div>
-                        )}
-
-                        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8 text-slate-200 text-lg font-medium">
-                            <div className="flex items-center gap-2">
-                                <MapPin size={20} className="text-white" />
-                                {property.location.address}, {property.location.city}, {property.location.zip}
-                            </div>
-                            <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-slate-400" />
-                            <div className="text-3xl font-bold text-white">
-                                {formatPrice(property.price.amount)}
-                                {property.type === 'rent' && <span className="text-lg font-normal text-slate-300">/mo</span>}
-                            </div>
                         </div>
-                    </motion.div>
-                </div>
-            </div>
 
-            <div className="container mx-auto px-4 py-12 max-w-[1400px]">
-                {/* Gallery */}
-                <motion.div variants={itemVariants} className="-mt-20 relative z-20">
-                    <PropertyGallery images={property.images} />
+                        <div className="flex gap-3">
+                            <button onClick={() => {
+                                if (navigator.share) {
+                                    navigator.share({ title: property.UnparsedAddress, url: window.location.href });
+                                } else {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    alert('Link copied to clipboard!');
+                                }
+                            }} className="flex items-center gap-2 px-4 py-2 rounded-xl focus:ring-2 hover:bg-slate-50 font-semibold text-slate-800 transition-all text-sm underline decoration-slate-300 underline-offset-4 hover:decoration-slate-500 border border-transparent hover:border-slate-200">
+                                <Share size={16} /> Share
+                            </button>
+                            <button onClick={() => {
+                                window.dispatchEvent(new CustomEvent('open-save-search-modal', {
+                                    detail: { searchParams: `q=${encodeURIComponent(property.UnparsedAddress)}` }
+                                }));
+                            }} className="flex items-center gap-2 px-5 py-2 rounded-xl focus:ring-2 hover:bg-red-50 font-semibold text-slate-800 hover:text-red-600 transition-all text-sm border border-slate-200 shadow-sm">
+                                <Heart size={16} className="text-red-500" /> Save
+                            </button>
+                        </div>
+                    </div>
                 </motion.div>
 
-                {/* Main Content Info */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mt-12">
-                    {/* Left Content */}
-                    <div className="lg:col-span-2 space-y-12">
+                {/* 2. Photo Gallery (Bento Grid) */}
+                <motion.div variants={itemVariants} className="mb-12">
+                    <PropertyGallery images={property.Media} />
+                </motion.div>
 
-                        {/* Quick Specs Bar */}
-                        <motion.div
-                            variants={itemVariants}
-                            className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-wrap justify-between gap-6 md:gap-12"
-                        >
-                            <div className="flex flex-col items-center">
-                                <span className="text-3xl font-bold text-slate-900 flex items-center gap-2"><Bed className="text-blue-500" size={28} /> {property.specs.beds}</span>
-                                <span className="text-xs uppercase text-slate-500 font-bold tracking-wider mt-1">Bedrooms</span>
-                            </div>
-                            <div className="w-px h-16 bg-slate-100 hidden md:block" />
-                            <div className="flex flex-col items-center">
-                                <span className="text-3xl font-bold text-slate-900 flex items-center gap-2"><Bath className="text-blue-500" size={28} /> {property.specs.baths}</span>
-                                <span className="text-xs uppercase text-slate-500 font-bold tracking-wider mt-1">Bathrooms</span>
-                            </div>
-                            <div className="w-px h-16 bg-slate-100 hidden md:block" />
-                            <div className="flex flex-col items-center">
-                                <span className="text-3xl font-bold text-slate-900 flex items-center gap-2"><Scaling className="text-blue-500" size={28} /> {property.specs.area.toLocaleString()}</span>
-                                <span className="text-xs uppercase text-slate-500 font-bold tracking-wider mt-1">Sq Ft</span>
-                            </div>
-                            {(property.specs.lotSize || property.specs.yearBuilt) && <div className="w-px h-16 bg-slate-100 hidden md:block" />}
-                            <div className="flex flex-col items-center">
-                                <span className="text-3xl font-bold text-slate-900 flex items-center gap-2"><Calendar className="text-blue-500" size={28} /> {property.specs.yearBuilt || 'N/A'}</span>
-                                <span className="text-xs uppercase text-slate-500 font-bold tracking-wider mt-1">Built</span>
-                            </div>
-                            {property.petsAllowed !== undefined && (
-                                <>
-                                    <div className="w-px h-16 bg-slate-100 hidden md:block" />
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-                                            {property.petsAllowed ? <CheckCircle className="text-emerald-500" size={28} /> : <div className="text-red-500 font-bold text-2xl">X</div>}
-                                        </span>
-                                        <span className="text-xs uppercase text-slate-500 font-bold tracking-wider mt-1">Pets Allowed</span>
+                {/* 3. Main Content Split */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 relative">
+                    
+                    {/* Left Column (Property Details) */}
+                    <div className="lg:col-span-8 space-y-10">
+                        
+                        {/* Highlights & Basic Info */}
+                        <motion.div variants={itemVariants} className="pb-8 border-b border-slate-200">
+                            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1 capitalize">
+                                {property.PropertySubType?.toLowerCase() || 'Single Family Residence'} hosted carefully
+                            </h2>
+                            <p className="text-slate-600 font-medium flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-[15px]">
+                                <span>{property.BedroomsTotal || 0} beds</span>
+                                <span className="opacity-50 text-xs">•</span> 
+                                <span>{property.BathroomsTotalInteger || 0} baths</span>
+                                <span className="opacity-50 text-xs">•</span> 
+                                <span>{(property.LivingArea || 0).toLocaleString()} sqft</span>
+                                <span className="opacity-50 text-xs">•</span> 
+                                <span className="capitalize">{property.StandardStatus?.toLowerCase() || 'active'}</span>
+                            </p>
+                        </motion.div>
+
+                        {/* Top Highlights */}
+                        <motion.div variants={itemVariants} className="flex flex-col gap-5 pb-8 border-b border-slate-200">
+                            {(property.opportunityScore ?? 0) >= 80 && (
+                                <div className="flex items-start gap-4">
+                                    <div className="mt-0.5 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
                                     </div>
-                                </>
+                                    <div>
+                                        <h3 className="text-base font-bold text-slate-900">Highly Rated Investment</h3>
+                                        <p className="text-slate-500 text-sm mt-0.5">This property has an AI Opportunity Score of {property.opportunityScore}/100.</p>
+                                    </div>
+                                </div>
                             )}
+                            {property.YearBuilt && (
+                                <div className="flex items-start gap-4">
+                                    <Calendar className="text-slate-800" size={28} strokeWidth={1.5} />
+                                    <div>
+                                        <h3 className="text-base font-bold text-slate-900">Year Built: {property.YearBuilt}</h3>
+                                        <p className="text-slate-500 text-sm mt-0.5">Check out the beautiful architectural details preserved from its construction.</p>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="flex items-start gap-4">
+                                <CheckCircle className="text-slate-800" size={28} strokeWidth={1.5} />
+                                <div>
+                                    <h3 className="text-base font-bold text-slate-900">Immediate Access</h3>
+                                    <p className="text-slate-500 text-sm mt-0.5">Contact our team to schedule a live or virtual tour today.</p>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* New RESO Highlights Bento Grid */}
+                        <motion.div variants={itemVariants} className="pb-8 border-b border-slate-200">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-6">Home Highlights</h3>
+                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                {property.DaysOnMarket !== undefined && (
+                                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl flex flex-col justify-center transition-all hover:bg-slate-100 hover:shadow-sm">
+                                        <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-1.5 line-clamp-1">Time on Market</div>
+                                        <div className="text-slate-900 font-extrabold text-xl">{property.DaysOnMarket} Days</div>
+                                    </div>
+                                )}
+                                {property.YearBuilt !== undefined && (
+                                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl flex flex-col justify-center transition-all hover:bg-slate-100 hover:shadow-sm">
+                                        <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-1.5 line-clamp-1">Year Built</div>
+                                        <div className="text-slate-900 font-extrabold text-xl">{property.YearBuilt}</div>
+                                    </div>
+                                )}
+                                {property.GarageSpaces !== undefined && property.GarageSpaces > 0 && (
+                                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl flex flex-col justify-center transition-all hover:bg-slate-100 hover:shadow-sm">
+                                        <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-1.5 line-clamp-1">Garage</div>
+                                        <div className="text-slate-900 font-extrabold text-xl">{property.GarageSpaces} Spaces</div>
+                                    </div>
+                                )}
+                                {property.HOAFee !== undefined && property.HOAFee > 0 && (
+                                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl flex flex-col justify-center transition-all hover:bg-slate-100 hover:shadow-sm">
+                                        <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-1.5 line-clamp-1">HOA Fee</div>
+                                        <div className="text-slate-900 font-extrabold text-xl">${property.HOAFee.toLocaleString()}<span className="text-sm text-slate-500 font-semibold">/mo</span></div>
+                                    </div>
+                                )}
+                                {property.TaxAnnualAmount !== undefined && property.TaxAnnualAmount > 0 && (
+                                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl flex flex-col justify-center transition-all hover:bg-slate-100 hover:shadow-sm">
+                                        <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-1.5 line-clamp-1">Annual Taxes</div>
+                                        <div className="text-slate-900 font-extrabold text-xl">${property.TaxAnnualAmount.toLocaleString()}</div>
+                                    </div>
+                                )}
+                                {property.PoolPrivateYN && (
+                                    <div className="bg-blue-50/50 border border-blue-100 p-5 rounded-2xl flex flex-col justify-center transition-all hover:bg-blue-50 hover:shadow-sm">
+                                        <div className="text-blue-500 text-[11px] font-bold uppercase tracking-widest mb-1.5 line-clamp-1">Amenities</div>
+                                        <div className="text-blue-900 font-extrabold text-xl">Private Pool</div>
+                                    </div>
+                                )}
+                                {property.WaterfrontYN && (
+                                    <div className="bg-blue-50/50 border border-blue-100 p-5 rounded-2xl flex flex-col justify-center transition-all hover:bg-blue-50 hover:shadow-sm">
+                                        <div className="text-blue-500 text-[11px] font-bold uppercase tracking-widest mb-1.5 line-clamp-1">Location</div>
+                                        <div className="text-blue-900 font-extrabold text-xl">Waterfront</div>
+                                    </div>
+                                )}
+                                {property.Cooling && property.Cooling.length > 0 && (
+                                    <div className="bg-slate-50 border border-slate-100 p-5 rounded-2xl flex flex-col justify-center transition-all hover:bg-slate-100 hover:shadow-sm">
+                                        <div className="text-slate-500 text-[11px] font-bold uppercase tracking-widest mb-1.5 line-clamp-1">Cooling</div>
+                                        <div className="text-slate-900 font-extrabold text-xl truncate" title={property.Cooling.join(', ')}>{property.Cooling[0]}</div>
+                                    </div>
+                                )}
+                            </div>
                         </motion.div>
 
                         {/* Description */}
-                        <motion.div variants={itemVariants}>
-                            <h3 className="text-2xl font-bold text-slate-900 mb-6">About this home</h3>
-                            <div className="prose prose-lg prose-slate text-slate-600 leading-relaxed max-w-none">
-                                <ReactMarkdown
-                                    components={{
-                                        strong: ({ ...props }) => <span className="font-bold text-slate-900" {...props} />,
-                                        ul: ({ ...props }) => <ul className="list-disc pl-5 my-4 space-y-2" {...props} />,
-                                        li: ({ ...props }) => <li className="text-slate-600 marker:text-blue-500" {...props} />
-                                    }}
-                                >
-                                    {property.description}
+                        <motion.div variants={itemVariants} className="pb-8 border-b border-slate-200">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-4">About this home</h3>
+                            <div className="prose prose-slate text-slate-600 leading-relaxed max-w-none text-[15px]">
+                                <ReactMarkdown>
+                                    {property.PublicRemarks?.replace(/([A-Z]+)/g, (match) => match.charAt(0) + match.slice(1).toLowerCase()) || "No description provided."}
                                 </ReactMarkdown>
                             </div>
-
-                            {/* Media Buttons Inline */}
-                            <div className="flex gap-4 mt-8">
+                            
+                            <div className="flex flex-wrap gap-4 mt-6">
                                 {property.virtualTourUrl && (
-                                    <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-bold transition-colors">
-                                        <Video size={20} /> Virtual Tour
+                                    <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg font-semibold transition-colors text-sm">
+                                        <Video size={18} /> Virtual Tour
                                     </a>
                                 )}
                                 {property.videoUrl && (
-                                    <a href={property.videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-bold transition-colors">
-                                        <PlayCircle size={20} /> Watch Video
+                                    <a href={property.videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg font-semibold transition-colors text-sm">
+                                        <PlayCircle size={18} /> Watch Video
                                     </a>
                                 )}
                             </div>
                         </motion.div>
 
-                        {/* Features */}
-                        <motion.div variants={itemVariants}>
-                            <h3 className="text-2xl font-bold text-slate-900 mb-6">Property Features</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-8 rounded-3xl">
-                                {property.features.map((f, index) => (
-                                    <motion.div
-                                        key={`${f}-${index}`}
-                                        className="flex items-center gap-3 text-slate-700 font-medium"
-                                        initial={{ opacity: 0, x: -10 }}
-                                        whileInView={{ opacity: 1, x: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: index * 0.05 }}
-                                    >
-                                        <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                                            <CheckCircle size={14} className="text-emerald-600" />
-                                        </div>
-                                        <span>{f}</span>
-                                    </motion.div>
+                        {/* Property Features */}
+                        <motion.div variants={itemVariants} className="pb-8 border-b border-slate-200">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-6">What this place offers</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
+                                {[
+                                    ...(property.ExteriorFeatures || []),
+                                    ...(property.Appliances || []),
+                                    ...(property.AssociationAmenities || []),
+                                    ...(property.ArchitecturalStyle || [])
+                                ].slice(0, 16).map((f, index) => (
+                                    <div key={index} className="flex items-center gap-3 text-slate-700 text-[15px] font-medium">
+                                        {getSmartIcon(f)}
+                                        <span className="capitalize leading-tight">{f.toLowerCase()}</span>
+                                    </div>
                                 ))}
                             </div>
                         </motion.div>
 
-                        {/* Map */}
-                        <motion.div variants={itemVariants}>
-                            <h3 className="text-2xl font-bold text-slate-900 mb-6">Location</h3>
-                            <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
-                                <PropertyMap address={`${property.location.address}, ${property.location.city}, ${property.location.zip}`} />
-                            </div>
-                            <div className="mt-4 flex items-center gap-2 text-slate-500">
-                                <MapPin size={16} />
-                                <span className="font-medium">{property.location.address}, {property.location.city}, {property.location.zip}</span>
+                        {/* Map Section */}
+                        <motion.div variants={itemVariants} className="pb-8">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-2">Where you'll be</h3>
+                            <p className="text-slate-600 mb-6 capitalize">{property.City?.toLowerCase()}, {property.StateOrProvince?.toUpperCase() || 'FL'}, United States</p>
+                            <div className="rounded-2xl overflow-hidden border border-slate-200 h-[400px]">
+                                <PropertyMap address={`${property.UnparsedAddress}, ${property.City}, ${property.PostalCode}`} />
                             </div>
                         </motion.div>
                     </div>
 
-                    {/* Right Sidebar */}
-                    <div className="lg:col-span-1">
+                    {/* Right Column (Sticky Form) - Hidden on Mobile, Shown on Desktop */}
+                    <div className="hidden lg:block lg:col-span-4 relative">
+                        {/* We put the PropertySidebar rendering here. It has `sticky top-24` inside */}
                         <PropertySidebar property={property} />
                     </div>
+                    
+                    {/* Mobile Bottom Floating Bar (Replaces Sidebar on Mobile) */}
+                    <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 pb-6 flex items-center justify-between z-40 shadow-2xl">
+                        <div>
+                            <span className="text-lg font-extrabold text-slate-900">${formatPrice(property.ListPrice)}</span>
+                            <span className="text-sm text-slate-600 font-medium"> {property.PropertyType?.toLowerCase().includes('lease') ? '/ month' : ''}</span>
+                        </div>
+                        <button 
+                            className="bg-slate-900 text-white font-bold py-3 px-6 rounded-xl shadow-lg"
+                            onClick={() => {
+                                window.dispatchEvent(new CustomEvent('open-ai-chat', {
+                                    detail: { message: `Hi, I am interested in property ${property.ListingKey}.` }
+                                }));
+                            }}
+                        >
+                            Reserve or Tour
+                        </button>
+                    </div>
+
                 </div>
 
-                {/* Helper Navigation */}
-                <motion.div variants={itemVariants} className="max-w-4xl mx-auto">
-                    <PropertyPagination locale={locale} prev={adjacent.prev} next={adjacent.next} />
+                {/* Similar Properties */}
+                <motion.div variants={itemVariants} className="mt-16 pt-16 border-t border-slate-200">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-8">Similar properties you may like</h3>
+                    <SimilarProperties currentId={property.ListingKey} locale={locale} />
                 </motion.div>
 
-                {/* Similar Properties */}
-                <motion.div variants={itemVariants}>
-                    <SimilarProperties currentId={property.id} locale={locale} />
+                {/* Pagination */}
+                <motion.div variants={itemVariants} className="mt-8 mb-8 border-t border-slate-200 pt-8">
+                    <PropertyPagination locale={locale} prev={adjacent.prev} next={adjacent.next} />
                 </motion.div>
             </div>
         </motion.main>

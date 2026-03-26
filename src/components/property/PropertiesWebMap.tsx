@@ -19,16 +19,16 @@ export function PropertiesWebMap({ properties = [], hoveredPropertyId }: Propert
         return properties
             .map((p, index) => {
                 // Determine a position, using fallback random offsets based on the map center if property lacks coordinates
-                const position = p.location.coordinates || {
-                    lat: center.lat + (Math.random() - 0.5) * 0.1, // Small mock offset for testing
+                const position = (p.Latitude && p.Longitude) ? { lat: p.Latitude, lng: p.Longitude } : {
+                    lat: center.lat + (Math.random() - 0.5) * 0.1, 
                     lng: center.lng + (Math.random() - 0.5) * 0.1
                 };
 
                 return {
-                    id: p.id,
+                    id: p.ListingKey || p.slug || Math.random().toString(),
                     position,
-                    labelString: `${formatCurrency(p.price.amount)} - ${p.type === 'sale' ? 'For Sale' : 'For Rent'}`,
-                    title: p.title
+                    labelString: `${formatCurrency(p.ListPrice)} - ${p.PropertyType === 'Residential' ? 'For Sale' : 'For Rent'}`,
+                    title: p.UnparsedAddress
                 };
             });
     }, [properties, center]);

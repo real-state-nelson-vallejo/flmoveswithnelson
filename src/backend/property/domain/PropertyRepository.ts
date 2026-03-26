@@ -1,12 +1,15 @@
 import { Property } from "./Property";
 
 export interface PropertyFilter {
-    query?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    minBeds?: number;
-    minBaths?: number;
-    type?: 'sale' | 'rent';
+    query?: string | undefined;
+    city?: string | undefined;
+    minPrice?: number | undefined;
+    maxPrice?: number | undefined;
+    minBeds?: number | undefined;
+    beds?: number | undefined; 
+    minBaths?: number | undefined;
+    type?: 'sale' | 'rent' | string | undefined;
+    sort?: 'newest' | 'price_asc' | 'price_desc' | undefined;
 }
 
 export interface PropertyRepository {

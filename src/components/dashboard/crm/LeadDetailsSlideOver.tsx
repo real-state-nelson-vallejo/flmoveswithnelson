@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LeadDTO as Lead } from "@/types/lead";
 import { SlideOver } from "@/components/ui/SlideOver";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { updateLeadDetailsAction, deleteLeadAction } from "@/actions/crm/actions";
-import { Loader2, Trash2, Edit2, Check, X } from "lucide-react";
+import { getLeadSavedSearchesAction } from "@/actions/crm/getLeadSavedSearchesAction";
+import { Loader2, Trash2, Edit2, Check, X, BellRing } from "lucide-react";
 
 interface LeadDetailsSlideOverProps {
     open: boolean;
@@ -20,6 +21,8 @@ export function LeadDetailsSlideOver({ open, onClose, lead, onUpdate }: LeadDeta
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [savedSearches, setSavedSearches] = useState<any[]>([]);
+    const [isLoadingSearches, setIsLoadingSearches] = useState(false);
 
     const [editForm, setEditForm] = useState({
         name: "",
@@ -37,6 +40,18 @@ export function LeadDetailsSlideOver({ open, onClose, lead, onUpdate }: LeadDeta
             notes: lead.notes || ""
         });
     }
+
+    useEffect(() => {
+        if (lead?.id && open) {
+            setIsLoadingSearches(true);
+            getLeadSavedSearchesAction(lead.id).then(res => {
+                if (res.success && res.savedSearches) {
+                    setSavedSearches(res.savedSearches);
+                }
+                setIsLoadingSearches(false);
+            });
+        }
+    }, [lead, open]);
 
     const handleSave = async () => {
         if (!lead) return;
@@ -166,6 +181,43 @@ export function LeadDetailsSlideOver({ open, onClose, lead, onUpdate }: LeadDeta
                             <span className="text-xs font-medium">{new Date(lead.createdAt).toLocaleDateString()}</span>
                         </div>
                     </div>
+                </div>
+
+                {/* Smart Searches Section */}
+                <div className="bg-muted/30 p-5 rounded-2xl border border-border/50 space-y-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                            <BellRing size={16} className="text-blue-500" />
+                            Smart Searches (Alerts)
+                        </h3>
+                        {isLoadingSearches && <Loader2 size={12} className="animate-spin text-muted-foreground" />}
+                    </div>
+
+                    {!isLoadingSearches && savedSearches.length === 0 ? (
+                        <p className="text-sm text-muted-foreground italic">No automatic alerts configured.</p>
+                    ) : (
+                        <div className="space-y-3">
+                            {savedSearches.map(search => (
+                                <div key={search.id} className="bg-card border border-border/50 p-3 rounded-xl flex flex-col gap-1 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-2 h-full bg-blue-500 rounded-r-xl" />
+                                    <span className="text-xs font-bold text-slate-800 uppercase">
+                                        {search.searchCriteria.type || 'ANY'} • {search.frequency}
+                                    </span>
+                                    <span className="text-sm text-slate-600">
+                                        {search.searchCriteria.query ? `"${search.searchCriteria.query}"` : 'Any Location'} 
+                                        {search.searchCriteria.minBeds ? ` • ${search.searchCriteria.minBeds}+ Beds` : ''}
+                                    </span>
+                                    {(search.searchCriteria.minPrice || search.searchCriteria.maxPrice) && (
+                                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded w-fit mt-1">
+                                            ${search.searchCriteria.minPrice ? (search.searchCriteria.minPrice / 1000) + 'k' : '0'} 
+                                            {' - '}
+                                            ${search.searchCriteria.maxPrice ? (search.searchCriteria.maxPrice / 1000) + 'k' : 'Max'}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
             </div>

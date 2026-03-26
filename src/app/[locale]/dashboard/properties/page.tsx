@@ -3,25 +3,27 @@
 import { useEffect, useState } from "react";
 import { getPropertiesAction, deletePropertyAction } from "@/actions/property/actions";
 import { PropertyDTO } from "@/types/property";
-import { Loader2, Plus, ArrowUpDown } from "lucide-react";
-
 import { SlideOver } from "@/components/ui/SlideOver";
 import { PropertyForm } from "@/components/dashboard/PropertyForm";
 import { PropertyStats } from "@/components/dashboard/properties/PropertyStats";
 import { PropertyCard } from "@/components/dashboard/properties/PropertyCard";
 import { PropertyFilters } from "@/components/dashboard/properties/PropertyFilters";
+import { SyncMLSModal } from "@/components/dashboard/properties/SyncMLSModal";
+import { CloudDownload, Plus, ArrowUpDown, Loader2 } from "lucide-react";
 
 export default function PropertiesDashboardPage() {
     const [properties, setProperties] = useState<PropertyDTO[]>([]);
     const [filteredProperties, setFilteredProperties] = useState<PropertyDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
     const [editingProperty, setEditingProperty] = useState<PropertyDTO | undefined>(undefined);
 
     // Filter States
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+    const [opportunitiesOnly, setOpportunitiesOnly] = useState(false);
 
     useEffect(() => {
         loadProperties();
@@ -30,7 +32,7 @@ export default function PropertiesDashboardPage() {
     useEffect(() => {
         filterProperties();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [properties, search, statusFilter]);
+    }, [properties, search, statusFilter, opportunitiesOnly]);
 
     const loadProperties = async () => {
         setLoading(true);
@@ -48,15 +50,24 @@ export default function PropertiesDashboardPage() {
         if (search) {
             const lowerSearch = search.toLowerCase();
             result = result.filter(p =>
-                p.title.toLowerCase().includes(lowerSearch) ||
-                p.location.city.toLowerCase().includes(lowerSearch) ||
-                p.location.address.toLowerCase().includes(lowerSearch)
+                p.UnparsedAddress.toLowerCase().includes(lowerSearch) ||
+                p.City.toLowerCase().includes(lowerSearch) ||
+                p.UnparsedAddress.toLowerCase().includes(lowerSearch)
             );
         }
 
         // Status
         if (statusFilter !== 'all') {
-            result = result.filter(p => p.status === statusFilter);
+            result = result.filter(p => p.StandardStatus === statusFilter);
+        }
+
+        // Smart Inbox (Opportunities)
+        if (opportunitiesOnly) {
+            result = result.filter(p => 
+                (p.opportunityScore && p.opportunityScore >= 80) || 
+                p.marketStatus === 'price_drop' || 
+                p.marketStatus === 'distressed'
+            );
         }
 
         setFilteredProperties(result);
@@ -66,7 +77,7 @@ export default function PropertiesDashboardPage() {
         if (!confirm("Are you sure you want to delete this property?")) return;
 
         // Optimistic update
-        setProperties(prev => prev.filter(p => p.id !== id));
+        setProperties(prev => prev.filter(p => p.ListingKey !== id));
 
         const res = await deletePropertyAction(id);
         if (!res.success) {
@@ -90,14 +101,29 @@ export default function PropertiesDashboardPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-foreground tracking-tight">Property Management</h2>
-                    <p className="text-muted-foreground mt-1">Manage your portfolio, track opportunities, and optimize listings.</p>
+                    <p className="text-muted-foreground mt-1 text-sm">Manage your portfolio, track opportunities, and optimize listings.</p>
+                    <div className="flex items-center gap-2 mt-3 text-xs font-medium text-slate-500">
+                        <div className="flex items-center gap-1.5 bg-secondary/50 border border-border px-2.5 py-1 rounded-md">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-[pulse_2s_ease-in-out_infinite]"></span>
+                            <span className="text-foreground/80">MLS Delta Sync: Active</span>
+                        </div>
+                        <span className="opacity-70">Updated hourly via CRON</span>
+                    </div>
                 </div>
-                <button
-                    onClick={handleCreate}
-                    className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
-                >
-                    <Plus size={18} /> Add Property
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setIsSyncModalOpen(true)}
+                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center gap-2"
+                    >
+                        <CloudDownload size={18} /> Sync MLS
+                    </button>
+                    <button
+                        onClick={handleCreate}
+                        className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+                    >
+                        <Plus size={18} /> Add Property
+                    </button>
+                </div>
             </div>
 
             <PropertyStats properties={properties} />
@@ -109,6 +135,8 @@ export default function PropertiesDashboardPage() {
                 setStatusFilter={setStatusFilter}
                 viewMode={viewMode}
                 setViewMode={setViewMode}
+                opportunitiesOnly={opportunitiesOnly}
+                setOpportunitiesOnly={setOpportunitiesOnly}
             />
 
             {loading ? (
@@ -131,9 +159,9 @@ export default function PropertiesDashboardPage() {
                 <>
                     {viewMode === 'grid' ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-8">
-                            {filteredProperties.map(property => (
+                            {filteredProperties.map((property, idx) => (
                                 <PropertyCard
-                                    key={property.id}
+                                    key={property.ListingKey || `legacy-${idx}`}
                                     property={property}
                                     onEdit={handleEdit}
                                     onDelete={handleDelete}
@@ -156,19 +184,19 @@ export default function PropertiesDashboardPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {filteredProperties.map((property) => (
-                                        <tr key={property.id} className="hover:bg-muted/50 transition-colors border-b border-border last:border-0">
-                                            <td className="px-6 py-4 font-medium text-foreground">{property.title}</td>
+                                    {filteredProperties.map((property, idx) => (
+                                        <tr key={property.ListingKey || `legacy-${idx}`} className="hover:bg-muted/50 transition-colors border-b border-border last:border-0">
+                                            <td className="px-6 py-4 font-medium text-foreground">{property.UnparsedAddress}</td>
                                             <td className="px-6 py-4 font-mono text-muted-foreground">
-                                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: property.price.currency }).format(property.price.amount)}
+                                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: "USD" }).format(property.ListPrice)}
                                             </td>
-                                            <td className="px-6 py-4 text-muted-foreground">{property.location.city}</td>
+                                            <td className="px-6 py-4 text-muted-foreground">{property.City}</td>
                                             <td className="px-6 py-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${property.status === 'available' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                    property.status === 'reserved' ? 'bg-amber-500/10 text-amber-500' :
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${property.StandardStatus === 'Active' ? 'bg-emerald-500/10 text-emerald-500' :
+                                                    property.StandardStatus === 'Pending' ? 'bg-amber-500/10 text-amber-500' :
                                                         'bg-secondary text-muted-foreground'
                                                     }`}>
-                                                    {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
+                                                    {property.StandardStatus ? property.StandardStatus.charAt(0).toUpperCase() + property.StandardStatus.slice(1) : 'Unknown'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
@@ -191,7 +219,7 @@ export default function PropertiesDashboardPage() {
                                                     Edit
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(property.id)}
+                                                    onClick={() => handleDelete(property.ListingKey)}
                                                     className="text-red-500 hover:text-red-700 font-medium text-xs"
                                                 >
                                                     Delete
@@ -205,6 +233,15 @@ export default function PropertiesDashboardPage() {
                     )}
                 </>
             )}
+
+            <SyncMLSModal 
+                isOpen={isSyncModalOpen}
+                onClose={() => setIsSyncModalOpen(false)}
+                onSuccess={() => {
+                    setIsSyncModalOpen(false);
+                    loadProperties();
+                }}
+            />
 
             <SlideOver
                 isOpen={isFormOpen}

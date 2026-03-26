@@ -7,8 +7,8 @@ interface PropertyStatsProps {
 
 export function PropertyStats({ properties }: PropertyStatsProps) {
     const totalProperties = properties.length;
-    const activeProperties = properties.filter(p => p.status === 'available').length;
-    const totalValue = properties.reduce((sum, p) => sum + p.price.amount, 0);
+    const activeProperties = properties.filter(p => p.StandardStatus === 'Active').length;
+    const totalValue = properties.reduce((sum, p) => sum + p.ListPrice, 0);
     const avgPrice = totalProperties > 0 ? totalValue / totalProperties : 0;
 
     const stats = [

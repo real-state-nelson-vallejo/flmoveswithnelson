@@ -14,15 +14,8 @@ export class AnalyzeProperty {
         }
 
         // Prepare data for analysis
-        const data = {
-            title: property.title,
-            description: property.description,
-            price: property.price,
-            location: property.location,
-            specs: property.specs,
-            status: property.status,
-            features: property.features
-        };
+        // Prepare data for analysis using DTO adapter to preserve Generator contract
+        const data = property.toDTO();
 
         const analysis = await this.contentGenerator.analyzeProperty(data);
 

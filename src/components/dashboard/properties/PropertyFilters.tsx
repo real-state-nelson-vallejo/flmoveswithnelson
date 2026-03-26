@@ -8,6 +8,8 @@ interface PropertyFiltersProps {
     setStatusFilter: (value: string) => void;
     viewMode: 'grid' | 'table';
     setViewMode: (mode: 'grid' | 'table') => void;
+    opportunitiesOnly: boolean;
+    setOpportunitiesOnly: (val: boolean) => void;
 }
 
 export function PropertyFilters({
@@ -16,12 +18,30 @@ export function PropertyFilters({
     statusFilter,
     setStatusFilter,
     viewMode,
-    setViewMode
+    setViewMode,
+    opportunitiesOnly,
+    setOpportunitiesOnly
 }: PropertyFiltersProps) {
     return (
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-card p-4 rounded-xl border border-border">
-            {/* Search */}
-            <div className="relative w-full md:w-96">
+        <div className="flex flex-col gap-4 mb-6">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <button
+                    onClick={() => setOpportunitiesOnly(false)}
+                    className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold transition-all ${!opportunitiesOnly ? 'bg-primary text-primary-foreground shadow-md' : 'bg-muted text-muted-foreground hover:bg-secondary'}`}
+                >
+                    All Properties
+                </button>
+                <button
+                    onClick={() => setOpportunitiesOnly(true)}
+                    className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${opportunitiesOnly ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md shadow-blue-500/30 font-bold' : 'bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 font-bold'}`}
+                >
+                    🔥 Smart Inbox (High ROI)
+                </button>
+            </div>
+
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-card p-4 rounded-xl border border-border">
+                {/* Search */}
+                <div className="relative w-full md:w-96">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
                 <input
                     type="text"
@@ -52,10 +72,10 @@ export function PropertyFilters({
                         onChange={(e) => setStatusFilter(e.target.value)}
                         className="w-full md:w-40 pl-3 pr-8 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary appearance-none text-foreground cursor-pointer"
                     >
-                        <option value="all">All Status</option>
-                        <option value="available">Available</option>
-                        <option value="reserved">Reserved</option>
-                        <option value="sold">Sold</option>
+                        <option value="all">All MLS Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Closed">Closed</option>
                     </select>
                     <SlidersHorizontal className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={14} />
                 </div>
@@ -77,6 +97,7 @@ export function PropertyFilters({
                         <List size={18} />
                     </button>
                 </div>
+            </div>
             </div>
         </div>
     );

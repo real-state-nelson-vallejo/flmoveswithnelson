@@ -24,7 +24,7 @@ export default async function DocumentsPage() {
             const p = doc.toPersistence() as any;
             return {
                 ...p,
-                propertyTitle: property?.title || doc.propertyId,
+                propertyTitle: property?.UnparsedAddress || doc.propertyId,
                 leadName: lead?.name || "Unknown Lead"
             };
         })

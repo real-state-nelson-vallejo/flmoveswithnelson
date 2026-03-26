@@ -10,7 +10,6 @@ import { Loader2, ChevronRight, Wand2, Plus, X, LineChart, TrendingUp, DollarSig
 import { AnalysisMethodology } from "@/components/dashboard/properties/AnalysisMethodology";
 import { motion } from "framer-motion";
 import { z } from "zod";
-import { RentCastInsights } from "./properties/RentCastInsights";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -44,10 +43,9 @@ function SortableImage({ id, url, onRemove }: { id: string, url: string, onRemov
 
 // Create a schema specifically for the form that omits system fields
 const FormSchema = PropertySchema.omit({
-    id: true,
+    ListingKey: true,
     createdAt: true,
-    updatedAt: true,
-    rentCastData: true // Don't manage rentCastData in the form inputs directly, it's a side effect of analysis
+    updatedAt: true
 });
 
 type FormData = z.infer<typeof FormSchema>;
@@ -67,7 +65,6 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
     const [loading, setLoading] = useState(false);
     const [generatingAi, setGeneratingAi] = useState(false);
     const [analyzingAi, setAnalyzingAi] = useState(false);
-    const [enrichmentData, setEnrichmentData] = useState<any>(initialData?.rentCastData || null); // Store RentCast data defined in PropertySchema
     const [uploadProgress, setUploadProgress] = useState<{ [fileName: string]: number }>({});
     const googleMapsKey: string = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
@@ -79,9 +76,9 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
     const [showScheduleModal, setShowScheduleModal] = useState(false);
 
     useEffect(() => {
-        if (initialData?.id) {
+        if (initialData?.ListingKey) {
             setLoadingSchedule(true);
-            getScheduleAction(initialData.id, ScheduleEntityType.PROPERTY)
+            getScheduleAction(initialData.ListingKey, ScheduleEntityType.PROPERTY)
                 .then(res => {
                     if (res && res.weeklySchedule) {
                         setSchedule(res.weeklySchedule);
@@ -94,10 +91,10 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
     }, [initialData]);
 
     const savePropertySchedule = async () => {
-        if (!initialData?.id) return;
+        if (!initialData?.ListingKey) return;
         setIsSavingSchedule(true);
         try {
-            await updateScheduleAction(initialData.id, ScheduleEntityType.PROPERTY, {
+            await updateScheduleAction(initialData.ListingKey, ScheduleEntityType.PROPERTY, {
                 timezone,
                 weeklySchedule: schedule
             });
@@ -195,18 +192,15 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                 if (!address) address = data.formattedAddress || "";
 
                 // Update form explicitly
-                setValue("location.address", address || "", { shouldValidate: true });
-                if (city) setValue("location.city", city, { shouldValidate: true });
-                if (state) setValue("location.state", state, { shouldValidate: true });
-                if (zip) setValue("location.zip", zip, { shouldValidate: true });
-                if (country) setValue("location.country", country, { shouldValidate: true });
+                setValue("UnparsedAddress", address || "", { shouldValidate: true });
+                if (city) setValue("City", city, { shouldValidate: true });
+                if (state) setValue("StateOrProvince", state, { shouldValidate: true });
+                if (zip) setValue("PostalCode", zip, { shouldValidate: true });
 
                 // Set Coordinates!
                 if (data.location && typeof data.location.latitude === 'number' && typeof data.location.longitude === 'number') {
-                    setValue("location.coordinates", {
-                        lat: data.location.latitude,
-                        lng: data.location.longitude
-                    }, { shouldValidate: true });
+                    // Coordinates can be managed via an additional side channel or we just ignore mapping them to standard form hook
+                    console.log("Coordinates fetched", data.location.latitude, data.location.longitude);
                 }
             }
         } catch (err) {
@@ -220,25 +214,32 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(FormSchema),
         defaultValues: initialData ? {
-            title: initialData.title,
-            price: initialData.price,
-            type: initialData.type,
-            status: initialData.status,
-            features: initialData.features,
-            images: initialData.images,
-            location: initialData.location,
-            specs: initialData.specs,
-            description: initialData.description
+            UnparsedAddress: initialData.UnparsedAddress,
+            ListPrice: initialData.ListPrice,
+            PropertyType: initialData.PropertyType,
+            StandardStatus: initialData.StandardStatus,
+            ExteriorFeatures: initialData.ExteriorFeatures || [],
+            Media: initialData.Media,
+            City: initialData.City,
+            StateOrProvince: initialData.StateOrProvince,
+            PostalCode: initialData.PostalCode,
+            BedroomsTotal: initialData.BedroomsTotal,
+            BathroomsTotalInteger: initialData.BathroomsTotalInteger,
+            LivingArea: initialData.LivingArea,
+            YearBuilt: initialData.YearBuilt,
+            PublicRemarks: initialData.PublicRemarks
         } : {
-            title: "",
-            price: { amount: 0, currency: "USD" },
-            type: "sale",
-            status: "available",
-            features: [],
-            images: [],
-            location: { address: "", city: "", country: "United States", state: "", zip: "" },
-            specs: { beds: 0, baths: 0, area: 0, areaUnit: "sqft" },
-            description: ""
+            UnparsedAddress: "",
+            ListPrice: 0,
+            PropertyType: "Residential",
+            StandardStatus: "Active",
+            ExteriorFeatures: [],
+            Media: [],
+            City: "",
+            BedroomsTotal: 0,
+            BathroomsTotalInteger: 0, 
+            LivingArea: 0,
+            PublicRemarks: ""
         }
     });
 
@@ -246,27 +247,27 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
     const watchedValues = watch();
 
     const handleGenerateDescription = async () => {
-        const { title, location, features, specs, type } = watchedValues;
+        const { UnparsedAddress, City, StateOrProvince, ExteriorFeatures, BedroomsTotal, BathroomsTotalInteger, LivingArea, PropertyType } = watchedValues;
 
-        if (!title || !location?.city) {
+        if (!UnparsedAddress || !City) {
             alert("Please fill in Title and Location first.");
             return;
         }
         setGeneratingAi(true);
         const result = await generateDescriptionAction({
-            title: title || "",
-            location: `${location.city}, ${location.state}`,
-            features: features || [],
+            title: UnparsedAddress || "",
+            location: `${City}, ${StateOrProvince || ''}`,
+            features: ExteriorFeatures || [],
             specs: {
-                beds: specs?.beds || 0,
-                baths: specs?.baths || 0,
-                area: specs?.area || 0
+                beds: BedroomsTotal || 0,
+                baths: BathroomsTotalInteger || 0,
+                area: LivingArea || 0
             },
-            type: type || "sale"
+            type: PropertyType || "Residential"
         });
 
         if (result.success && result.description) {
-            setValue("description", result.description, { shouldValidate: true });
+            setValue("PublicRemarks", result.description, { shouldValidate: true });
         } else {
             alert("Failed to generate description.");
         }
@@ -318,8 +319,8 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             });
 
             const urls = await Promise.all(uploadPromises);
-            const currentImages = watchedValues.images || [];
-            setValue("images", [...currentImages, ...urls], { shouldValidate: true });
+            const currentImages = watchedValues.Media || [];
+            setValue("Media", [...currentImages, ...urls], { shouldValidate: true });
 
         } catch (error) {
             console.error("Upload failed", error);
@@ -336,10 +337,10 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         if (over && active.id !== over.id) {
-            const currentImages = watchedValues.images || [];
+            const currentImages = watchedValues.Media || [];
             const oldIndex = currentImages.indexOf(active.id as string);
             const newIndex = currentImages.indexOf(over.id as string);
-            setValue("images", arrayMove(currentImages, oldIndex, newIndex), { shouldValidate: true });
+            setValue("Media", arrayMove(currentImages, oldIndex, newIndex), { shouldValidate: true });
         }
     };
 
@@ -353,14 +354,12 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                 Object.entries(data).filter(([_, v]) => v !== undefined)
             );
             result = await updatePropertyAction({
-                id: initialData.id,
-                ...cleanData,
-                rentCastData: enrichmentData // Include enrichment data if available
+                id: initialData.ListingKey,
+                ...cleanData
             });
         } else {
             result = await createPropertyAction({
-                ...data,
-                rentCastData: enrichmentData // Include enrichment data if available
+                ...data
             } as unknown as CreatePropertyDTO);
         }
 
@@ -377,11 +376,11 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
         let fieldsToValidate: (keyof FormData)[] = [];
 
         switch (step) {
-            case 0: fieldsToValidate = ["title", "type", "status", "price"]; break;
-            case 1: fieldsToValidate = ["location"]; break;
-            case 2: fieldsToValidate = ["specs"]; break;
-            case 3: fieldsToValidate = ["images"]; break;
-            case 4: fieldsToValidate = ["description", "features"]; break;
+            case 0: fieldsToValidate = ["UnparsedAddress", "PropertyType", "StandardStatus", "ListPrice"]; break;
+            case 1: fieldsToValidate = ["City"]; break;
+            case 2: fieldsToValidate = ["BedroomsTotal", "LivingArea", "BathroomsTotalInteger"]; break;
+            case 3: fieldsToValidate = ["Media"]; break;
+            case 4: fieldsToValidate = ["PublicRemarks", "ExteriorFeatures"]; break;
             case 5: fieldsToValidate = []; break; // Analysis is optional/generated
         }
 
@@ -400,23 +399,23 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             <div>
                 <label className="block text-sm font-medium text-foreground mb-1">Property Title</label>
                 <input
-                    {...register("title")}
+                    {...register("UnparsedAddress")}
                     className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent outline-none bg-background text-foreground placeholder:text-muted-foreground transition-all"
                     placeholder="e.g. Modern Villa in Downtown"
                 />
-                {errors.title && <p className="text-destructive text-xs mt-1">{errors.title.message}</p>}
+                {errors.UnparsedAddress && <p className="text-destructive text-xs mt-1">{errors.UnparsedAddress.message}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">Listing Type</label>
-                    <select {...register("type")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
-                        <option value="sale">For Sale</option>
-                        <option value="rent">For Rent</option>
+                    <select {...register("PropertyType")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
+                        <option value="Residential">For Sale</option>
+                        <option value="Residential Lease">For Rent</option>
                     </select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Property Type</label>
-                    <select {...register("propertyType")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
+                    <label className="block text-sm font-medium text-foreground mb-1">Property Sub Type</label>
+                    <select {...register("PropertySubType")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
                         <option value="">Select...</option>
                         <option value="Single Family">Single Family</option>
                         <option value="Condominium">Condominium</option>
@@ -430,10 +429,10 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">Status</label>
-                    <select {...register("status")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
-                        <option value="available">Available</option>
-                        <option value="reserved">Reserved</option>
-                        <option value="sold">Sold</option>
+                    <select {...register("StandardStatus")} className="w-full px-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground focus:ring-2 focus:ring-ring transition-all">
+                        <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Closed">Closed</option>
                     </select>
                 </div>
             </div>
@@ -443,16 +442,16 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                     <span className="absolute left-3 top-2 text-muted-foreground">$</span>
                     <input
                         type="number"
-                        {...register("price.amount", { valueAsNumber: true })}
+                        {...register("ListPrice", { valueAsNumber: true })}
                         className="w-full pl-7 pr-3 py-2 border border-input rounded-lg outline-none bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring transition-all"
                         placeholder="0.00"
                     />
                 </div>
-                {errors.price?.amount && <p className="text-destructive text-xs mt-1">{errors.price.amount.message}</p>}
+                {errors?.ListPrice && <p className="text-destructive text-xs mt-1">{errors.ListPrice.message}</p>}
             </div>
 
             {/* Property Availability Summary & Modal Trigger */}
-            {initialData?.id && (
+            {initialData?.ListingKey && (
                 <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-gradient-to-br from-indigo-50/50 to-white dark:from-slate-800/80 dark:to-slate-900 border border-indigo-100/60 dark:border-slate-700 rounded-2xl shadow-sm">
                         <div>
@@ -537,14 +536,14 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                             <Loader2 size={16} className="animate-spin text-blue-500" />
                         </div>
                     )}
-                    {showSuggestions && placesSuggestions.length > 0 && (
+                {showSuggestions && placesSuggestions.length > 0 && (
                         <ul className="absolute z-10 w-full max-w-xl bg-card border border-border shadow-md rounded-md max-h-60 overflow-y-auto top-12 left-0 text-sm text-card-foreground">
                             {placesSuggestions.map((sg) => (
                                 <li
                                     key={sg.placePrediction.placeId}
                                     className="px-4 py-2 hover:bg-muted cursor-pointer border-b last:border-0 border-border flex items-center justify-between transition-colors"
                                     onMouseDown={(e) => {
-                                        e.preventDefault(); // Prevent input onBlur from hiding the dropdown
+                                        e.preventDefault(); 
                                         handleSelectPlace(sg.placePrediction.placeId, sg.placePrediction.text.text);
                                     }}
                                 >
@@ -556,30 +555,28 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                 </div>
 
                 <input
-                    {...register("location.address")}
+                    {...register("UnparsedAddress")}
                     className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-all placeholder:text-muted-foreground"
                     placeholder="Street Address"
                 />
-                {errors.location?.address && <p className="text-destructive text-xs mt-1">{errors.location.address.message}</p>}
+                {errors.UnparsedAddress && <p className="text-destructive text-xs mt-1">{errors.UnparsedAddress.message}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">City</label>
-                    <input {...register("location.city")} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
+                    <input {...register("City")} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">State</label>
-                    <input {...register("location.state")} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
+                    <input {...register("StateOrProvince")} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">Zip Code</label>
-                    <input {...register("location.zip")} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
+                    <input {...register("PostalCode")} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Country</label>
-                    <input {...register("location.country")} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
                 </div>
             </div>
         </div>
@@ -590,30 +587,25 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">Beds</label>
-                    <input type="number" {...register("specs.beds", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
+                    <input type="number" {...register("BedroomsTotal", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">Baths</label>
-                    <input type="number" {...register("specs.baths", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
+                    <input type="number" {...register("BathroomsTotalInteger", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Area</label>
-                    <input type="number" {...register("specs.area", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
+                    <label className="block text-sm font-medium text-foreground mb-1">Area (sqft)</label>
+                    <input type="number" {...register("LivingArea", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Unit</label>
-                    <select {...register("specs.areaUnit")} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all">
-                        <option value="sqft">sqft</option>
-                        <option value="m2">m²</option>
-                    </select>
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-foreground mb-1">Year Built</label>
-                    <input type="number" {...register("specs.yearBuilt", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
+                    <input type="number" {...register("YearBuilt", { valueAsNumber: true })} className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring bg-background text-foreground transition-all" />
                 </div>
                 <div className="flex flex-col justify-end pb-2">
                     <label className="flex items-center justify-between cursor-pointer">
@@ -678,21 +670,21 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             )}
 
             {/* Image Preview List */}
-            {watchedValues.images && watchedValues.images.length > 0 && (
+            {watchedValues.Media && watchedValues.Media.length > 0 && (
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={watchedValues.images} strategy={rectSortingStrategy}>
+                    <SortableContext items={watchedValues.Media} strategy={rectSortingStrategy}>
                         <div className="grid grid-cols-3 gap-4 mt-6">
-                            {watchedValues.images.map((img: string) => (
+                            {watchedValues.Media.map((img: string) => (
                                 <SortableImage
                                     key={img}
                                     id={img}
                                     url={img}
                                     onRemove={(id) => {
-                                        const newImages = [...(watchedValues.images || [])];
+                                        const newImages = [...(watchedValues.Media || [])];
                                         const idx = newImages.indexOf(id);
                                         if (idx > -1) {
                                             newImages.splice(idx, 1);
-                                            setValue("images", newImages);
+                                            setValue("Media", newImages);
                                         }
                                     }}
                                 />
@@ -720,7 +712,7 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
                     </button>
                 </div>
                 <textarea
-                    {...register("description")}
+                    {...register("PublicRemarks")}
                     className="w-full min-h-[350px] px-4 py-3 border border-input rounded-xl outline-none resize-y focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-all placeholder:text-muted-foreground font-mono text-sm leading-relaxed whitespace-pre-wrap"
                     placeholder="Describe the property... (Supports Markdown **bold**, *italic*, - lists)"
                 />
@@ -728,13 +720,13 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             <div>
                 <label className="block text-sm font-medium text-foreground mb-1">Features (comma separated)</label>
                 <Controller
-                    name="features"
+                    name="ExteriorFeatures"
                     control={control}
                     render={({ field }) => (
                         <input
                             type="text"
                             placeholder="Pool, Gym, Fireplace..."
-                            defaultValue={field.value?.join(", ")}
+                            defaultValue={(field.value || []).join(", ")}
                             className="w-full px-3 py-2 border border-input rounded-lg outline-none focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground transition-all placeholder:text-muted-foreground"
                             onBlur={(e) => {
                                 const feats = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
@@ -751,8 +743,8 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
         const data = watchedValues;
 
         // Basic validation
-        if (!data.title || !data.price?.amount || !data.location?.city) {
-            alert("Please fill in basic property details (Title, Price, Location) before analyzing.");
+        if (!data.UnparsedAddress || !data?.ListPrice || !data?.City) {
+            alert("Please fill in basic property details (Title, Price, City) before analyzing.");
             return;
         }
 
@@ -763,10 +755,7 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
             setValue("opportunityScore", result.analysis.opportunityScore);
             setValue("listingQualityScore", result.analysis.listingQualityScore);
             setValue("marketStatus", result.analysis.marketStatus);
-            setValue("investmentAnalysis", result.analysis.investmentAnalysis);
-            if (result.enrichmentData) {
-                setEnrichmentData(result.enrichmentData);
-            }
+            setValue("investmentAnalysis", result.analysis.investmentAnalysis as any);
         } else {
             alert("Failed to analyze property.");
         }
@@ -780,16 +769,6 @@ export function PropertyForm({ initialData, onSuccess, onCancel }: PropertyFormP
 
         return (
             <div className="space-y-6">
-                {/* RentCast Verified Data Display */}
-                {enrichmentData && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                    >
-                        <RentCastInsights data={enrichmentData} />
-                    </motion.div>
-                )}
-
                 <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-900/20 p-6 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
                     <div className="flex justify-between items-start mb-4">
                         <div>

@@ -35,7 +35,7 @@ export function SimilarProperties({ currentId, locale }: SimilarPropertiesProps)
     if (loading) return null;
 
     const similarProperties = properties
-        .filter(p => p.id !== currentId)
+        .filter(p => p.ListingKey !== currentId)
         .slice(0, 3);
 
     if (similarProperties.length === 0) return null;
@@ -46,7 +46,7 @@ export function SimilarProperties({ currentId, locale }: SimilarPropertiesProps)
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {similarProperties.map((p, index) => (
                     <motion.div
-                        key={p.id}
+                        key={p.ListingKey}
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}

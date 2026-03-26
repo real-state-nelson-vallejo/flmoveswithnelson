@@ -142,17 +142,15 @@ export default function DocumentWizard({ templates, properties, leads, presets, 
                     <CardContent>
                         <div className="grid gap-2">
                             {properties.map(p => (
-                                <Button
-                                    key={p.id}
-                                    variant="outline"
-                                    className="justify-start text-left h-auto py-3"
-                                    onClick={() => handlePropertySelect(p.id)}
+                                <button
+                                    key={p.ListingKey || p.slug}
+                                    type="button"
+                                    onClick={() => handlePropertySelect(p.ListingKey || p.slug || '')}
+                                    className="w-full text-left p-3 hover:bg-muted rounded-lg transition-colors border border-transparent hover:border-border"
                                 >
-                                    <div>
-                                        <div className="font-semibold">{p.title}</div>
-                                        <div className="text-xs text-muted-foreground">{p.location.address}</div>
-                                    </div>
-                                </Button>
+                                    <div className="font-semibold">{p.UnparsedAddress}</div>
+                                    <div className="text-xs text-muted-foreground">{p.City}, {p.StateOrProvince}</div>
+                                </button>
                             ))}
                         </div>
                     </CardContent>

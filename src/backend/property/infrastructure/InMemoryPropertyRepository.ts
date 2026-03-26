@@ -22,23 +22,23 @@ export class InMemoryPropertyRepository implements PropertyRepository {
         return Array.from(this.properties.values()).filter((p) => {
             // Text Search
             const matchesQuery = !query ||
-                p.title.toLowerCase().includes(query) ||
-                p.description.toLowerCase().includes(query) ||
-                p.location.city.toLowerCase().includes(query) ||
-                p.location.zip?.toLowerCase().includes(query);
+                (p.UnparsedAddress || '').toLowerCase().includes(query) ||
+                (p.PublicRemarks || '').toLowerCase().includes(query) ||
+                (p.City || '').toLowerCase().includes(query) ||
+                (p.PostalCode || '').toLowerCase().includes(query);
 
             if (!matchesQuery) return false;
 
             // Price Filter
-            if (filter.minPrice && p.price.amount < filter.minPrice) return false;
-            if (filter.maxPrice && p.price.amount > filter.maxPrice) return false;
+            if (filter.minPrice && (p.ListPrice || 0) < filter.minPrice) return false;
+            if (filter.maxPrice && (p.ListPrice || 0) > filter.maxPrice) return false;
 
             // Specs Filter
-            if (filter.minBeds && p.specs.beds < filter.minBeds) return false;
-            if (filter.minBaths && p.specs.baths < filter.minBaths) return false;
+            if (filter.minBeds && (p.BedroomsTotal || 0) < filter.minBeds) return false;
+            if (filter.minBaths && (p.BathroomsTotalInteger || 0) < filter.minBaths) return false;
 
             // Type Filter
-            if (filter.type && p.type !== filter.type) return false;
+            if (filter.type && p.PropertyType !== filter.type && p.PropertySubType !== filter.type) return false;
 
             return true;
         });

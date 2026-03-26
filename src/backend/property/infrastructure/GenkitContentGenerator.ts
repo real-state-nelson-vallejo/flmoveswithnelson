@@ -50,7 +50,7 @@ export class GenkitContentGenerator implements ContentGenerator {
         }
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async analyzeProperty(data: any, rentCastData?: any): Promise<AnalysisResult> {
+    async analyzeProperty(data: any): Promise<AnalysisResult> {
         const AnalysisSchema = z.object({
             opportunityScore: z.number().min(0).max(100),
             listingQualityScore: z.number().min(0).max(100),
@@ -63,38 +63,31 @@ export class GenkitContentGenerator implements ContentGenerator {
             })
         });
 
-        // Build context from RentCast data if available
-        let marketContext = "";
-        if (rentCastData) {
-            marketContext = `
-            REAL MARKET DATA (Verified via RentCast):
-            - Estimated Value: $${rentCastData.valuation?.price} (Range: $${rentCastData.valuation?.priceRangeLow} - $${rentCastData.valuation?.priceRangeHigh})
-            - Estimated Rent: $${rentCastData.valuation?.rent} (Range: $${rentCastData.valuation?.rentRangeLow} - $${rentCastData.valuation?.rentRangeHigh})
-            - Market Avg Rent (Zip): $${rentCastData.marketStats?.averageRent}
-            - Avg Days on Market: ${rentCastData.marketStats?.averagedaysOnMarket}
-            - Last Updated: ${new Date(rentCastData.lastRetrieved).toLocaleDateString()}
-            
-            Use this REAL data to calculate the Cash Flow and Cap Rate ACCURATELY. Do not guess if this data is present.
-            Compare the Listing Price ($${data.price.amount}) vs Estimated Value ($${rentCastData.valuation?.price}).
-            `;
-        }
+        // Use built-in heuristics based on the rich RESO Dictionary fields
+        const estimatedTax = data.TaxAnnualAmount || (data.ListPrice * 0.0125); // ~1.25% rule of thumb in FL if missing
+        const estimatedHOA = data.HOAFee ? (data.HOAFee * 12) : 0;
+        const totalAnnualFixedCosts = estimatedTax + estimatedHOA;
 
         const prompt = `
-            Analyze the following real estate property for investment potential.
-            Title: ${data.title}
-            Description: ${data.description}
-            Price: ${data.price.amount} ${data.price.currency}
-            Location: ${data.location.city}, ${data.location.state}
-            Specs: ${data.specs.beds} beds, ${data.specs.baths} baths, ${data.specs.area} sqft.
-            Status: ${data.status}
+            Analyze the following Florida real estate property for investment potential using Native Geo-spatial Market Knowledge.
+            
+            Title: ${data.UnparsedAddress}
+            Price: $${data.ListPrice} 
+            Location: ${data.City}, ${data.StateOrProvince} ${data.PostalCode}
+            Specs: ${data.BedroomsTotal} beds, ${data.BathroomsTotalInteger} baths, ${data.LivingArea} sqft.
+            Status: ${data.StandardStatus}
+            
+            Intrinsic Financial Data:
+            - Annual Taxes: $${estimatedTax}
+            - Annual HOA/Assoc Fees: $${estimatedHOA}
+            - Total Fixed OpEx (Tax+HOA): $${totalAnnualFixedCosts}
+            - Market Time: ${data.DaysOnMarket || 0} days
 
-            ${marketContext}
-
-            Provide:
-            1. Opportunity Score (0-100): Based on price vs value potential (Use real data if available).
-            2. Listing Quality Score (0-100): Completeness and description quality.
+            Provide exactly the following metrics:
+            1. Opportunity Score (0-100): High score (>80) if it is well priced, high yield potential, or low Days on Market.
+            2. Listing Quality Score (0-100): Base this on completeness of the description and features.
             3. Market Status: 'normal', 'distressed', 'price_drop', or 'back_on_market'.
-            4. Investment Analysis: Estimated Cash Flow, ROI, Cap Rate, and a short pros/cons description.
+            4. Investment Analysis: Estimated Annual Cash Flow, estimated ROI %, Cap Rate %, and a short, 2-sentence description of its investment profile. Base your estimates on typical rental rates for this Zip code and area setup.
         `;
 
         try {

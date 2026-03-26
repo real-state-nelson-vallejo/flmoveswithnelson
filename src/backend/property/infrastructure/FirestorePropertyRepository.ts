@@ -24,10 +24,19 @@ export class FirestorePropertyRepository implements PropertyRepository {
         const doc = await adminDb.collection(COLLECTION_NAME).doc(id).get();
         if (!doc.exists) return null;
 
-        // We assume data in DB matches our PersistenceModel
-        // In a real app, we should parse/validate with Zod here
         const data = doc.data() as PropertyPersistenceModel;
         return Property.fromPersistence(data);
+    }
+
+    async findByExternalId(externalId: string): Promise<Property | null> {
+        const snapshot = await adminDb.collection(COLLECTION_NAME)
+            .where('externalId', '==', externalId)
+            .limit(1)
+            .get();
+        
+        if (snapshot.empty || !snapshot.docs[0]) return null;
+        
+        return Property.fromPersistence(snapshot.docs[0].data() as PropertyPersistenceModel);
     }
 
     async findAll(): Promise<Property[]> {
@@ -57,34 +66,33 @@ export class FirestorePropertyRepository implements PropertyRepository {
             return lowerText.includes(q) || lowerText.includes(normalizedQuery);
         };
 
-        return allProperties.filter(p => {
+        const filtered = allProperties.filter(p => {
             // Text Search - check title, description, and ALL location fields
             const matchesQuery = !query ||
-                p.title.toLowerCase().includes(query) ||
-                p.description.toLowerCase().includes(query) ||
-                p.location.address?.toLowerCase().includes(query) ||
-                p.location.city.toLowerCase().includes(query) ||
-                isStateMatch(p.location.state, query) ||
-                p.location.zip?.toLowerCase().includes(query);
+                (p.UnparsedAddress || '').toLowerCase().includes(query) ||
+                (p.PublicRemarks || '').toLowerCase().includes(query) ||
+                (p.City || '').toLowerCase().includes(query) ||
+                isStateMatch(p.StateOrProvince, query) ||
+                (p.PostalCode || '').toLowerCase().includes(query);
 
             if (!matchesQuery) return false;
 
             // Price Filter
-            if (filter.minPrice && p.price.amount < filter.minPrice) return false;
-            if (filter.maxPrice && p.price.amount > filter.maxPrice) return false;
+            if (filter.minPrice && (p.ListPrice || 0) < filter.minPrice) return false;
+            if (filter.maxPrice && (p.ListPrice || 0) > filter.maxPrice) return false;
 
             // Specs Filter
-            if (filter.minBeds && p.specs.beds < filter.minBeds) return false;
-            if (filter.minBaths && p.specs.baths < filter.minBaths) return false;
+            if (filter.minBeds && (p.BedroomsTotal || 0) < filter.minBeds) return false;
+            if (filter.minBaths && (p.BathroomsTotalInteger || 0) < filter.minBaths) return false;
 
             // Type Filter
             if (filter.type) {
-                const dbType = (p.type || '').toLowerCase();
-                const title = (p.title || '').toLowerCase();
-                const desc = (p.description || '').toLowerCase();
+                const dbType = (p.PropertyType || '').toLowerCase();
+                const title = (p.UnparsedAddress || '').toLowerCase();
+                const desc = (p.PublicRemarks || '').toLowerCase();
                 const filterType = filter.type.toLowerCase();
 
-                // Combine text for broader matching since DB 'type' is often just 'sale'
+                // Combine text for broader matching
                 const contentText = `${dbType} ${title} ${desc}`;
 
                 // Flexible matching
@@ -93,9 +101,8 @@ export class FirestorePropertyRepository implements PropertyRepository {
                     // Match synonyms for house
                     typeMatch = ['house', 'single family', 'villa', 'estate', 'home', 'detached'].some(t => contentText.includes(t));
 
-                    // Fallback: If filtering for "house" and the record is a generic "sale", allow it to pass.
-                    // This prevents "No results" for generic listings that are likely houses.
-                    if (!typeMatch && dbType === 'sale' && !contentText.includes('condo') && !contentText.includes('apartment')) {
+                    // Fallback: If filtering for "house" and the record is a generic "sale" or "residential", allow it to pass.
+                    if (!typeMatch && dbType.includes('residential') && !contentText.includes('condo') && !contentText.includes('apartment')) {
                         typeMatch = true;
                     }
                 } else if (filterType === 'apartment' || filterType === 'condo') {
@@ -109,14 +116,24 @@ export class FirestorePropertyRepository implements PropertyRepository {
                 }
 
                 if (!typeMatch) {
-                    // console.log(`[Repo] Filtered out ${p.title} (Type: ${p.type}) due to type mismatch (Filter: ${filter.type})`);
                     return false;
                 }
             }
 
-            // console.log(`[Repo] Match found: ${p.title}`);
             return true;
         });
+
+        // Apply Sorting
+        if (filter.sort === 'price_asc') {
+            filtered.sort((a, b) => (a.ListPrice || 0) - (b.ListPrice || 0));
+        } else if (filter.sort === 'price_desc') {
+            filtered.sort((a, b) => (b.ListPrice || 0) - (a.ListPrice || 0));
+        } else {
+            // Default to newest
+            filtered.sort((a, b) => b.toDTO().createdAt - a.toDTO().createdAt);
+        }
+
+        return filtered;
     }
 
     async delete(id: string): Promise<void> {
@@ -133,28 +150,18 @@ export class FirestorePropertyRepository implements PropertyRepository {
         const currentDoc = await adminDb.collection(COLLECTION_NAME).doc(id).get();
         if (!currentDoc.exists) return { prev: null, next: null };
 
-        const data = currentDoc.data() as PropertyPersistenceModel;
-        const createdAt = data.createdAt || 0;
-
-        // Prev: Created after current (newer) or before? usually "Next" is newer.
-        // Let's say List is ordered by Date DESC (newest first).
-        // Then "Next" in list is OLDER (createdAt < current). 
-        // "Prev" in list is NEWER (createdAt > current).
-        // But "Next Property" button usually implies "Next one in the sequence".
-        // Let's implement simple chronological: Prev = Older, Next = Newer.
-
-        // Prev: < createdAt, ordered desc limit 1
-        const prevSnapshot = await adminDb.collection(COLLECTION_NAME)
-            .where('createdAt', '<', createdAt)
+        // Next property (older in a descending list)
+        const nextSnapshot = await adminDb.collection(COLLECTION_NAME)
             .orderBy('createdAt', 'desc')
+            .startAfter(currentDoc)
             .limit(1)
             .get();
 
-        // Next: > createdAt, ordered asc limit 1
-        const nextSnapshot = await adminDb.collection(COLLECTION_NAME)
-            .where('createdAt', '>', createdAt)
-            .orderBy('createdAt', 'asc')
-            .limit(1)
+        // Prev property (newer in a descending list)
+        const prevSnapshot = await adminDb.collection(COLLECTION_NAME)
+            .orderBy('createdAt', 'desc')
+            .endBefore(currentDoc)
+            .limitToLast(1)
             .get();
 
         const prev = (!prevSnapshot.empty && prevSnapshot.docs[0]) ? Property.fromPersistence(prevSnapshot.docs[0].data() as PropertyPersistenceModel) : null;

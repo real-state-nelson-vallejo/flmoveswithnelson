@@ -2,6 +2,8 @@
 import { tool, z } from 'genkit';
 import { SemanticSearchService } from '@/backend/property/application/SemanticSearchService';
 import { FirestoreLeadRepository } from '@/backend/lead/infrastructure/FirestoreLeadRepository';
+import { SaveSearchUseCase } from '@/backend/crm/application/SaveSearchUseCase';
+import { FirestoreSavedSearchRepository } from '@/backend/crm/infrastructure/FirestoreSavedSearchRepository';
 
 const leadRepository = new FirestoreLeadRepository();
 export const PropertyTools = {
@@ -16,6 +18,7 @@ export const PropertyTools = {
 
         console.log('[PropertyTools] Registering with latest SemanticSearchService v5');
         const semanticSearch = new SemanticSearchService();
+        const saveSearchUseCase = new SaveSearchUseCase(new FirestoreSavedSearchRepository());
 
         const tools = [
             tool(
@@ -71,18 +74,88 @@ export const PropertyTools = {
                     }
 
                     // Simplify output for the LLM to save tokens, only returning key info
-                    const simplified = results.map(p => ({
-                        id: p.id,
-                        title: p.title,
-                        price: p.price.amount,
-                        location: `${p.location.city}, ${p.location.state}`,
-                        beds: p.specs.beds,
-                        baths: p.specs.baths,
-                        type: p.type,
-                        link: `/properties/${p.slug}` // Useful for the AI to provide links
-                    }));
+                    const simplified = results.map((p: any) => {
+                        // Handle both full domain entities and DTOs
+                        const dto = typeof p.toDTO === 'function' ? p.toDTO() : p;
+                        
+                        // Safely extract thumbnail or first image
+                        let imageUrl: string | undefined = undefined;
+                        if (Array.isArray(dto.Media) && dto.Media.length > 0) {
+                            imageUrl = typeof dto.Media[0] === 'string' ? dto.Media[0] : dto.Media[0].MediaURL;
+                        } else if (typeof dto.thumbnail === 'string') {
+                            imageUrl = dto.thumbnail;
+                        }
 
-                    return { properties: simplified };
+                        return {
+                            id: dto.ListingKey,
+                            title: dto.UnparsedAddress || 'Unknown Property',
+                            price: dto.ListPrice || 0,
+                            currency: 'USD',
+                            location: `${dto.City || ''}, ${dto.StateOrProvince || ''}`.trim().replace(/^,|,$/g, ''),
+                            specs: `${dto.BedroomsTotal || 0} bed, ${dto.BathroomsTotalInteger || 0} bath, ${dto.LivingArea || 0} sqft`,
+                            propertyType: dto.PropertyType || 'Residential',
+                            slug: dto.slug || dto.ListingKey,
+                            image: imageUrl
+                        };
+                    });
+
+                    return { 
+                        type: 'property_results',
+                        count: simplified.length,
+                        properties: simplified 
+                    };
+                }
+            ),
+            tool(
+                {
+                    name: 'save_search_alert',
+                    description: 'CRITICAL: Save a property search alert for the lead. Use this immediately if search_properties_v2 returns 0 results, or if the user explicitly asks to be alerted of future properties matching their criteria.',
+                    inputSchema: z.object({
+                        query: z.string().describe('Natural language description of the search to save.'),
+                        minPrice: z.number().optional().describe('Minimum price constraint.'),
+                        maxPrice: z.number().optional().describe('Maximum price constraint.'),
+                        city: z.string().optional().describe('City to monitor.'),
+                        beds: z.number().optional().describe('Minimum bedrooms constraint.'),
+                        leadId: z.string().describe('REQUIRED. ID of the lead. DO NOT call this tool without a leadId from context.')
+                    }),
+                    outputSchema: z.object({
+                        success: z.boolean(),
+                        message: z.string()
+                    })
+                },
+                async (input) => {
+                    if (!input.leadId || input.leadId === 'none') {
+                        return { success: false, message: "Cannot save search alert. No valid leadId provided." };
+                    }
+                    
+                    try {
+                        await saveSearchUseCase.execute({
+                            leadId: input.leadId,
+                            frequency: 'daily',
+                            searchCriteria: {
+                                query: input.query,
+                                minPrice: input.minPrice,
+                                maxPrice: input.maxPrice,
+                                city: input.city,
+                                beds: input.beds
+                            }
+                        });
+                        
+                        // Log interaction
+                        try {
+                            const lead = await leadRepository.findById(input.leadId);
+                            if (lead) {
+                                lead.addInteraction('save_search', `Auto-Saved AI Alert: "${input.query}"`);
+                                await leadRepository.save(lead);
+                            }
+                        } catch (err) {
+                            console.error('[PropertyTools] Failed to log interaction for saved search:', err);
+                        }
+
+                        return { success: true, message: "Active market alert successfully injected into CRM. The user will receive daily digest notifications." };
+                    } catch (error: any) {
+                        return { success: false, message: `Failed to save search alert: ${error.message}` };
+                    }
                 }
             )
         ];

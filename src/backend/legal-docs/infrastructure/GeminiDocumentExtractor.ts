@@ -38,10 +38,10 @@ export class GeminiDocumentExtractor implements DocumentExtractor {
             Act as an expert legal real estate assistant. Extract information to cleanly fill the form "${template.name}".
             
             CONTEXT LAYER 1: Property Details
-            Title: ${property.title}
-            Address: ${property.location.address}, ${property.location.city}, ${property.location.state} ${property.location.zip || ''}
-            Price/Rent: ${property.price.amount} ${property.price.currency}
-            Description: ${property.description}
+            Title: ${property.UnparsedAddress}
+            Address: ${property.City}, ${property.StateOrProvince} ${property.PostalCode || ''}
+            Price/Rent: ${property.ListPrice} USD
+            Description: ${property.PublicRemarks}
             
             CONTEXT LAYER 2: CRM Lead (Tenant/Buyer/Client)
             ${lead ? `

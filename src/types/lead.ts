@@ -3,7 +3,7 @@ export const DEFAULT_LEAD_STATUSES = ['new', 'contacted', 'qualified', 'viewing'
 
 export interface Interaction {
     id: string;
-    type: 'view_property' | 'contact_request' | 'whatsapp_click';
+    type: 'view_property' | 'contact_request' | 'whatsapp_click' | 'save_search';
     propertyId?: string | undefined;
     timestamp: number;
     details?: string | undefined;

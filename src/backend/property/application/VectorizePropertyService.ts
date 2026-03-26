@@ -43,13 +43,13 @@ export class VectorizePropertyService {
             propertyId: property.id,
             input_text: atomText, // The field the Extension listens to (Verified via _firestore-vector-search config)
             // Metadata for Hybrid Search Filtering:
-            price: property.price.amount,
-            currency: property.price.currency,
-            beds: property.specs.beds,
-            baths: property.specs.baths,
-            city: property.location.city,
-            type: property.type,
-            status: property.status,
+            price: property.ListPrice,
+            currency: 'USD',
+            beds: property.BedroomsTotal,
+            baths: property.BathroomsTotalInteger,
+            city: property.City,
+            type: property.PropertyType,
+            status: property.StandardStatus,
             updatedAt: new Date(), // Force trigger update
             // We now compute the embedding inline instead of relying on the extension
             // to enforce the 768 dimension limit.

@@ -1,54 +1,64 @@
 export interface PropertyPersistenceModel {
-    id: string;
+    ListingKey: string;
+    ListingId?: string;
     slug?: string;
-    title: string;
-    description: string;
-    videoUrl?: string;
-    virtualTourUrl?: string;
+    
+    // Status & Type
+    StandardStatus: string;
+    PropertyType: string;
+    PropertySubType?: string;
+    
+    // Pricing
+    ListPrice: number;
+    ClosePrice?: number;
+    AssociationFee?: number;
+    
+    // Specs
+    BedroomsTotal: number;
+    BathroomsTotalInteger: number;
+    LivingArea: number; // sqft
+    LotSizeAcres?: number;
+    YearBuilt?: number;
+    
+    // Location
+    UnparsedAddress: string;
+    City: string;
+    StateOrProvince?: string;
+    PostalCode?: string;
+    Latitude?: number;
+    Longitude?: number;
+    
+    // Advanced RESO Specifications
+    HOAFee?: number;
+    TaxAnnualAmount?: number;
+    PoolPrivateYN?: boolean;
+    WaterfrontYN?: boolean;
+    Cooling?: string[];
+    Heating?: string[];
+    Appliances?: string[];
+    GarageSpaces?: number;
+    DaysOnMarket?: number;
+    ArchitecturalStyle?: string[];
+    View?: string[];
+    AssociationAmenities?: string[];
+    
+    // Media & Remarks
+    Media: string[]; 
+    PublicRemarks: string;
+    
+    // Extras
+    videoUrl?: string; 
+    virtualTourUrl?: string; 
     agentId?: string;
     views?: number;
-    price: {
-        amount: number;
-        currency: string;
-    };
-    location: {
-        address: string;
-        city: string;
-        country: string;
-        state?: string | undefined;
-        zip?: string | undefined;
-        coordinates?: {
-            lat: number;
-            lng: number;
-        };
-    };
-    specs: {
-        beds: number;
-        baths: number;
-        area: number;
-        areaUnit: 'sqft' | 'm2';
-        lotSize?: number | undefined;
-        lotUnit?: 'acres' | 'm2' | undefined;
-        yearBuilt?: number | undefined;
-    };
-    hoa?: {
-        amount: number;
-        period: 'monthly' | 'yearly';
-    } | undefined;
-    features: string[];
-    images: string[];
-    type: 'sale' | 'rent';
-    propertyType?: 'Single Family' | 'Condominium' | 'Mobile Home' | 'Townhome' | 'Villa' | 'Multifamily';
-    status: 'available' | 'sold' | 'reserved';
     petsAllowed?: boolean;
+    
     // AI & Market Analysis Fields
-    opportunityScore?: number;
-    listingQualityScore?: number;
+    opportunityScore?: number; 
+    listingQualityScore?: number; 
     marketStatus?: 'normal' | 'distressed' | 'price_drop' | 'back_on_market';
     investmentAnalysis?: {
         cashFlow?: number;
-        roi?: number;
-        capRate?: number;
         description?: string;
     };
     createdAt: number; // Timestamp

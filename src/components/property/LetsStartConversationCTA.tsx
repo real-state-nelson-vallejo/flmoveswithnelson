@@ -41,7 +41,7 @@ export function LetsStartConversationCTA({ property }: LetsStartConversationCTAP
         setIsDismissed(true);
         // Dispatch custom event to open the AI Chat Widget
         const event = new CustomEvent("open-ai-chat", {
-            detail: { message: `I am interested in ${property.title} (${property.location.city}). Can you tell me more?` }
+            detail: { message: `I am interested in ${property.UnparsedAddress} (${property.City}). Can you tell me more?` }
         });
         window.dispatchEvent(event);
     };
@@ -81,7 +81,7 @@ export function LetsStartConversationCTA({ property }: LetsStartConversationCTAP
                             <div className="flex-1">
                                 <p className="text-sm font-bold text-slate-800">Hi, I'm Jesika</p>
                                 <p className="text-xs text-slate-500 mt-0.5 leading-snug">
-                                    Interested in <strong>{property.title}</strong>? Let's start a conversation!
+                                    Interested in <strong>{property.UnparsedAddress}</strong>? Let's start a conversation!
                                 </p>
                             </div>
                         </div>

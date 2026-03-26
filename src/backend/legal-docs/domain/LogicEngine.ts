@@ -24,7 +24,7 @@ export class LogicEngine {
 
         // Rule: Lead-Based Paint Disclosure
         // Requirement: Properties built prior to 1978.
-        const yearBuilt = property.specs.yearBuilt;
+        const yearBuilt = property.YearBuilt;
         if (yearBuilt && yearBuilt < 1978) {
             // We need to know the specific field IDs from the templates. 
             // unique_id mapping from FieldMap:
@@ -44,10 +44,10 @@ export class LogicEngine {
 
         // Rule: HOA Addendum
         // If HOA fee exists > 0
-        if (property.hoa && property.hoa.amount > 0) {
+        if (property.AssociationFee && property.AssociationFee > 0) {
             overrides['hoa_addendum'] = true;
-            overrides['association_fee'] = property.hoa.amount.toString();
-            overrides['association_period'] = property.hoa.period;
+            overrides['association_fee'] = property.AssociationFee.toString();
+            overrides['association_period'] = 'Monthly'; // Default approximation for RESO 
         }
 
         return overrides;

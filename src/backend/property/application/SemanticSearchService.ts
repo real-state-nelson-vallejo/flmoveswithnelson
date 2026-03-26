@@ -72,9 +72,9 @@ export class SemanticSearchService {
                 // 5. Post-Filter for Range Constraints (Price/Beds)
                 // Doing this in memory is safer than complex indexes for now
                 let match = true;
-                if (params.minPrice && prop.price.amount < params.minPrice) match = false;
-                if (params.maxPrice && prop.price.amount > params.maxPrice) match = false;
-                if (params.beds && prop.specs.beds < params.beds) match = false;
+                if (params.minPrice && (prop.ListPrice || 0) < params.minPrice) match = false;
+                if (params.maxPrice && (prop.ListPrice || 0) > params.maxPrice) match = false;
+                if (params.beds && (prop.BedroomsTotal || 0) < params.beds) match = false;
 
                 if (match) {
                     properties.push(prop.toDTO());

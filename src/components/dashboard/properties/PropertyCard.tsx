@@ -1,6 +1,6 @@
 import { PropertyDTO } from "@/types/property";
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Bed, Bath, Square, MapPin, Edit, Trash2, TrendingUp, AlertCircle, Hash, TrendingDown, ArrowUpRight, Edit2 } from "lucide-react";
+import { Bed, Bath, Square, MapPin, Edit, Trash2, TrendingUp, AlertCircle, TrendingDown, ArrowUpRight, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -33,10 +33,10 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
         <div className="group bg-card rounded-2xl border border-border overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full relative">
             {/* Image Container */}
             <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-                {property.images && property.images.length > 0 ? (
+                {property.Media && property.Media.length > 0 ? (
                     <Image
-                        src={property.images[0] || '/placeholder.jpg'}
-                        alt={property.title}
+                        src={property.Media[0] || '/placeholder.jpg'}
+                        alt={property.UnparsedAddress}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -48,8 +48,8 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
 
                 {/* Status Badge */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-md shadow-sm ${getStatusColor(property.status)}`}>
-                        {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-md shadow-sm ${getStatusColor(property.StandardStatus || '')}`}>
+                        {property.StandardStatus ? property.StandardStatus.charAt(0).toUpperCase() + property.StandardStatus.slice(1) : 'Unknown'}
                     </span>
 
                     {/* Market Status Indicators (Scalper features) */}
@@ -84,54 +84,54 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
             <div className="p-5 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                     <h3 className="font-bold text-foreground line-clamp-1 text-lg group-hover:text-primary transition-colors">
-                        {property.title}
+                        {property.UnparsedAddress}
                     </h3>
                 </div>
 
                 <p className="text-2xl font-bold text-foreground mb-4 tracking-tight">
-                    {formatPrice(property.price.amount)}
+                    {formatPrice(property.ListPrice)}
                 </p>
 
                 <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
                     <MapPin size={16} className="shrink-0" />
-                    <span className="truncate">{property.location.city}, {property.location.state}</span>
+                    <span className="truncate">{property.City}, {property.StateOrProvince}</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 py-4 border-t border-border mb-4">
                     <div className="flex flex-col items-center justify-center p-2 bg-secondary/50 rounded-lg">
                         <div className="flex items-center gap-1 text-foreground font-semibold">
                             <Bed size={16} />
-                            <span>{property.specs.beds}</span>
+                            <span>{property.BedroomsTotal}</span>
                         </div>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Beds</span>
                     </div>
                     <div className="flex flex-col items-center justify-center p-2 bg-secondary/50 rounded-lg">
                         <div className="flex items-center gap-1 text-foreground font-semibold">
                             <Bath size={16} />
-                            <span>{property.specs.baths}</span>
+                            <span>{property.BathroomsTotalInteger}</span>
                         </div>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Baths</span>
                     </div>
                     <div className="flex flex-col items-center justify-center p-2 bg-secondary/50 rounded-lg">
                         <div className="flex items-center gap-1 text-foreground font-semibold">
                             <Square size={16} />
-                            <span>{property.specs.area}</span>
+                            <span>{property.LivingArea}</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{property.specs.areaUnit}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{"sqft"}</span>
                     </div>
                 </div>
 
                 {/* Actions - Elevated z-index to stay above the hover overlay */}
                 <div className="flex gap-2 relative z-10 mt-auto pt-4 border-t border-border">
                     <Link
-                        href={`/en/properties/${property.slug || property.id}`}
+                        href={`/en/properties/${property.slug || property.ListingKey}`}
                         target="_blank"
                         className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground py-2 rounded-lg text-[10px] font-semibold transition-colors flex items-center justify-center gap-1"
                     >
                         <ArrowUpRight size={14} /> Preview
                     </Link>
                     <Link
-                        href={`/dashboard/properties/${property.id}/market`}
+                        href={`/dashboard/properties/${property.ListingKey}/market`}
                         className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground py-2 rounded-lg text-[10px] font-semibold transition-colors flex items-center justify-center gap-1"
                     >
                         <TrendingUp size={14} /> Insights
@@ -143,11 +143,21 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
                         <Edit size={14} /> Edit
                     </button>
                     <button
-                        onClick={() => onDelete(property.id)}
-                        className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                        onClick={() => onDelete(property.ListingKey)}
+                        className="p-2 text-muted-foreground hover:text-destructive transition-colors hidden sm:block"
                     >
                         <Trash2 size={16} />
                     </button>
+                    {/* Smart Inbox Quick Action */}
+                    {(property.opportunityScore && property.opportunityScore >= 80) || property.marketStatus === 'distressed' ? (
+                        <Link
+                            href={`/en/dashboard/documents?template=offer&property=${property.ListingKey}`}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-emerald-500/20"
+                            title="Generate Offer Document"
+                        >
+                            <FileText size={16} />
+                        </Link>
+                    ) : null}
                 </div>
             </div>
 

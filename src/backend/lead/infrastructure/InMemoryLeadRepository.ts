@@ -44,4 +44,8 @@ export class InMemoryLeadRepository implements LeadRepository {
     async findByPhone(phone: string): Promise<Lead[]> {
         return Array.from(this.leads.values()).filter(l => l.phone === phone);
     }
+
+    async delete(id: string): Promise<void> {
+        this.leads.delete(id);
+    }
 }
