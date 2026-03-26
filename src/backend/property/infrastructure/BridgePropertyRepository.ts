@@ -21,7 +21,7 @@ export class BridgePropertyRepository {
             filterParts.push(`PropertyType eq '${filters.propertyType}'`);
         }
         const filter = filterParts.join(' and ');
-        const selectFields = "ListingKey,UnparsedAddress,City,StateOrProvince,PostalCode,ListPrice,BedroomsTotal,BathroomsTotalInteger,LivingArea,PropertyType,StandardStatus,PublicRemarks,Media,PoolPrivateYN,WaterfrontYN,TaxAnnualAmount,HOAFee,DaysOnMarket,YearBuilt,ArchitecturalStyle,AssociationAmenities,Cooling,Heating,Appliances,GarageSpaces,ModificationTimestamp";
+        const selectFields = "ListingKey,UnparsedAddress,City,StateOrProvince,PostalCode,ListPrice,BedroomsTotal,BathroomsTotalInteger,LivingArea,PropertyType,StandardStatus,PublicRemarks,Media,PoolPrivateYN,WaterfrontYN,TaxAnnualAmount,AssociationFee,DaysOnMarket,YearBuilt,ArchitecturalStyle,AssociationAmenities,Cooling,Heating,Appliances,GarageSpaces,ModificationTimestamp";
 
         const payloads = await this.bridgeClient.fetchProperties({
             filter,
@@ -46,7 +46,7 @@ export class BridgePropertyRepository {
      */
     async getModifiedPropertiesSince(date: Date, limit: number = 50, skip: number = 0): Promise<{ property: Property, externalId: string }[]> {
         const isoDate = date.toISOString();
-        const selectFields = "ListingKey,UnparsedAddress,City,StateOrProvince,PostalCode,ListPrice,BedroomsTotal,BathroomsTotalInteger,LivingArea,PropertyType,StandardStatus,PublicRemarks,Media,PoolPrivateYN,WaterfrontYN,TaxAnnualAmount,HOAFee,DaysOnMarket,YearBuilt,ArchitecturalStyle,AssociationAmenities,Cooling,Heating,Appliances,GarageSpaces,ModificationTimestamp";
+        const selectFields = "ListingKey,UnparsedAddress,City,StateOrProvince,PostalCode,ListPrice,BedroomsTotal,BathroomsTotalInteger,LivingArea,PropertyType,StandardStatus,PublicRemarks,Media,PoolPrivateYN,WaterfrontYN,TaxAnnualAmount,AssociationFee,DaysOnMarket,YearBuilt,ArchitecturalStyle,AssociationAmenities,Cooling,Heating,Appliances,GarageSpaces,ModificationTimestamp";
 
         const filter = `ModificationTimestamp gt ${isoDate}`; // OData date filtering format might require adjusting
         const payloads = await this.bridgeClient.fetchProperties({
