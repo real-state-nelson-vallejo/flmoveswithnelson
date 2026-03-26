@@ -19,6 +19,7 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
     const [maxPrice, setMaxPrice] = useState<number | ''>('');
     const [propertyType, setPropertyType] = useState<string>('');
     const [limit, setLimit] = useState(20);
+    const [skip, setSkip] = useState<number | ''>('');
     const [isSyncing, setIsSyncing] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +35,8 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
                 propertyType: propertyType === '' ? undefined : propertyType,
             };
 
-            const res = await syncPropertiesAction(filters, limit);
+            const offsetNum = skip === '' ? 0 : Number(skip);
+            const res = await syncPropertiesAction(filters, limit, offsetNum);
             
             if (res.success) {
                 alert(`Success! Synchronized ${res.syncedCount} active properties from MLS to Firestore and AI Embeddings.`);
@@ -120,19 +122,31 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
                         </div>
                     </div>
                     
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700">Max Properties to Fetch</label>
-                        <select 
-                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
-                            value={limit}
-                            onChange={(e) => setLimit(Number(e.target.value))}
-                            disabled={isSyncing}
-                        >
-                            <option value={10}>10 Properties</option>
-                            <option value={20}>20 Properties</option>
-                            <option value={50}>50 Properties</option>
-                            <option value={100}>100 Properties (Heavy)</option>
-                        </select>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Max Properties to Fetch</label>
+                            <select 
+                                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+                                value={limit}
+                                onChange={(e) => setLimit(Number(e.target.value))}
+                                disabled={isSyncing}
+                            >
+                                <option value={10}>10 Properties</option>
+                                <option value={20}>20 Properties</option>
+                                <option value={50}>50 Properties</option>
+                                <option value={100}>100 Properties (Heavy)</option>
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Offset (Pagination Skip)</label>
+                            <Input
+                                type="number"
+                                placeholder="0"
+                                value={skip}
+                                onChange={(e) => setSkip(e.target.value ? Number(e.target.value) : '')}
+                                disabled={isSyncing}
+                            />
+                        </div>
                     </div>
 
                     {error && (

@@ -16,11 +16,11 @@ export class SyncBridgeProperties {
     /**
      * Synchronizes active properties via advanced MLS OData filters.
      */
-    async syncProperties(filters: { zone?: string | undefined; minBeds?: number | undefined; maxPrice?: number | undefined; propertyType?: string | undefined }, limit: number = 50): Promise<{ synced: number }> {
+    async syncProperties(filters: { zone?: string | undefined; minBeds?: number | undefined; maxPrice?: number | undefined; propertyType?: string | undefined }, limit: number = 50, skip: number = 0): Promise<{ synced: number }> {
         console.log(`[SyncBridgeProperties] Starting sync with filters:`, filters);
         
         // 1. Fetch from Bridge
-        const bridgeItems = await this.bridgeRepo.getActiveProperties(filters, limit, 0);
+        const bridgeItems = await this.bridgeRepo.getActiveProperties(filters, limit, skip);
         let syncedCount = 0;
         const newlyDiscoveredOpportunities: Property[] = [];
 
