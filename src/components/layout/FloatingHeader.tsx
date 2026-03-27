@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import styles from "./FloatingHeader.module.css";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 
 export function FloatingHeader() {
     const { scrollY } = useScroll();
@@ -48,8 +48,36 @@ export function FloatingHeader() {
 
                             <div className={styles.navLinks}>
                                 <Link href="/" className={styles.link}>Home</Link>
-                                <Link href="/properties" className={styles.link}>Properties</Link>
-                                <Link href="/services" className={styles.link}>Services</Link>
+                                
+                                {/* PROPERTIES DROPDOWN */}
+                                <div className={styles.dropdownContainer}>
+                                    <Link href="/properties" className={styles.link}>
+                                        Properties <ChevronDown className={styles.caret} size={14} />
+                                    </Link>
+                                    <div className={styles.dropdownMenu}>
+                                        <Link href="/properties?type=sale" className={styles.dropdownItem}>Homes For Sale</Link>
+                                        <Link href="/properties?type=rent" className={styles.dropdownItem}>Rentals</Link>
+                                        <Link href="/properties?type=land" className={styles.dropdownItem}>Land</Link>
+                                    </div>
+                                </div>
+                                
+                                {/* NEIGHBORHOODS DROPDOWN */}
+                                <div className={styles.dropdownContainer}>
+                                    <span className={styles.link} style={{ cursor: "default" }}>
+                                        Neighborhoods <ChevronDown className={styles.caret} size={14} />
+                                    </span>
+                                    <div className={styles.dropdownMenu}>
+                                        <Link href="/properties?zone=Winter%20Haven" className={styles.dropdownItem}>Winter Haven</Link>
+                                        <Link href="/properties?zone=Orlando" className={styles.dropdownItem}>Orlando</Link>
+                                        <Link href="/properties?zone=Lakeland" className={styles.dropdownItem}>Lakeland</Link>
+                                        <Link href="/properties?zone=Haines%20City" className={styles.dropdownItem}>Haines City</Link>
+                                        <Link href="/properties?zone=Davenport" className={styles.dropdownItem}>Davenport</Link>
+                                        <Link href="/properties?zone=ChampionsGate" className={styles.dropdownItem}>ChampionsGate</Link>
+                                        <div style={{ height: '1px', background: '#e2e8f0', margin: '0.5rem 0' }}></div>
+                                        <Link href="/properties" className={styles.dropdownItem} style={{ color: '#2563eb' }}>Search All Neighborhoods</Link>
+                                    </div>
+                                </div>
+
                                 <Link href="/about" className={styles.link}>About Me</Link>
                             </div>
 

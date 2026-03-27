@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { PropertyDTO } from "@/types/property";
-import { getPropertiesAction } from '@/actions/property/actions';
+import { getFeaturedPropertiesAction } from '@/actions/property/actions';
 import { Loader2 } from 'lucide-react';
 import styles from './PropertiesSection.module.css';
 
@@ -20,7 +20,7 @@ export function PropertiesSection({ locale }: PropertiesSectionProps) {
     useEffect(() => {
         const fetchProperties = async () => {
             try {
-                const res = await getPropertiesAction();
+                const res = await getFeaturedPropertiesAction();
                 if (res.success && res.properties) {
                     setProperties(res.properties);
                 }

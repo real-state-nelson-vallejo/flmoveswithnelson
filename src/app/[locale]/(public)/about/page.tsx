@@ -201,7 +201,7 @@ export default function AboutPage() {
                     >
                         <div className="absolute inset-0 bg-blue-600/10 rounded-3xl transform rotate-3 scale-105 -z-10 transition-transform duration-500 hover:rotate-6"></div>
                         <Image
-                            src="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2Fnelson_vallejo_profile.webp?alt=media&token=855aa562-e57b-4775-99a8-c3b1a40ca395"
+                            src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fimages%2Fnelson_vallejo_profile.webp?alt=media&token=94b2c3c1-5fe1-4384-8f6e-323f84558c07"
                             alt="Nelson Vallejo"
                             width={600}
                             height={800}

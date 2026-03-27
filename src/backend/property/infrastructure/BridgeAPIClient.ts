@@ -49,4 +49,37 @@ export class BridgeAPIClient {
     const data = await response.json();
     return data.value || [];
   }
+
+  /**
+   * Fetches the total count of properties matching a filter without downloading the records.
+   * This is extremely lightweight and prevents API quota exhaustion during Live Fallbacks.
+   * @param options OData query options (only filter is relevant)
+   */
+  async countProperties(options: BridgeAPIClientOptions = {}): Promise<number> {
+    const url = new URL(`${this.baseUrl}/${this.dataset}/Property`);
+    
+    // Auth
+    url.searchParams.append('access_token', this.serverToken);
+    
+    // OData Params for Count Only
+    url.searchParams.append('$top', '0'); // Do not return any actual records
+    // Bridge data uses $count=true to return the total size in the response envelope
+    url.searchParams.append('$count', 'true');
+    
+    if (options.filter) url.searchParams.append('$filter', options.filter);
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+        return 0; // Silently fail to 0 for fallback logic
+    }
+
+    const data = await response.json();
+    return data['@odata.count'] || 0;
+  }
 }

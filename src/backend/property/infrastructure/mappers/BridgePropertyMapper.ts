@@ -12,6 +12,8 @@ export class BridgePropertyMapper {
             ListingId: bridgeProperty.ListingId,
             StandardStatus: bridgeProperty.StandardStatus || 'Unknown',
             PropertyType: bridgeProperty.PropertyType || 'Unknown',
+            ListAgentMlsId: bridgeProperty.ListAgentMlsId,
+            ListOfficeMlsId: bridgeProperty.ListOfficeMlsId,
             PropertySubType: bridgeProperty.PropertySubType,
             ListPrice: bridgeProperty.ListPrice || bridgeProperty.ClosePrice || 0,
             ClosePrice: bridgeProperty.ClosePrice,

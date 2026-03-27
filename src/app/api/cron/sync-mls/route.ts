@@ -20,11 +20,15 @@ export async function GET(request: Request) {
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 1);
 
-        const result = await syncUseCase.syncDelta(sinceDate, 50);
+        const resultDelta = await syncUseCase.syncDelta(sinceDate, 50);
+
+        // ALWAYS explicitly sync Nelson's exclusive active inventory alongside the general Delta
+        const NELSON_AGENT_ID = "272509597";
+        const resultExclusive = await syncUseCase.syncProperties({ agentId: NELSON_AGENT_ID }, 50, 0);
 
         return NextResponse.json({ 
             success: true, 
-            message: `Delta CRON sync successful. Ingested ${result.synced} modified RESO properties.`
+            message: `CRON sync successful. Ingested ${resultDelta.synced} Delta market properties and ${resultExclusive.synced} Exclusive Agent properties.`
         });
     } catch (error: any) {
         console.error('CRON Delta Sync Failed FATAL:', error);

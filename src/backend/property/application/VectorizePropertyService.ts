@@ -7,16 +7,35 @@ import { ai } from "@/backend/ai/infrastructure/genkit/config";
 const PROPERTIES_VECTORS_COLLECTION = 'properties_vectors';
 
 export class VectorizePropertyService {
-    async execute(property: Property): Promise<void> {
+    async execute(property: Property, maxRetries: number = 3): Promise<void> {
         // 1. Generate the "Atom" text
         const atomText = property.toEmbeddingText();
 
-        // 1.5. Compute Vector Inline (Genkit's gemini-embedding-001 yields 3072 dims, 
-        // which breaches Firestore's 2048 limit via Extension unless explicitly sliced)
-        const embeddingResult = await ai.embed({
-            embedder: 'googleai/gemini-embedding-001',
-            content: atomText
-        });
+        let embeddingResult;
+        let attempt = 0;
+
+        // Implement Retry Pattern (Exponential Backoff) for Resiliency
+        while (attempt < maxRetries) {
+            try {
+                // 1.5. Compute Vector Inline
+                embeddingResult = await ai.embed({
+                    embedder: 'googleai/gemini-embedding-001',
+                    content: atomText
+                });
+                break; // Success, break out of retry loop
+            } catch (error: any) {
+                attempt++;
+                console.warn(`[VectorizePropertyService] API failed for ${property.id} (Attempt ${attempt}/${maxRetries}). Cause:`, error.message);
+                
+                if (attempt >= maxRetries) {
+                    // Propagate the error so SyncBridgeProperties can catch it and degrade gracefully
+                    throw new Error(`AI Vectorization failed completely after ${maxRetries} attempts. Last error: ${error.message}`);
+                }
+                // Exponential backoff: 1s, 2s...
+                const delayMs = Math.pow(2, attempt) * 500;
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+            }
+        }
 
         let rawVec: number[];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

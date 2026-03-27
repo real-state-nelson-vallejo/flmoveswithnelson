@@ -52,6 +52,9 @@ export interface PropertyPersistenceModel {
     agentId?: string;
     views?: number;
     petsAllowed?: boolean;
+
+    ListAgentMlsId?: string;
+    ListOfficeMlsId?: string;
     
     // AI & Market Analysis Fields
     opportunityScore?: number; 

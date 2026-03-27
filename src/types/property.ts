@@ -46,6 +46,9 @@ export interface PropertyDTO {
     agentId?: string;
     views?: number;
     petsAllowed?: boolean;
+
+    ListAgentMlsId?: string;
+    ListOfficeMlsId?: string;
     
     opportunityScore?: number; 
     listingQualityScore?: number; 

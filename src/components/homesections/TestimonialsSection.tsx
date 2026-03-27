@@ -46,12 +46,12 @@ const REVIEWS = [
 ];
 
 const GALLERY_IMAGES = [
-    { src: "https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2FIMG_1881.jpg?alt=media&token=9cbc0fac-dd78-4903-8c7f-135729d14818", span: "span2" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2FIMG_3559.jpg?alt=media&token=f18f1b09-a250-4a77-8c5f-cbf979f54ec0", span: "" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2FIMG_4474.jpg?alt=media&token=452eb18f-c27d-4649-84c1-4dae3090aa29", span: "" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2FIMG_5648.jpg?alt=media&token=1ddeb458-90e3-436c-b8e1-425a8623a478", span: "" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2FIMG_6074.jpg?alt=media&token=4e4a4d5a-e8ac-4832-ba61-0dc71629ff59", span: "span2" },
-    { src: "https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2FIMG_7811.jpg?alt=media&token=244c63ae-9f52-4c31-ac79-0e21282e4340", span: "span2" }
+    { src: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fimages%2FIMG_1881.jpg?alt=media&token=8e200f05-ff91-497e-ba1d-07fe6e3acce0", span: "span2" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fimages%2FIMG_3559.jpg?alt=media&token=f2821e4f-4a1a-45b6-9e9d-1010fe90889d", span: "" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fimages%2FIMG_4474.jpg?alt=media&token=166d1b26-1415-41b1-bd74-61acea8ed07e", span: "" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fimages%2FIMG_5648.jpg?alt=media&token=14ca8178-f0bb-4d6d-a218-5e04562d2dd1", span: "" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fimages%2FIMG_6074.jpg?alt=media&token=e35b3950-20b8-407c-b48d-c09e6d785627", span: "span2" },
+    { src: "https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fimages%2FIMG_7811.jpg?alt=media&token=81b3f481-89bc-4bfb-a306-24622dd4f922", span: "span2" }
 ];
 
 // Duplicate reviews for Infinite Marquee

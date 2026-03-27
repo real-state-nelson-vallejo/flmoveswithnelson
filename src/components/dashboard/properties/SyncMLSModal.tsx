@@ -20,20 +20,31 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
     const [propertyType, setPropertyType] = useState<string>('');
     const [limit, setLimit] = useState(20);
     const [skip, setSkip] = useState<number | ''>('');
+    const [targetScope, setTargetScope] = useState<"all" | "agent" | "office">("all");
     const [isSyncing, setIsSyncing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Hardcoded production values for Nelson Vallejo
+    const NELSON_AGENT_ID = "272509597";
+    const FL_MOVES_OFFICE_ID = "261024021";
 
     const handleSync = async () => {
         setIsSyncing(true);
         setError(null);
 
         try {
-            const filters = {
+            const filters: any = {
                 zone: zone.trim() || undefined,
                 minBeds: minBeds === '' ? undefined : Number(minBeds),
                 maxPrice: maxPrice === '' ? undefined : Number(maxPrice),
                 propertyType: propertyType === '' ? undefined : propertyType,
             };
+
+            if (targetScope === "agent") {
+                filters.agentId = NELSON_AGENT_ID;
+            } else if (targetScope === "office") {
+                filters.officeId = FL_MOVES_OFFICE_ID;
+            }
 
             const offsetNum = skip === '' ? 0 : Number(skip);
             const res = await syncPropertiesAction(filters, limit, offsetNum);
@@ -72,6 +83,30 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
                         <div className="flex flex-col items-center gap-1"><Database size={16} /><span>Firestore</span></div>
                         <div className="h-px bg-slate-300 w-12" />
                         <div className="flex flex-col items-center gap-1"><div className="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-600 font-bold">AI</div><span>Vector DB</span></div>
+                    </div>
+
+                    <div className="space-y-3 mb-4 p-4 border border-blue-100 bg-blue-50/50 rounded-xl">
+                        <label className="text-sm font-bold text-slate-800">Target Inventory Scope</label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <button 
+                                onClick={() => setTargetScope("all")}
+                                className={`px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${targetScope === 'all' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                            >
+                                General Market
+                            </button>
+                            <button 
+                                onClick={() => setTargetScope("agent")}
+                                className={`px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${targetScope === 'agent' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                            >
+                                My Listings (Nelson)
+                            </button>
+                            <button 
+                                onClick={() => setTargetScope("office")}
+                                className={`px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${targetScope === 'office' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                            >
+                                Brokerage (FL Moves)
+                            </button>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

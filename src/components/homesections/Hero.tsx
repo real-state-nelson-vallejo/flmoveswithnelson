@@ -25,7 +25,7 @@ export function Hero() {
                     poster="/hero-poster.jpg"
                 >
                     <source
-                        src="https://firebasestorage.googleapis.com/v0/b/local-digital-eye.firebasestorage.app/o/business%2Fnelson-vallejo%2Fhero.mp4?alt=media&token=96589729-5799-488a-8a9c-bd69ff5ea410"
+                        src="https://firebasestorage.googleapis.com/v0/b/real-state-nelva.firebasestorage.app/o/web%2Fvideos%2Fhero.mp4?alt=media&token=c01a7a12-0814-4261-a454-462ad88214df"
                         type="video/mp4"
                     />
                 </video>

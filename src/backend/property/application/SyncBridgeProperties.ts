@@ -14,9 +14,10 @@ export class SyncBridgeProperties {
     ) {}
 
     /**
+    /**
      * Synchronizes active properties via advanced MLS OData filters.
      */
-    async syncProperties(filters: { zone?: string | undefined; minBeds?: number | undefined; maxPrice?: number | undefined; propertyType?: string | undefined }, limit: number = 50, skip: number = 0): Promise<{ synced: number }> {
+    async syncProperties(filters: { zone?: string; minBeds?: number; maxPrice?: number; propertyType?: string; agentId?: string; officeId?: string }, limit: number = 50, skip: number = 0): Promise<{ synced: number }> {
         console.log(`[SyncBridgeProperties] Starting sync with filters:`, filters);
         
         // 1. Fetch from Bridge
@@ -39,12 +40,16 @@ export class SyncBridgeProperties {
                 }
                 
                 // Update existing (e.g. price and status changes)
-                existing.update({
+                const updates: any = {
                     ListPrice: propertyToSave.ListPrice,
                     StandardStatus: propertyToSave.StandardStatus,
                     Media: propertyToSave.Media,
                     PublicRemarks: propertyToSave.PublicRemarks
-                });
+                };
+                if (propertyToSave.ListAgentMlsId !== undefined) updates.ListAgentMlsId = propertyToSave.ListAgentMlsId;
+                if (propertyToSave.ListOfficeMlsId !== undefined) updates.ListOfficeMlsId = propertyToSave.ListOfficeMlsId;
+                
+                existing.update(updates);
                 propertyToSave = existing;
             } else {
                 isNewOrPriceDrop = true;
@@ -53,8 +58,12 @@ export class SyncBridgeProperties {
             // 3. Save to primary database (Firestore)
             await this.firestoreRepo.save(propertyToSave);
 
-            // 4. Update the AI Vector DB shadow copy
-            await this.vectorService.execute(propertyToSave);
+            // 4. Update the AI Vector DB shadow copy (Graceful Fail)
+            try {
+                await this.vectorService.execute(propertyToSave);
+            } catch (vecErr: any) {
+                console.warn(`[SyncBridgeProperties] Vectorization skipped for ${externalId} due to API error:`, vecErr.message);
+            }
             
             if (isNewOrPriceDrop) {
                 newlyDiscoveredOpportunities.push(propertyToSave);
@@ -92,19 +101,28 @@ export class SyncBridgeProperties {
                 if ((propertyToSave.ListPrice || 0) < (existing.ListPrice || 0)) {
                     isNewOrPriceDrop = true;
                 }
-                existing.update({
+                const updates: any = {
                     ListPrice: propertyToSave.ListPrice,
                     StandardStatus: propertyToSave.StandardStatus,
                     Media: propertyToSave.Media,
                     PublicRemarks: propertyToSave.PublicRemarks
-                });
+                };
+                if (propertyToSave.ListAgentMlsId !== undefined) updates.ListAgentMlsId = propertyToSave.ListAgentMlsId;
+                if (propertyToSave.ListOfficeMlsId !== undefined) updates.ListOfficeMlsId = propertyToSave.ListOfficeMlsId;
+                
+                existing.update(updates);
                 propertyToSave = existing;
             } else {
                 isNewOrPriceDrop = true;
             }
 
             await this.firestoreRepo.save(propertyToSave);
-            await this.vectorService.execute(propertyToSave);
+            
+            try {
+                await this.vectorService.execute(propertyToSave);
+            } catch (vecErr: any) {
+                console.warn(`[SyncBridgeProperties] Vectorization skipped for ${externalId} due to API error:`, vecErr.message);
+            }
             
             if (isNewOrPriceDrop) {
                 newlyDiscoveredOpportunities.push(propertyToSave);

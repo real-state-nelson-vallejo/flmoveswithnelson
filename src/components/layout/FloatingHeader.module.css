@@ -52,10 +52,75 @@
     font-size: 0.9rem;
     font-weight: 500;
     transition: color 0.2s;
+    display: flex;
+    align-items: center;
 }
 
 .link:hover {
     color: #fff;
+}
+
+.dropdownContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dropdownMenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 220px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 1000;
+    margin-top: 1rem;
+}
+
+/* Invisible bridge to prevent hover loss */
+.dropdownMenu::before {
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: 0;
+    width: 100%;
+    height: 16px;
+    background: transparent;
+}
+
+.dropdownContainer:hover .dropdownMenu {
+    display: block;
+    animation: fadeIn 0.15s ease-out forwards;
+}
+
+.dropdownItem {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    color: #334155;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.dropdownItem:hover {
+    background-color: #f8fafc;
+    color: #2563eb;
+}
+
+.caret {
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
 }
 
 .contactBtn {

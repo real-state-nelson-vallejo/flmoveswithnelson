@@ -5,7 +5,7 @@ import { SyncBridgeProperties } from "@/backend/property/application/SyncBridgeP
 // Instantiate the use case which wires up the Bridge API, Firestore Repository, and AI Vector Service
 const syncBridgePropertiesUseCase = new SyncBridgeProperties();
 
-export async function syncPropertiesAction(filters: { zone?: string | undefined; minBeds?: number | undefined; maxPrice?: number | undefined; propertyType?: string | undefined }, limit: number = 20, skip: number = 0) {
+export async function syncPropertiesAction(filters: { zone?: string; minBeds?: number; maxPrice?: number; propertyType?: string; agentId?: string; officeId?: string }, limit: number = 20, skip: number = 0) {
     try {
         if (!process.env.BRIDGE_SERVER_TOKEN) {
              throw new Error("BRIDGE_SERVER_TOKEN is not configured. Go to settings or .env to add it.");

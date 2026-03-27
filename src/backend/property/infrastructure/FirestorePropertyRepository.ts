@@ -88,36 +88,11 @@ export class FirestorePropertyRepository implements PropertyRepository {
             // Type Filter
             if (filter.type) {
                 const dbType = (p.PropertyType || '').toLowerCase();
-                const title = (p.UnparsedAddress || '').toLowerCase();
-                const desc = (p.PublicRemarks || '').toLowerCase();
                 const filterType = filter.type.toLowerCase();
-
-                // Combine text for broader matching
-                const contentText = `${dbType} ${title} ${desc}`;
-
-                // Flexible matching
-                let typeMatch = false;
-                if (filterType === 'house') {
-                    // Match synonyms for house
-                    typeMatch = ['house', 'single family', 'villa', 'estate', 'home', 'detached'].some(t => contentText.includes(t));
-
-                    // Fallback: If filtering for "house" and the record is a generic "sale" or "residential", allow it to pass.
-                    if (!typeMatch && dbType.includes('residential') && !contentText.includes('condo') && !contentText.includes('apartment')) {
-                        typeMatch = true;
-                    }
-                } else if (filterType === 'apartment' || filterType === 'condo') {
-                    typeMatch = ['apartment', 'condo', 'townhouse', 'penthouse', 'flat', 'unit'].some(t => contentText.includes(t));
-                } else if (filterType === 'commercial') {
-                    typeMatch = ['commercial', 'office', 'retail', 'warehouse'].some(t => contentText.includes(t));
-                } else if (filterType === 'land') {
-                    typeMatch = ['land', 'lot', 'acre'].some(t => contentText.includes(t));
-                } else {
-                    typeMatch = contentText.includes(filterType);
-                }
-
-                if (!typeMatch) {
-                    return false;
-                }
+                
+                if (filterType === 'sale' && dbType !== 'residential') return false;
+                if (filterType === 'rent' && dbType !== 'residential lease') return false;
+                if (filterType === 'land' && dbType !== 'land') return false;
             }
 
             return true;

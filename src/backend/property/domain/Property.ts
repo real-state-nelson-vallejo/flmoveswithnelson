@@ -51,6 +51,9 @@ export interface PropertyProps {
     agentId?: string;
     views?: number;
     petsAllowed?: boolean;
+
+    ListAgentMlsId?: string;
+    ListOfficeMlsId?: string;
     
     opportunityScore?: number; 
     listingQualityScore?: number; 
@@ -144,6 +147,8 @@ export class Property {
     get ArchitecturalStyle() { return this.props.ArchitecturalStyle; }
     get View() { return this.props.View; }
     get AssociationAmenities() { return this.props.AssociationAmenities; }
+    get ListAgentMlsId() { return this.props.ListAgentMlsId; }
+    get ListOfficeMlsId() { return this.props.ListOfficeMlsId; }
 
     get opportunityScore() { return this.props.opportunityScore; }
     get listingQualityScore() { return this.props.listingQualityScore; }

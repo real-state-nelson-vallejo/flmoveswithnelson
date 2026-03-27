@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, Star, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +13,7 @@ export function SaveSearchModal() {
     const defaultSearchParams = useSearchParams();
     
     const [isOpen, setIsOpen] = useState(false);
-    const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Lead Details, 2: OTP, 3: Success
+    const [step, setStep] = useState<1 | 2 | 'processing' | 3>(1); // 1: Lead Details, 2: OTP, processing: Seeding, 3: Success
     const [activeParams, setActiveParams] = useState<URLSearchParams | null>(null);
 
     const [name, setName] = useState("");
@@ -23,6 +24,9 @@ export function SaveSearchModal() {
     
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
 
     useEffect(() => {
         const handleOpen = (e: any) => {
@@ -41,7 +45,7 @@ export function SaveSearchModal() {
         return () => window.removeEventListener('open-save-search-modal', handleOpen);
     }, [defaultSearchParams]);
 
-    if (!isOpen) return null;
+    if (!mounted) return null;
 
     const handleSendCode = async () => {
         if (!name || !email) {
@@ -95,6 +99,7 @@ export function SaveSearchModal() {
             const searchCriteria: any = {};
             if (activeParams) {
                 if (activeParams.get('q')) searchCriteria.query = activeParams.get('q');
+                if (activeParams.get('zone')) searchCriteria.zone = activeParams.get('zone');
                 if (activeParams.get('minPrice')) searchCriteria.minPrice = Number(activeParams.get('minPrice'));
                 if (activeParams.get('maxPrice')) searchCriteria.maxPrice = Number(activeParams.get('maxPrice'));
                 if (activeParams.get('minBeds')) searchCriteria.minBeds = Number(activeParams.get('minBeds'));
@@ -109,9 +114,28 @@ export function SaveSearchModal() {
             });
 
             if (saveRes.success) {
+                setStep('processing');
+                
+                // --- PHASE 13: ORGANIC LAZY SEEDING (Awaited for UX) ---
+                try {
+                    await fetch('/api/sync/lazy-seed', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ searchCriteria }),
+                        keepalive: true
+                    });
+                } catch (err) {
+                    console.error("Lazy seed failed silently:", err);
+                }
+
+                // Show successmark briefly
                 setStep(3);
-                // Automatically close after 3 seconds
-                setTimeout(() => setIsOpen(false), 3000);
+                
+                // Automatically reload the grid so the newly seeded properties natively appear
+                setTimeout(() => {
+                    setIsOpen(false);
+                    window.location.reload(); 
+                }, 1500);
             } else {
                 setError(saveRes.error || "Failed to save your search criteria.");
             }
@@ -122,15 +146,16 @@ export function SaveSearchModal() {
         }
     };
 
-    return (
+    return createPortal(
         <AnimatePresence>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative"
-                >
+            {isOpen && (
+                <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden relative"
+                    >
                     <button 
                         onClick={() => setIsOpen(false)}
                         className="absolute top-4 right-4 text-slate-400 hover:text-slate-900 bg-slate-100 rounded-full p-1.5 transition-colors"
@@ -225,6 +250,22 @@ export function SaveSearchModal() {
                             </>
                         )}
 
+                        {step === 'processing' && (
+                            <div className="text-center py-12 flex flex-col items-center">
+                                <div className="relative mb-8">
+                                    <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-75"></div>
+                                    <div className="relative bg-white w-24 h-24 rounded-full border-4 border-blue-50 flex items-center justify-center shadow-lg">
+                                        <Loader2 className="animate-spin text-blue-600" size={40} />
+                                    </div>
+                                    <div className="absolute top-0 right-0 w-6 h-6 bg-emerald-400 rounded-full border-2 border-white animate-bounce shadow-sm" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-slate-900 mb-2">Syncing MLS...</h2>
+                                <p className="text-slate-500 text-sm max-w-[280px] mx-auto animate-pulse">
+                                    Verifying authorization and downloading high-resolution properties securely...
+                                </p>
+                            </div>
+                        )}
+
                         {step === 3 && (
                             <div className="text-center py-8">
                                 <motion.div 
@@ -243,7 +284,9 @@ export function SaveSearchModal() {
                         )}
                     </div>
                 </motion.div>
-            </div>
-        </AnimatePresence>
+                </div>
+            )}
+        </AnimatePresence>,
+        document.body
     );
 }

@@ -56,7 +56,12 @@ export function PropertyCard({ property, locale, onHover }: PropertyCardProps) {
                         </button>
 
                         {/* Top Left Badges */}
-                        <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 z-10 pr-12">
+                        <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 z-10 pl-1 pr-12">
+                            {property.ListAgentMlsId === '272509597' && (
+                                <span className="bg-blue-600/95 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider border border-blue-500/50">
+                                    Exclusive Listing
+                                </span>
+                            )}
                             <span className="bg-white/95 backdrop-blur-md text-slate-800 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm uppercase tracking-wider">
                                 {property.PropertyType?.toLowerCase().includes('lease') || property.PropertyType === 'rent' ? 'For Rent' : 'For Sale'}
                             </span>
