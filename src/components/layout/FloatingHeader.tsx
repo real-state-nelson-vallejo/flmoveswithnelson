@@ -19,6 +19,18 @@ export function FloatingHeader() {
         });
     }, [scrollY]);
 
+    // Lock background scroll when mobile menu is open
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isMobileMenuOpen]);
+
     // Update visibility logic: Visible on scroll OR if mobile menu is closed (wait, user said "when mobile menu is open, header disappears").
     // So if isMobileMenuOpen is true, the pill should NOT be visible.
 
@@ -110,10 +122,10 @@ export function FloatingHeader() {
                 {isMobileMenuOpen && (
                     <motion.div
                         className={styles.mobileMenuOverlay}
-                        initial={{ x: "100%" }}
-                        animate={{ x: 0 }}
-                        exit={{ x: "100%" }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
                     >
                         <button
                             className={styles.closeBtn}
@@ -124,10 +136,22 @@ export function FloatingHeader() {
 
                         <div className={styles.mobileLinks}>
                             <Link href="/" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-                            <Link href="/properties" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Properties</Link>
-                            <Link href="/services" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Services</Link>
+                            
+                            <div className={styles.mobileSectionTitle}>PROPERTIES</div>
+                            <Link href="/properties?type=sale" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>Homes For Sale</Link>
+                            <Link href="/properties?type=rent" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>Rentals</Link>
+                            <Link href="/properties?type=land" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>Land</Link>
+
+                            <div className={styles.mobileSectionTitle}>NEIGHBORHOODS</div>
+                            <Link href="/properties?zone=Winter%20Haven" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>Winter Haven</Link>
+                            <Link href="/properties?zone=Orlando" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>Orlando</Link>
+                            <Link href="/properties?zone=Lakeland" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>Lakeland</Link>
+                            <Link href="/properties?zone=Haines%20City" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>Haines City</Link>
+                            <Link href="/properties?zone=Davenport" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>Davenport</Link>
+                            <Link href="/properties?zone=ChampionsGate" className={styles.mobileSubLink} onClick={() => setIsMobileMenuOpen(false)}>ChampionsGate</Link>
+                            
+                            <div className={styles.mobileDivider}></div>
                             <Link href="/about" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>About Me</Link>
-                            <Link href="/contact" className={styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
                         </div>
                     </motion.div>
                 )}

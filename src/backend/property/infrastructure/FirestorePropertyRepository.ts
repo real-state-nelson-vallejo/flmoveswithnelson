@@ -95,6 +95,9 @@ export class FirestorePropertyRepository implements PropertyRepository {
                 if (filterType === 'land' && dbType !== 'land') return false;
             }
 
+            // Agent ID Filter
+            if (filter.agentId && p.ListAgentMlsId !== filter.agentId) return false;
+
             return true;
         });
 

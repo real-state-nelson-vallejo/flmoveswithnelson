@@ -10,6 +10,7 @@ export interface PropertyFilter {
     minBaths?: number | undefined;
     type?: 'sale' | 'rent' | string | undefined;
     sort?: 'newest' | 'price_asc' | 'price_desc' | undefined;
+    agentId?: string | undefined;
 }
 
 export interface PropertyRepository {

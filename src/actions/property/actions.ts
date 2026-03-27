@@ -69,30 +69,16 @@ export async function getPropertiesAction(filter: PropertyFilter = {}) {
 
 export async function getFeaturedPropertiesAction() {
     try {
-        const properties = await searchPropertiesUseCase.execute({});
-        
-        // Priority Sorting Strategy (Phase 11):
-        // Tier 1: Nelson's Exclusive Listings (Agent ID)
-        // Tier 2: FL Moves Brokerage Listings (Office ID)
-        // Tier 3: General Premium Inventory (Fallback Chronological)
         const AGENT_ID = '272509597';
-        const OFFICE_ID = '261024021';
+        
+        // Phase 14 Update: Strict Filtering. The Home Page "Featured Properties" 
+        // will ONLY display Nelson's personal active inventory.
+        const properties = await searchPropertiesUseCase.execute({ agentId: AGENT_ID });
         
         const sorted = properties.sort((a, b) => {
             const dtoA = a.toDTO();
             const dtoB = b.toDTO();
-
-            const aAgent = dtoA.ListAgentMlsId === AGENT_ID;
-            const bAgent = dtoB.ListAgentMlsId === AGENT_ID;
-            if (aAgent && !bAgent) return -1;
-            if (!aAgent && bAgent) return 1;
-            
-            const aOffice = dtoA.ListOfficeMlsId === OFFICE_ID;
-            const bOffice = dtoB.ListOfficeMlsId === OFFICE_ID;
-            if (aOffice && !bOffice) return -1;
-            if (!aOffice && bOffice) return 1;
-            
-            // Fallback: Date descending
+            // Newest first
             return dtoB.createdAt - dtoA.createdAt;
         });
 
