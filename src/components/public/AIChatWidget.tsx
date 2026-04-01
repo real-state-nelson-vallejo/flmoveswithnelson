@@ -396,7 +396,7 @@ export function AIChatWidget() {
                                                     type="text"
                                                     required
                                                     placeholder="John Doe"
-                                                    className="w-full text-base p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all disabled:bg-slate-100"
+                                                    className="w-full text-slate-900 text-base p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all disabled:bg-slate-100"
                                                     value={contactInfo.name}
                                                     onChange={e => setContactInfo({ ...contactInfo, name: e.target.value })}
                                                     disabled={isVerificationSent}
@@ -408,7 +408,7 @@ export function AIChatWidget() {
                                                     type="email"
                                                     required
                                                     placeholder="name@example.com"
-                                                    className="w-full text-base p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all disabled:bg-slate-100"
+                                                    className="w-full text-slate-900 text-base p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all disabled:bg-slate-100"
                                                     value={contactInfo.email}
                                                     onChange={e => setContactInfo({ ...contactInfo, email: e.target.value })}
                                                     disabled={isVerificationSent}
@@ -420,7 +420,7 @@ export function AIChatWidget() {
                                                 <label className="text-xs font-semibold text-slate-500 uppercase ml-1">Phone Number</label>
                                                 <div className="flex gap-2">
                                                     <select
-                                                        className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                                        className="bg-slate-50 text-slate-900 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                                                         value={countryCode}
                                                         onChange={e => {
                                                             const newCode = e.target.value;
@@ -439,7 +439,7 @@ export function AIChatWidget() {
                                                         type="tel"
                                                         required
                                                         placeholder="(555) 000-0000"
-                                                        className="flex-1 text-base p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all disabled:bg-slate-100"
+                                                        className="flex-1 text-slate-900 text-base p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all disabled:bg-slate-100"
                                                         value={contactInfo.phone}
                                                         onChange={e => setContactInfo({ ...contactInfo, phone: e.target.value })}
                                                         disabled={isVerificationSent}

@@ -182,7 +182,7 @@ export function SaveSearchModal() {
                                         <input 
                                             type="text" 
                                             value={name} onChange={e => setName(e.target.value)}
-                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                            className="w-full text-slate-900 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                                             placeholder="John Doe"
                                         />
                                     </div>
@@ -191,7 +191,7 @@ export function SaveSearchModal() {
                                         <input 
                                             type="email" 
                                             value={email} onChange={e => setEmail(e.target.value)}
-                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                            className="w-full text-slate-900 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                                             placeholder="john@example.com"
                                         />
                                     </div>
@@ -200,7 +200,7 @@ export function SaveSearchModal() {
                                         <input 
                                             type="tel" 
                                             value={phone} onChange={e => setPhone(e.target.value)}
-                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                                            className="w-full text-slate-900 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                                             placeholder="+1 (555) 000-0000"
                                         />
                                     </div>
@@ -209,7 +209,7 @@ export function SaveSearchModal() {
                                         <label className="block text-sm font-bold text-slate-700 mb-1">Preferences & Comments (Optional)</label>
                                         <textarea 
                                             value={preferences} onChange={e => setPreferences(e.target.value)}
-                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all min-h-[80px]"
+                                            className="w-full text-slate-900 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all min-h-[80px]"
                                             placeholder="E.g., Must have a pool, looking to move in 3 months..."
                                         />
                                     </div>
@@ -235,7 +235,7 @@ export function SaveSearchModal() {
                                         type="text" 
                                         maxLength={6}
                                         value={otp} onChange={e => setOtp(e.target.value)}
-                                        className="w-full px-4 py-4 text-center text-3xl tracking-[1em] font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all h-20"
+                                        className="w-full text-slate-900 px-4 py-4 text-center text-3xl tracking-[1em] font-bold bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all h-20"
                                         placeholder="------"
                                     />
 
