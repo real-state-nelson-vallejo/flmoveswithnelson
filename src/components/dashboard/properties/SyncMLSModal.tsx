@@ -92,10 +92,10 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
               We use min-h-full to ensure it pushes the footer down if content is small. 
               The SlideOver gives us a p-6 scrollable area.
             */}
-            <div className="flex flex-col min-h-full bg-slate-50/50">
+            <div className="flex flex-col min-h-full bg-slate-50/50 dark:bg-slate-950">
                 {/* Visual Header / Subtitle */}
-                <div className="bg-white border-b border-slate-100 p-6 -mx-6 -mt-6 flex-shrink-0">
-                    <p className="text-sm mt-1 text-slate-500">
+                <div className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 p-6 -mx-6 -mt-6 flex-shrink-0">
+                    <p className="text-sm mt-1 text-slate-500 dark:text-slate-400">
                         Fetch active listings directly from Bridge Interactive RESO Web API and vectorize them.
                     </p>
                 </div>
@@ -104,7 +104,7 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
                 <div className="flex-1 py-6 space-y-8">
                     
                     {/* Data Flow Diagram (Desktop only) */}
-                    <div className="flex items-center justify-between px-6 py-4 bg-white rounded-2xl text-slate-500 text-xs shadow-sm border border-slate-100/50 hidden lg:flex">
+                    <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 rounded-2xl text-slate-500 dark:text-slate-400 text-xs shadow-sm border border-slate-100/50 dark:border-slate-800 hidden lg:flex">
                         <div className="flex flex-col items-center gap-2 font-medium"><CloudDownload size={18} className="text-indigo-500" /><span>Bridge API</span></div>
                         <div className="flex-1 px-4 flex items-center opacity-40"><div className="h-[2px] bg-indigo-200 w-full rounded-full"></div></div>
                         <div className="flex flex-col items-center gap-2 font-medium"><Database size={18} className="text-orange-500" /><span>Firestore</span></div>
@@ -114,69 +114,69 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
 
                     {/* Section 1: Scope */}
                     <section className="space-y-4">
-                        <div className="flex items-center gap-2 text-slate-800 font-semibold mb-2">
+                        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-semibold mb-2">
                             <SlidersHorizontal size={16} className="text-blue-500" /> Target Inventory Scope
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <button 
                                 onClick={() => setTargetScope("all")}
-                                className={`px-4 py-3 text-xs font-bold rounded-xl border shadow-sm transition-all ${targetScope === 'all' ? 'bg-blue-600 border-blue-600 text-white ring-4 ring-blue-50 scale-[1.02]' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
+                                className={`px-4 py-3 text-xs font-bold rounded-xl border shadow-sm transition-all ${targetScope === 'all' ? 'bg-blue-600 border-blue-600 text-white ring-4 ring-blue-50 dark:ring-blue-900/30 scale-[1.02]' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}
                             >
                                 General Market
                             </button>
                             <button 
                                 onClick={() => setTargetScope("agent")}
-                                className={`px-4 py-3 text-xs font-bold rounded-xl border shadow-sm transition-all ${targetScope === 'agent' ? 'bg-blue-600 border-blue-600 text-white ring-4 ring-blue-50 scale-[1.02]' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
+                                className={`px-4 py-3 text-xs font-bold rounded-xl border shadow-sm transition-all ${targetScope === 'agent' ? 'bg-blue-600 border-blue-600 text-white ring-4 ring-blue-50 dark:ring-blue-900/30 scale-[1.02]' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}
                             >
                                 My Listings
                             </button>
                             <button 
                                 onClick={() => setTargetScope("office")}
-                                className={`px-4 py-3 text-xs font-bold rounded-xl border shadow-sm transition-all ${targetScope === 'office' ? 'bg-blue-600 border-blue-600 text-white ring-4 ring-blue-50 scale-[1.02]' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
+                                className={`px-4 py-3 text-xs font-bold rounded-xl border shadow-sm transition-all ${targetScope === 'office' ? 'bg-blue-600 border-blue-600 text-white ring-4 ring-blue-50 dark:ring-blue-900/30 scale-[1.02]' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}
                             >
                                 Brokerage
                             </button>
                         </div>
                     </section>
 
-                    <hr className="border-slate-200/60" />
+                    <hr className="border-slate-200/60 dark:border-slate-800/60" />
 
                     {/* Section 2: Geo-Spatial */}
                     <section className="space-y-4">
-                        <div className="flex items-center gap-2 text-slate-800 font-semibold mb-2">
+                        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-semibold mb-2">
                             <MapPin size={16} className="text-blue-500" /> Location & Zones
                         </div>
                         
-                        <div className="bg-white p-1 md:p-2 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="bg-white dark:bg-slate-900 p-1 md:p-2 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
                             <SyncMapSelector onSpatialChange={setSpatial} />
                         </div>
 
                         <div className="space-y-2 mt-4">
-                            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Manual Zones (Zip/City)</label>
+                            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Manual Zones (Zip/City)</label>
                             <Input
                                 placeholder="e.g. 33132, Miami, Coral Gables"
                                 value={zone}
                                 onChange={(e) => setZone(e.target.value)}
                                 disabled={isSyncing}
-                                className="h-12 bg-white rounded-xl shadow-sm border-slate-200 focus-visible:ring-blue-500"
+                                className="h-12 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-xl shadow-sm border-slate-200 dark:border-slate-800 focus-visible:ring-blue-500"
                             />
-                            <p className="text-[11px] text-slate-400">Separate multiple zones with commas.</p>
+                            <p className="text-[11px] text-slate-400 dark:text-slate-500">Separate multiple zones with commas.</p>
                         </div>
                     </section>
 
-                    <hr className="border-slate-200/60" />
+                    <hr className="border-slate-200/60 dark:border-slate-800/60" />
 
                     {/* Section 3: Attributes */}
                     <section className="space-y-4">
-                        <div className="flex items-center gap-2 text-slate-800 font-semibold mb-2">
+                        <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-semibold mb-2">
                             <Filter size={16} className="text-blue-500" /> Property Attributes
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-600 uppercase">Property Type</label>
+                                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Property Type</label>
                                 <select 
-                                    className="flex h-12 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="flex h-12 w-full items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 dark:text-slate-200 px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                                     value={propertyType}
                                     onChange={(e) => setPropertyType(e.target.value)}
                                     disabled={isSyncing}
@@ -188,36 +188,36 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-600 uppercase">Max Price</label>
-                                <Input className="h-12 rounded-xl shadow-sm bg-white" type="number" placeholder="No limit" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : '')} disabled={isSyncing} />
+                                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Max Price</label>
+                                <Input className="h-12 rounded-xl shadow-sm bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-slate-200" type="number" placeholder="No limit" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : '')} disabled={isSyncing} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-600 uppercase">Min Beds</label>
-                                <Input className="h-12 rounded-xl shadow-sm bg-white" type="number" placeholder="Any" value={minBeds} onChange={(e) => setMinBeds(e.target.value ? Number(e.target.value) : '')} disabled={isSyncing} />
+                                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Min Beds</label>
+                                <Input className="h-12 rounded-xl shadow-sm bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-slate-200" type="number" placeholder="Any" value={minBeds} onChange={(e) => setMinBeds(e.target.value ? Number(e.target.value) : '')} disabled={isSyncing} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-600 uppercase">Min Baths</label>
-                                <Input className="h-12 rounded-xl shadow-sm bg-white" type="number" placeholder="Any" value={minBaths} onChange={(e) => setMinBaths(e.target.value ? Number(e.target.value) : '')} disabled={isSyncing} />
+                                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Min Baths</label>
+                                <Input className="h-12 rounded-xl shadow-sm bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-slate-200" type="number" placeholder="Any" value={minBaths} onChange={(e) => setMinBaths(e.target.value ? Number(e.target.value) : '')} disabled={isSyncing} />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 items-center">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-600 uppercase">Minimum Square Feet</label>
-                                <Input className="h-12 rounded-xl shadow-sm bg-white" type="number" placeholder="e.g. 1500" value={minSqFt} onChange={(e) => setMinSqFt(e.target.value ? Number(e.target.value) : '')} disabled={isSyncing} />
+                                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Minimum Square Feet</label>
+                                <Input className="h-12 rounded-xl shadow-sm bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-slate-200" type="number" placeholder="e.g. 1500" value={minSqFt} onChange={(e) => setMinSqFt(e.target.value ? Number(e.target.value) : '')} disabled={isSyncing} />
                             </div>
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:justify-end pt-2">
-                                <label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 cursor-pointer select-none">
+                                <label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
                                     <div className="relative flex items-center">
                                         <input type="checkbox" checked={waterfront} onChange={e => setWaterfront(e.target.checked)} className="peer sr-only" disabled={isSyncing} />
-                                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                        <div className="w-10 h-5 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-200 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                                     </div>
                                     Waterfront
                                 </label>
-                                <label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 cursor-pointer select-none">
+                                <label className="flex items-center gap-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
                                     <div className="relative flex items-center">
                                         <input type="checkbox" checked={hasPool} onChange={e => setHasPool(e.target.checked)} className="peer sr-only" disabled={isSyncing} />
-                                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                        <div className="w-10 h-5 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-200 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                                     </div>
                                     Pool
                                 </label>
@@ -225,14 +225,14 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
                         </div>
                     </section>
 
-                    <hr className="border-slate-200/60" />
+                    <hr className="border-slate-200/60 dark:border-slate-800/60" />
 
                     {/* Section 4: Limit Settings */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-100 p-4 lg:p-6 rounded-2xl border border-slate-200">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-100 dark:bg-slate-900/50 p-4 lg:p-6 rounded-2xl border border-slate-200 dark:border-slate-800">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-600 uppercase">Max Records</label>
+                            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Max Records</label>
                             <select 
-                                className="flex h-12 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="flex h-12 w-full items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 dark:text-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                                 value={limit}
                                 onChange={(e) => setLimit(Number(e.target.value))}
                                 disabled={isSyncing}
@@ -244,11 +244,11 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-600 uppercase">Offset (Skip)</label>
+                            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Offset (Skip)</label>
                             <Input
                                 type="number"
                                 placeholder="0"
-                                className="h-12 rounded-xl bg-white focus-visible:ring-blue-500"
+                                className="h-12 rounded-xl bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-slate-200 focus-visible:ring-blue-500"
                                 value={skip}
                                 onChange={(e) => setSkip(e.target.value ? Number(e.target.value) : '')}
                                 disabled={isSyncing}
@@ -257,16 +257,16 @@ export function SyncMLSModal({ isOpen, onClose, onSuccess }: SyncMLSModalProps) 
                     </div>
 
                     {error && (
-                        <div className="p-4 text-sm text-red-600 font-medium bg-red-50 rounded-xl border border-red-200 break-words flex items-start gap-3">
-                            <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">!</div>
+                        <div className="p-4 text-sm text-red-600 font-medium bg-red-50 dark:bg-red-950 dark:text-red-400 dark:border-red-900 rounded-xl border border-red-200 break-words flex items-start gap-3">
+                            <div className="w-5 h-5 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center flex-shrink-0 mt-0.5">!</div>
                             {error}
                         </div>
                     )}
                 </div>
 
                 {/* Footer (Sticky at bottom spanning full width compensating for padding) */}
-                <div className="sticky -bottom-6 -mx-6 bg-white border-t border-slate-200 p-4 sm:p-6 flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center gap-3 z-10 shadow-[0_-10px_30px_rgb(0,0,0,0.06)] mt-auto">
-                    <Button variant="ghost" onClick={onClose} disabled={isSyncing} className="h-12 px-6 rounded-xl text-slate-600 font-semibold hover:bg-slate-100 w-full sm:w-auto">
+                <div className="sticky -bottom-6 -mx-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-4 sm:p-6 flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center gap-3 z-10 shadow-[0_-10px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_-10px_30px_rgb(0,0,0,0.4)] mt-auto">
+                    <Button variant="ghost" onClick={onClose} disabled={isSyncing} className="h-12 px-6 rounded-xl text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 w-full sm:w-auto">
                         Cancel
                     </Button>
                     <Button 
