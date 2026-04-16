@@ -10,28 +10,25 @@ interface SlideOverProps {
     onClose: () => void;
     title: string;
     children: React.ReactNode;
+    widthClass?: string;
 }
 
-export function SlideOver({ isOpen, onClose, title, children }: SlideOverProps) {
+export function SlideOver({ isOpen, onClose, title, children, widthClass }: SlideOverProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // Lock body scroll when open
+    // ... scroll logic
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
-            // Optional: Prevent layout shift when scrollbar hides
-            document.body.style.paddingRight = "var(--scrollbar-width, 0px)";
         } else {
             document.body.style.overflow = "unset";
-            document.body.style.paddingRight = "0px";
         }
         return () => {
             document.body.style.overflow = "unset";
-            document.body.style.paddingRight = "0px";
         };
     }, [isOpen]);
 
@@ -56,7 +53,7 @@ export function SlideOver({ isOpen, onClose, title, children }: SlideOverProps) 
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
                         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                        className="fixed top-0 right-0 bottom-0 z-50 w-full sm:w-[500px] md:w-[600px] lg:w-[800px] max-w-[100vw] bg-background border-l border-border shadow-2xl flex flex-col h-full"
+                        className={`fixed top-0 right-0 bottom-0 z-50 ${widthClass || "w-full sm:w-[500px] md:w-[600px] lg:w-[800px]"} max-w-[100vw] bg-background border-l border-border shadow-2xl flex flex-col h-full`}
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card/50 backdrop-blur-md">

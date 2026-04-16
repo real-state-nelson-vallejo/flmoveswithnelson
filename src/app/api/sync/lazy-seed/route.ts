@@ -32,15 +32,49 @@ export async function POST(req: Request) {
 
         // Map UI criteria to backend filters
         const filters: any = {};
+        
+        // Single text input (legacy)
         let zone = searchCriteria.zone || searchCriteria.query;
-        if (zone) {
+        if (zone && typeof zone === 'string') {
             zone = zone.replace(/\+/g, ' ');
             filters.zone = zone;
         }
 
+        // Advanced Filters Mapping
+        if (Array.isArray(searchCriteria.zones)) filters.zones = searchCriteria.zones;
+        if (Array.isArray(searchCriteria.counties)) filters.counties = searchCriteria.counties;
+        if (Array.isArray(searchCriteria.propertySubTypes)) filters.propertySubTypes = searchCriteria.propertySubTypes;
+        
         if (searchCriteria.minBeds) filters.minBeds = Number(searchCriteria.minBeds);
         if (searchCriteria.maxPrice) filters.maxPrice = Number(searchCriteria.maxPrice);
         if (searchCriteria.type) filters.propertyType = searchCriteria.type;
+        
+        // Structural & Lifestyle
+        if (searchCriteria.minBaths) filters.minBaths = Number(searchCriteria.minBaths);
+        if (searchCriteria.minSqFt) filters.minSqFt = Number(searchCriteria.minSqFt);
+        if (searchCriteria.waterfront) filters.waterfront = true;
+        if (searchCriteria.hasPool) filters.hasPool = true;
+        
+        // Spatial Map Search - Bridge uses OData Lat/Lng bounding box (near param is not supported)
+        if (searchCriteria.spatialBox) {
+            filters.spatialBox = {
+                latMin: Number(searchCriteria.spatialBox.latMin),
+                latMax: Number(searchCriteria.spatialBox.latMax),
+                lngMin: Number(searchCriteria.spatialBox.lngMin),
+                lngMax: Number(searchCriteria.spatialBox.lngMax),
+            };
+        } else if (searchCriteria.spatial?.lat && searchCriteria.spatial?.lng && searchCriteria.spatial?.radius) {
+            // Legacy: convert circle to bounding box
+            const lat = Number(searchCriteria.spatial.lat);
+            const lng = Number(searchCriteria.spatial.lng);
+            const milesInDeg = Number(searchCriteria.spatial.radius) / 69;
+            filters.spatialBox = {
+                latMin: lat - milesInDeg,
+                latMax: lat + milesInDeg,
+                lngMin: lng - milesInDeg * 1.2,
+                lngMax: lng + milesInDeg * 1.2,
+            };
+        }
 
         // Perform the Organic Lazy Seeding (Top 20)
         await syncUseCase.syncProperties(filters, 20);
