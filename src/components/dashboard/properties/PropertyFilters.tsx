@@ -1,4 +1,4 @@
-import { Search, SlidersHorizontal, LayoutGrid, List, Info } from "lucide-react";
+import { Search, SlidersHorizontal, LayoutGrid, List, Info, Archive } from "lucide-react";
 import { AnalysisMethodology } from "@/components/dashboard/properties/AnalysisMethodology";
 
 interface PropertyFiltersProps {
@@ -10,6 +10,8 @@ interface PropertyFiltersProps {
     setViewMode: (mode: 'grid' | 'table') => void;
     opportunitiesOnly: boolean;
     setOpportunitiesOnly: (val: boolean) => void;
+    includeArchived: boolean;
+    setIncludeArchived: (val: boolean) => void;
 }
 
 export function PropertyFilters({
@@ -20,7 +22,9 @@ export function PropertyFilters({
     viewMode,
     setViewMode,
     opportunitiesOnly,
-    setOpportunitiesOnly
+    setOpportunitiesOnly,
+    includeArchived,
+    setIncludeArchived,
 }: PropertyFiltersProps) {
     return (
         <div className="flex flex-col gap-4 mb-6">
@@ -79,6 +83,19 @@ export function PropertyFilters({
                     </select>
                     <SlidersHorizontal className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={14} />
                 </div>
+
+                {/* Archive toggle */}
+                <button
+                    type="button"
+                    onClick={() => setIncludeArchived(!includeArchived)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition-all ${includeArchived
+                        ? "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-accent"
+                        : "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300"}`}
+                    title={includeArchived ? "Click para ver solo propiedades activas" : "Click para incluir archivadas"}
+                >
+                    <Archive size={14} />
+                    <span className="hidden sm:inline">{includeArchived ? "Todas" : "Solo activas"}</span>
+                </button>
 
                 {/* View Toggle */}
                 <div className="flex bg-secondary p-1 rounded-lg border border-border">

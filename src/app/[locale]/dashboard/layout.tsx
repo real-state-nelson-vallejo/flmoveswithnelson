@@ -3,11 +3,12 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, Menu, X, Home, Inbox, Building2, Users, Sparkles, LogOut, Calendar, Bot, TrendingUp, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Menu, X, Home, Inbox, Building2, Users, Sparkles, LogOut, Calendar, Bot, TrendingUp, FileText, ChevronLeft, ChevronRight, Activity } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useTheme } from "next-themes";
+import { SyncQueueBar } from "@/components/dashboard/SyncQueueBar";
 
 export default function DashboardLayout({
     children,
@@ -70,6 +71,7 @@ export default function DashboardLayout({
         { href: `/${locale}/dashboard`, label: 'Overview', icon: Home },
         { href: `/${locale}/dashboard/inbox`, label: 'Inbox', icon: Inbox },
         { href: `/${locale}/dashboard/properties`, label: 'Properties', icon: Building2 },
+        { href: `/${locale}/dashboard/sync-health`, label: 'Sync Health', icon: Activity },
         { href: `/${locale}/dashboard/opportunities`, label: 'Opportunities', icon: TrendingUp },
         { href: `/${locale}/dashboard/documents`, label: 'Documents', icon: FileText },
         { href: `/${locale}/dashboard/crm`, label: 'Leads', icon: Users },
@@ -247,8 +249,8 @@ export default function DashboardLayout({
             </AnimatePresence>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto h-screen bg-background">
-                <header className="h-16 border-b border-border bg-background/80 backdrop-blur w-full flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
+            <main className="flex-1 flex flex-col h-screen bg-background overflow-hidden">
+                <header className="h-16 border-b border-border bg-background/80 backdrop-blur w-full flex items-center justify-between px-4 md:px-8 shrink-0 z-30">
                     <div className="flex items-center gap-4">
                         {/* Mobile Menu Button */}
                         <motion.button
@@ -281,9 +283,10 @@ export default function DashboardLayout({
                         </div>
                     </div>
                 </header>
-                <div className="flex-1">
+                <div className="flex-1 overflow-auto">
                     {children}
                 </div>
+                <SyncQueueBar />
             </main>
         </div>
     );

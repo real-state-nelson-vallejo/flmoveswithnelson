@@ -1,17 +1,20 @@
 import { PropertyDTO } from "@/types/property";
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Bed, Bath, Square, MapPin, Edit, Trash2, TrendingUp, AlertCircle, TrendingDown, ArrowUpRight, FileText } from "lucide-react";
+import { Bed, Bath, Square, MapPin, Edit, Trash2, TrendingUp, AlertCircle, TrendingDown, ArrowUpRight, FileText, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { HOME_SECTION_LABELS, type HomeSection } from "@/lib/schemas/propertySchema";
 
 interface PropertyCardProps {
     property: PropertyDTO;
     onEdit: (property: PropertyDTO) => void;
     onDelete: (id: string) => void;
+    onTagEdit?: (property: PropertyDTO) => void;
 }
 
-export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) {
+export function PropertyCard({ property, onEdit, onDelete, onTagEdit }: PropertyCardProps) {
+    const homeSections = (property.homeSections ?? []) as HomeSection[];
     const formatPrice = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -97,6 +100,20 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
                     <span className="truncate">{property.City}, {property.StateOrProvince}</span>
                 </div>
 
+                {homeSections.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                        {homeSections.map((s) => (
+                            <span
+                                key={s}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-[10px] font-semibold border border-blue-200 dark:border-blue-900"
+                                title={HOME_SECTION_LABELS[s]?.description}
+                            >
+                                <Tag size={9} /> {HOME_SECTION_LABELS[s]?.label ?? s}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
                 <div className="grid grid-cols-3 gap-2 py-4 border-t border-border mb-4">
                     <div className="flex flex-col items-center justify-center p-2 bg-secondary/50 rounded-lg">
                         <div className="flex items-center gap-1 text-foreground font-semibold">
@@ -142,6 +159,15 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
                     >
                         <Edit size={14} /> Edit
                     </button>
+                    {onTagEdit && (
+                        <button
+                            onClick={() => onTagEdit(property)}
+                            className={`p-2 rounded-lg transition-colors ${homeSections.length > 0 ? "text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
+                            title={homeSections.length > 0 ? `Etiquetada en ${homeSections.length} ${homeSections.length === 1 ? "sección" : "secciones"}` : "Etiquetar para home sections"}
+                        >
+                            <Tag size={16} />
+                        </button>
+                    )}
                     <button
                         onClick={() => onDelete(property.ListingKey)}
                         className="p-2 text-muted-foreground hover:text-destructive transition-colors hidden sm:block"

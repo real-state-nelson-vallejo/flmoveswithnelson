@@ -1,7 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules
+**/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -20,6 +21,9 @@
 # production
 /build
 
+# firebase functions build output
+functions/lib/
+
 # misc
 .DS_Store
 *.pem
@@ -30,8 +34,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (secrets) — opt-in a committing an .env.example if ever created
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -40,14 +45,40 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Admin initialization scripts (SECURITY - DO NOT COMMIT)
-scripts/init-super-admin.ts
-scripts/init-super-admin.js
-scripts/init-*.ts
-scripts/init-*.js
+# local IDE state
+.vscode/
+.idea/
 
-# Custom ignored directories
+# temporary tokens written by ops scripts
+*.token.tmp
+*.bridge-token.tmp
+
+# Local scratchpad — mostly ad-hoc debug scripts. The operational procedures
+# they automate are documented under `docs/` and `/strategy`, so a fresh
+# clone can reproduce them without needing these files.
 scripts/
-.agente/
+
+# AI assistants — local tooling docs and config that shouldn't ship with the repo.
+# Each developer's setup is personal: their CLAUDE.md notes, Cursor rules, Copilot
+# instructions, Aider history, etc. The "real" project doc for humans lives under
+# docs/ and at /strategy.
+CLAUDE.md
+claude.md
+AGENTS.md
+.claude/
+.cursor/
+.cursorrules
+.aider*
+.continue/
+.idx/
+.github/copilot-instructions.md
+
+
+# Admin-only agent caches
 .agent/
+.agente/
+
+# docs/ is versioned — it contains genkit/twilio references and legal PDF templates
+# used by the legal-docs module. If you want to exclude something specific, add it
+# below (e.g. `docs/private-notes/`).
 docs/

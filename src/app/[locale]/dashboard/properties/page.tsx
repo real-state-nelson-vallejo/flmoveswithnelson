@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPropertiesAction, deletePropertyAction } from "@/actions/property/actions";
+import { toast } from "sonner";
+import { getPropertiesPageAction, deletePropertyAction } from "@/actions/property/actions";
 import { PropertyDTO } from "@/types/property";
 import { SlideOver } from "@/components/ui/SlideOver";
 import { PropertyForm } from "@/components/dashboard/PropertyForm";
@@ -9,7 +10,10 @@ import { PropertyStats } from "@/components/dashboard/properties/PropertyStats";
 import { PropertyCard } from "@/components/dashboard/properties/PropertyCard";
 import { PropertyFilters } from "@/components/dashboard/properties/PropertyFilters";
 import { SyncMLSModal } from "@/components/dashboard/properties/SyncMLSModal";
-import { CloudDownload, Plus, ArrowUpDown, Loader2 } from "lucide-react";
+import { QuickSyncBar } from "@/components/dashboard/properties/QuickSyncBar";
+import { PropertyTagEditor } from "@/components/dashboard/properties/PropertyTagEditor";
+import type { HomeSection } from "@/lib/schemas/propertySchema";
+import { SlidersHorizontal, Plus, ArrowUpDown, Loader2 } from "lucide-react";
 
 export default function PropertiesDashboardPage() {
     const [properties, setProperties] = useState<PropertyDTO[]>([]);
@@ -18,12 +22,19 @@ export default function PropertiesDashboardPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
     const [editingProperty, setEditingProperty] = useState<PropertyDTO | undefined>(undefined);
+    const [taggingProperty, setTaggingProperty] = useState<PropertyDTO | null>(null);
 
     // Filter States
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
     const [opportunitiesOnly, setOpportunitiesOnly] = useState(false);
+    // Default true until all legacy properties get a backfilled `archived: false`.
+    // Run `npx tsx scripts/backfill-archived.ts` once to normalize the collection,
+    // then this default can safely become `false` to hide archived props by default.
+    const [includeArchived, setIncludeArchived] = useState(true);
+    const [nextCursor, setNextCursor] = useState<string | null>(null);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     useEffect(() => {
         loadProperties();
@@ -34,14 +45,52 @@ export default function PropertiesDashboardPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [properties, search, statusFilter, opportunitiesOnly]);
 
+    // Auto-refresh the listing whenever the SyncQueueBar detects a job just finished.
+    useEffect(() => {
+        const onSyncCompleted = (e: Event) => {
+            const detail = (e as CustomEvent<{ jobId: string; label: string; added: number; updated: number; total: number }>).detail;
+            const addedStr = detail.added > 0 ? `+${detail.added} nuevas` : "sin nuevas";
+            const updatedStr = detail.updated > 0 ? ` · ${detail.updated} actualizadas` : "";
+            toast.success(`Sync completado: ${detail.label}`, {
+                description: `${addedStr}${updatedStr} · ${detail.total} procesadas`,
+                duration: 6000,
+            });
+            loadProperties();
+        };
+        window.addEventListener("sync-completed", onSyncCompleted);
+        return () => window.removeEventListener("sync-completed", onSyncCompleted);
+    }, []);
+
     const loadProperties = async () => {
         setLoading(true);
-        const res = await getPropertiesAction();
+        setNextCursor(null);
+        const res = await getPropertiesPageAction({ includeArchived, limit: 30 });
         if (res.success && res.properties) {
             setProperties(res.properties);
+            setNextCursor(res.nextCursor);
         }
         setLoading(false);
     };
+
+    const loadMoreProperties = async () => {
+        if (!nextCursor || loadingMore) return;
+        setLoadingMore(true);
+        try {
+            const res = await getPropertiesPageAction({ includeArchived, limit: 30, cursor: nextCursor });
+            if (res.success && res.properties) {
+                setProperties((prev) => [...prev, ...res.properties]);
+                setNextCursor(res.nextCursor);
+            }
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
+    // Re-fetch when toggling archived inclusion so the dataset actually changes.
+    useEffect(() => {
+        loadProperties();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [includeArchived]);
 
     const filterProperties = () => {
         let result = [...properties];
@@ -113,9 +162,10 @@ export default function PropertiesDashboardPage() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setIsSyncModalOpen(true)}
-                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center gap-2"
+                        className="text-muted-foreground hover:text-foreground hover:bg-accent border border-border px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2"
+                        title="Sync avanzado con filtros complejos (attributes, spatial, etc.)"
                     >
-                        <CloudDownload size={18} /> Sync MLS
+                        <SlidersHorizontal size={16} /> Advanced Sync
                     </button>
                     <button
                         onClick={handleCreate}
@@ -125,6 +175,8 @@ export default function PropertiesDashboardPage() {
                     </button>
                 </div>
             </div>
+
+            <QuickSyncBar />
 
             <PropertyStats properties={properties} />
 
@@ -137,6 +189,8 @@ export default function PropertiesDashboardPage() {
                 setViewMode={setViewMode}
                 opportunitiesOnly={opportunitiesOnly}
                 setOpportunitiesOnly={setOpportunitiesOnly}
+                includeArchived={includeArchived}
+                setIncludeArchived={setIncludeArchived}
             />
 
             {loading ? (
@@ -165,6 +219,7 @@ export default function PropertiesDashboardPage() {
                                     property={property}
                                     onEdit={handleEdit}
                                     onDelete={handleDelete}
+                                    onTagEdit={setTaggingProperty}
                                 />
                             ))}
                         </div>
@@ -231,10 +286,27 @@ export default function PropertiesDashboardPage() {
                             </table>
                         </div>
                     )}
+
+                    {nextCursor && (
+                        <div className="py-8 text-center">
+                            <button
+                                type="button"
+                                onClick={loadMoreProperties}
+                                disabled={loadingMore}
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-secondary hover:bg-accent border border-border rounded-xl text-sm font-semibold text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loadingMore ? (
+                                    <><Loader2 size={14} className="animate-spin" /> Cargando más…</>
+                                ) : (
+                                    `Cargar más (siguientes 30)`
+                                )}
+                            </button>
+                        </div>
+                    )}
                 </>
             )}
 
-            <SyncMLSModal 
+            <SyncMLSModal
                 isOpen={isSyncModalOpen}
                 onClose={() => setIsSyncModalOpen(false)}
                 onSuccess={() => {
@@ -242,6 +314,24 @@ export default function PropertiesDashboardPage() {
                     loadProperties();
                 }}
             />
+
+            {taggingProperty && (
+                <PropertyTagEditor
+                    propertyId={taggingProperty.ListingKey}
+                    propertyLabel={taggingProperty.UnparsedAddress}
+                    initialHomeSections={(taggingProperty.homeSections ?? []) as HomeSection[]}
+                    initialEditorialNotes={taggingProperty.editorialNotes ?? ""}
+                    onClose={() => setTaggingProperty(null)}
+                    onSaved={(sections) => {
+                        // Optimistic update in the current list without refetching.
+                        setProperties((prev) => prev.map((p) =>
+                            p.ListingKey === taggingProperty.ListingKey
+                                ? { ...p, homeSections: sections }
+                                : p
+                        ));
+                    }}
+                />
+            )}
 
             <SlideOver
                 isOpen={isFormOpen}

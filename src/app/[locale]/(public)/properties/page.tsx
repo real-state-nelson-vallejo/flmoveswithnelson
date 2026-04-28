@@ -7,7 +7,7 @@ import { PropertiesWebMap } from '@/components/property/PropertiesWebMap';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { SaveSearchModal } from '@/components/property/SaveSearchModal';
 import { PropertyDTO } from "@/types/property";
-import { getPropertiesAction } from '@/actions/property/actions';
+import { getPropertiesAction, getPropertiesPageAction } from '@/actions/property/actions';
 import { PropertyFilter } from '@/backend/property/domain/PropertyRepository';
 import { Loader2, ChevronDown, Search, Star } from 'lucide-react';
 import { motion } from "framer-motion";
@@ -21,10 +21,22 @@ export default function PropertiesPage({ params }: { params: Promise<{ locale: s
     const [properties, setProperties] = useState<PropertyDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [isFetching, setIsFetching] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [teaserCount, setTeaserCount] = useState<number | null>(null);
     const [teaserLoading, setTeaserLoading] = useState(false);
     const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
     const [isSortOpen, setIsSortOpen] = useState(false);
+
+    // When the user hovers a marker on the map, scroll the corresponding card into view in the list.
+    const scrollToCard = (id: string | null) => {
+        if (!id) return;
+        const el = document.getElementById(`property-card-${id}`);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            setHoveredPropertyId(id);
+        }
+    };
 
     const [showMapMobile, setShowMapMobile] = useState(false);
 
@@ -62,13 +74,15 @@ export default function PropertiesPage({ params }: { params: Promise<{ locale: s
         const fetchProperties = async () => {
             if (properties.length === 0) setLoading(true);
             else setIsFetching(true);
-            
+
             setTeaserCount(null);
+            setNextCursor(null);
 
             try {
-                const res = await getPropertiesAction(filter);
+                const res = await getPropertiesPageAction({ ...filter, limit: 20 });
                 if (res.success && res.properties) {
                     setProperties(res.properties);
+                    setNextCursor(res.nextCursor);
 
                     // Organic Lazy Seeding: If 0 local results, ping Bridge via OData to tease the user
                     if (res.properties.length === 0) {
@@ -76,7 +90,7 @@ export default function PropertiesPage({ params }: { params: Promise<{ locale: s
                         try {
                             const fallbackUrl = new URL(window.location.origin + '/api/search/live-fallback');
                             fallbackUrl.search = new URLSearchParams(searchParams as any).toString();
-                            
+
                             const fallbackRes = await fetch(fallbackUrl.toString());
                             if (fallbackRes.ok) {
                                 const data = await fallbackRes.json();
@@ -102,6 +116,22 @@ export default function PropertiesPage({ params }: { params: Promise<{ locale: s
         fetchProperties();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filter]);
+
+    const loadMore = async () => {
+        if (!nextCursor || loadingMore) return;
+        setLoadingMore(true);
+        try {
+            const res = await getPropertiesPageAction({ ...filter, limit: 20, cursor: nextCursor });
+            if (res.success && res.properties) {
+                setProperties((prev) => [...prev, ...res.properties]);
+                setNextCursor(res.nextCursor);
+            }
+        } catch (error) {
+            console.error("Failed to fetch more properties:", error);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -238,27 +268,44 @@ export default function PropertiesPage({ params }: { params: Promise<{ locale: s
                                     </div>
                                 )}
                                 {properties.map(p => (
-                                    <PropertyCard
-                                        key={p.ListingKey}
-                                        property={p}
-                                        locale={locale}
-                                        onHover={(isHovered) => setHoveredPropertyId(isHovered ? p.ListingKey : null)}
-                                    />
+                                    <div key={p.ListingKey} id={`property-card-${p.ListingKey}`}>
+                                        <PropertyCard
+                                            property={p}
+                                            locale={locale}
+                                            onHover={(isHovered) => setHoveredPropertyId(isHovered ? p.ListingKey : null)}
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         )}
 
-                        <div className="py-12 text-center">
-                            <button className="text-slate-900 font-bold border-b-2 border-slate-900 pb-1 hover:text-blue-600 hover:border-blue-600 transition-colors">
-                                Load More Properties
-                            </button>
-                        </div>
+                        {nextCursor && (
+                            <div className="py-12 text-center">
+                                <button
+                                    type="button"
+                                    onClick={loadMore}
+                                    disabled={loadingMore}
+                                    className="text-slate-900 font-bold border-b-2 border-slate-900 pb-1 hover:text-blue-600 hover:border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                                >
+                                    {loadingMore ? (
+                                        <><Loader2 size={14} className="animate-spin" /> Cargando…</>
+                                    ) : (
+                                        "Load More Properties"
+                                    )}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
                 {/* Right: Map (Sticky/Fixed on Desktop, Full on Mobile if toggled) */}
                 <div className={`w-full md:w-[40%] lg:w-[45%] h-full border-l border-slate-200 ${showMapMobile ? 'block' : 'hidden md:block'}`}>
-                    <PropertiesWebMap properties={properties} hoveredPropertyId={hoveredPropertyId} />
+                    <PropertiesWebMap
+                        properties={properties}
+                        hoveredPropertyId={hoveredPropertyId}
+                        locale={locale}
+                        onMarkerHover={scrollToCard}
+                    />
                 </div>
             </div>
             </motion.div>

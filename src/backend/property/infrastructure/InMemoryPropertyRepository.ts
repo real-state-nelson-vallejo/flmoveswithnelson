@@ -1,5 +1,5 @@
 import { Property } from "../domain/Property";
-import { PropertyRepository, PropertyFilter } from "../domain/PropertyRepository";
+import { PropertyRepository, PropertyFilter, PropertyPage } from "../domain/PropertyRepository";
 
 export class InMemoryPropertyRepository implements PropertyRepository {
     private properties: Map<string, Property> = new Map();
@@ -42,6 +42,25 @@ export class InMemoryPropertyRepository implements PropertyRepository {
 
             return true;
         });
+    }
+
+    async searchPage(filter: PropertyFilter): Promise<PropertyPage> {
+        const all = await this.search(filter);
+        const limit = filter.limit ?? 20;
+        const cursorIdx = filter.cursor ? all.findIndex(p => p.id === filter.cursor) : -1;
+        const start = cursorIdx >= 0 ? cursorIdx + 1 : 0;
+        const page = all.slice(start, start + limit);
+        const lastItem = page[page.length - 1];
+        const nextCursor = page.length === limit && lastItem ? lastItem.id : null;
+        return { properties: page, nextCursor };
+    }
+
+    async findSimilar(property: Property, limit: number): Promise<Property[]> {
+        const same = property.City;
+        const price = property.ListPrice;
+        return Array.from(this.properties.values())
+            .filter(p => p.id !== property.id && p.City === same && Math.abs((p.ListPrice || 0) - price) <= price * 0.2)
+            .slice(0, limit);
     }
 
     async delete(id: string): Promise<void> {

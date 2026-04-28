@@ -57,13 +57,24 @@ export interface PropertyPersistenceModel {
     ListOfficeMlsId?: string;
     
     // AI & Market Analysis Fields
-    opportunityScore?: number; 
-    listingQualityScore?: number; 
+    opportunityScore?: number;
+    listingQualityScore?: number;
     marketStatus?: 'normal' | 'distressed' | 'price_drop' | 'back_on_market';
     investmentAnalysis?: {
         cashFlow?: number;
         description?: string;
     };
-    createdAt: number; // Timestamp
-    updatedAt: number; // Timestamp
+
+    // Editorial tagging
+    homeSections?: Array<'featured' | 'luxury' | 'waterfront' | 'new-today' | 'investor-deals'>;
+    editorialNotes?: string;
+    curatedAt?: number;
+    curatedBy?: string;
+
+    // Archive flag
+    archived?: boolean;
+    archivedAt?: number;
+
+    createdAt: number;
+    updatedAt: number;
 }

@@ -60,7 +60,38 @@ service cloud.firestore {
     match /mail/{mailId} {
       allow read, write: if false; // Admin SDK only
     }
-    
+
+    // ========================================
+    // SYNC JOBS - Orchestrated sync pipeline
+    // Read: admin/agent roles can observe progress in real time via onSnapshot.
+    // Write: Admin SDK only (endpoints under /api/sync/* and the Functions worker).
+    // ========================================
+    match /syncJobs/{jobId} {
+      allow read: if request.auth != null
+                  && request.auth.token.role in ['superadmin','agency_admin','agent'];
+      allow write: if false;
+    }
+
+    // ========================================
+    // SYNC RUNS - Cron audit trail
+    // ========================================
+    match /syncRuns/{runId} {
+      allow read: if request.auth != null
+                  && request.auth.token.role in ['superadmin','agency_admin','agent'];
+      allow write: if false;
+    }
+
+    // ========================================
+    // NOTIFICATIONS - Per-user internal notifications
+    // Read: the owner (uid) only.
+    // Write: Admin SDK only.
+    // ========================================
+    match /notifications/{notifId} {
+      allow read: if request.auth != null
+                  && request.auth.uid == resource.data.uid;
+      allow write: if false;
+    }
+
     // ========================================
     // DEFAULT - Deny all other access
     // ========================================

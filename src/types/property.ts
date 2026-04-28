@@ -59,11 +59,21 @@ export interface PropertyDTO {
         capRate?: number;
         description?: string;
     };
-    
+
+    // Editorial (Fase 4) — home sections + curator audit
+    homeSections?: Array<'featured' | 'luxury' | 'waterfront' | 'new-today' | 'investor-deals'>;
+    editorialNotes?: string;
+    curatedAt?: number;
+    curatedBy?: string;
+
+    // Archive flag (Fase 6)
+    archived?: boolean;
+    archivedAt?: number;
+
     // Deprecated
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rentCastData?: any; 
-    
+    rentCastData?: any;
+
     createdAt: number;
     updatedAt: number;
 }

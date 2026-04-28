@@ -3,6 +3,9 @@ import { PropertyPersistenceModel } from "../infrastructure/dto/PropertyPersiste
 import crypto from 'crypto';
 import { serializeFirestoreData } from "@/lib/utils";
 
+export const HOME_SECTIONS = ['featured', 'luxury', 'waterfront', 'new-today', 'investor-deals'] as const;
+export type HomeSection = typeof HOME_SECTIONS[number];
+
 export interface PropertyProps {
     ListingKey: string;
     ListingId?: string;
@@ -55,14 +58,25 @@ export interface PropertyProps {
     ListAgentMlsId?: string;
     ListOfficeMlsId?: string;
     
-    opportunityScore?: number; 
-    listingQualityScore?: number; 
+    opportunityScore?: number;
+    listingQualityScore?: number;
     marketStatus?: 'normal' | 'distressed' | 'price_drop' | 'back_on_market';
     investmentAnalysis?: {
         cashFlow?: number;
         description?: string;
     };
-    
+
+    // Editorial tagging — curated by the agent in the dashboard.
+    // Feeds the home sections (featured, luxury, waterfront, new-today, investor-deals).
+    homeSections?: HomeSection[];
+    editorialNotes?: string;
+    curatedAt?: Date;
+    curatedBy?: string;
+
+    // Archive flag — set by the sync worker when a listing leaves `Active` in Bridge.
+    archived?: boolean;
+    archivedAt?: Date;
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -88,24 +102,35 @@ export class Property {
         return new Property({
             ...data,
             createdAt: new Date(data.createdAt),
-            updatedAt: new Date(data.updatedAt)
+            updatedAt: new Date(data.updatedAt),
+            curatedAt: data.curatedAt ? new Date(data.curatedAt) : undefined,
+            archivedAt: data.archivedAt ? new Date(data.archivedAt) : undefined,
         });
     }
 
     toPersistence(): PropertyPersistenceModel {
-        return {
-            ...this.props,
+        // Build without spreading Date-typed curatedAt/archivedAt (persistence wants numbers).
+        const { curatedAt, archivedAt, ...rest } = this.props;
+        const base: PropertyPersistenceModel = {
+            ...rest,
             createdAt: this.props.createdAt.getTime(),
-            updatedAt: this.props.updatedAt.getTime()
+            updatedAt: this.props.updatedAt.getTime(),
         };
+        if (curatedAt) base.curatedAt = curatedAt.getTime();
+        if (archivedAt) base.archivedAt = archivedAt.getTime();
+        return base;
     }
 
     toDTO(): PropertyDTO {
-        return {
-            ...this.props,
+        const { curatedAt, archivedAt, ...rest } = this.props;
+        const base: PropertyDTO = {
+            ...rest,
             createdAt: this.props.createdAt.getTime(),
-            updatedAt: this.props.updatedAt.getTime()
+            updatedAt: this.props.updatedAt.getTime(),
         } as PropertyDTO;
+        if (curatedAt) base.curatedAt = curatedAt.getTime();
+        if (archivedAt) base.archivedAt = archivedAt.getTime();
+        return base;
     }
 
     // Alias for old ID usage to prevent breaking infrastructure repos suddenly
@@ -154,6 +179,13 @@ export class Property {
     get listingQualityScore() { return this.props.listingQualityScore; }
     get marketStatus() { return this.props.marketStatus; }
     get investmentAnalysis() { return this.props.investmentAnalysis ? { ...this.props.investmentAnalysis } : undefined; }
+
+    get homeSections(): HomeSection[] { return this.props.homeSections ? [...this.props.homeSections] : []; }
+    get editorialNotes() { return this.props.editorialNotes; }
+    get curatedAt() { return this.props.curatedAt; }
+    get curatedBy() { return this.props.curatedBy; }
+    get archived() { return this.props.archived ?? false; }
+    get archivedAt() { return this.props.archivedAt; }
 
     toEmbeddingText(): string {
         const locationStr = `${this.props.City}, ${this.props.StateOrProvince || ''} ${this.props.PostalCode || ''}`.trim();

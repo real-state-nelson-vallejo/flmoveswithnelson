@@ -8,9 +8,9 @@ import { PropertySidebar } from "@/components/property/PropertySidebar";
 import { PropertyMap } from "@/components/property/PropertyMap";
 import { SimilarProperties } from "@/components/property/SimilarProperties";
 import { PropertyPagination } from "@/components/property/PropertyPagination";
-import { 
-    MapPin, Calendar, Bed, Bath, Scaling, CheckCircle, Loader2, ArrowLeft, 
-    Video, PlayCircle, Share, Heart,
+import {
+    MapPin, Calendar, Bed, Bath, Scaling, CheckCircle, Loader2, ArrowLeft,
+    Video, PlayCircle, Share, Heart, Archive,
     Wind, Snowflake, Flame, Droplets, TreePine, Car, Wifi, Shield,
     Coffee, Utensils, Tv, Shirt, Box, Dumbbell, Waves, Zap
 } from "lucide-react";
@@ -97,6 +97,35 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ local
                     <Link href={`/${locale}/properties`} className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 font-semibold transition-colors text-sm mb-6 underline decoration-slate-200 underline-offset-4 hover:decoration-slate-400">
                         <ArrowLeft size={16} /> Back to properties
                     </Link>
+
+                    {property.archived && (
+                        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 md:p-5 flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                                <Archive size={18} className="text-amber-700" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-amber-900 font-bold text-base mb-0.5">Esta propiedad ya no está disponible</h3>
+                                <p className="text-amber-800 text-sm">
+                                    Su estado en el MLS cambió a <span className="font-semibold">{property.StandardStatus}</span>.
+                                    Mirá propiedades similares abajo o explorá el listado completo.
+                                </p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    <Link
+                                        href={`/${locale}/properties`}
+                                        className="inline-flex items-center gap-1.5 bg-amber-900 hover:bg-amber-950 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors"
+                                    >
+                                        Ver todas las propiedades
+                                    </Link>
+                                    <Link
+                                        href={`/${locale}/properties?q=${encodeURIComponent(property.City ?? '')}`}
+                                        className="inline-flex items-center gap-1.5 bg-white hover:bg-amber-100 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg transition-colors border border-amber-200"
+                                    >
+                                        Otras en {property.City}
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex flex-col md:flex-row md:justify-between items-start md:items-end gap-6">
                         <div className="max-w-3xl">

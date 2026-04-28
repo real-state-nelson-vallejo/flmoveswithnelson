@@ -1,5 +1,17 @@
 import { z } from "zod";
 
+export const HOME_SECTIONS = ['featured', 'luxury', 'waterfront', 'new-today', 'investor-deals'] as const;
+export const HomeSectionSchema = z.enum(HOME_SECTIONS);
+export type HomeSection = z.infer<typeof HomeSectionSchema>;
+
+export const HOME_SECTION_LABELS: Record<HomeSection, { label: string; description: string }> = {
+    'featured': { label: 'Featured', description: 'Destacadas en la home principal' },
+    'luxury': { label: 'Luxury', description: 'Propiedades de lujo' },
+    'waterfront': { label: 'Waterfront', description: 'Frente al agua' },
+    'new-today': { label: 'New Today', description: 'Recién incorporadas' },
+    'investor-deals': { label: 'Investor Deals', description: 'Oportunidades de inversión' },
+};
+
 export const PropertySchema = z.object({
     ListingKey: z.string().optional(), // optional for creation
     ListingId: z.string().optional(),
@@ -45,6 +57,14 @@ export const PropertySchema = z.object({
         capRate: z.number().optional(),
         description: z.string().optional()
     }).optional(),
+
+    homeSections: z.array(HomeSectionSchema).optional(),
+    editorialNotes: z.string().optional(),
+    curatedAt: z.number().optional(),
+    curatedBy: z.string().optional(),
+
+    archived: z.boolean().optional(),
+    archivedAt: z.number().optional(),
 
     createdAt: z.number().optional(),
     updatedAt: z.number().optional()
