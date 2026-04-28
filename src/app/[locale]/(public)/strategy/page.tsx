@@ -226,16 +226,16 @@ export default function StrategyExplainerPage() {
                     title="10. Automated daily refresh (CRON)"
                 >
                     <p className="text-slate-600 leading-relaxed mb-5">
-                        Two independent background jobs run every day without you doing anything. This is what keeps your data fresh.
+                        Two independent background jobs run once a day without you doing anything. This is what keeps your data fresh.
                     </p>
 
                     {/* CRON 1 — MLS sync */}
                     <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-5 mb-4">
                         <div className="flex items-center gap-2 mb-3">
                             <span className="inline-flex items-center gap-1.5 bg-blue-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                <Clock size={11} /> 04:00 + 16:00 UTC
+                                <Clock size={11} /> 04:00 UTC
                             </span>
-                            <h3 className="font-bold text-slate-900">MLS delta sync · twice a day</h3>
+                            <h3 className="font-bold text-slate-900">MLS delta sync · once a day</h3>
                         </div>
                         <p className="text-sm text-slate-600 mb-3">
                             Runs two tasks in sequence against Stellar MLS, then logs the result in Sync Health.
@@ -306,7 +306,7 @@ export default function StrategyExplainerPage() {
         │
         │ ─── Quick Sync (manual, 1-click)
         │ ─── Advanced Sync (manual, filters + map)
-        │ ─── Daily CRON (automated 04:00 + 16:00 UTC)
+        │ ─── Daily CRON (automated 04:00 UTC)
         │ ─── Lazy Seed (triggered by empty buyer searches)
         ▼
 Cloud Function worker
